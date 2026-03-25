@@ -1,341 +1,268 @@
-/* 🏛️ TITAN ENTERPRISE - MASTER CLASS UI */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+/* 🪐 GOOGLE FONTS - Plus Jakarta Sans */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --primary: #6366f1;
-  --bg-pure: #000000;
-  --bg-surface: #0a0a0b;
-  --card-bg: rgba(18, 18, 20, 0.7);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-bright: rgba(255, 255, 255, 0.15);
-  --text-main: #ffffff;
-  --text-muted: #88888e;
-  --glass-blur: 25px;
-  --inner-glow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  /* 🎨 Master Theme Palette */
+  --primary: #00d2ff; 
+  --primary-glow: rgba(0, 210, 255, 0.35);
+  --secondary: #92fe9d;
+  --accent: #7000ff;
+  --bg-dark: #030508;
+  
+  /* 🧊 Glassmorphism 2.0 Settings */
+  --glass: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(25px) saturate(180%);
+  
+  /* 🏎️ Animation Curves */
+  --bezier: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* 🌀 GLOBAL REFINEMENT */
+/* 🛠️ RESET & PERFORMANCE */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
   font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.02em;
+  transition: all 0.4s var(--bezier);
 }
 
 body {
-  background-color: var(--bg-pure);
-  color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background-color: var(--bg-dark);
+  color: #ffffff;
   overflow-x: hidden;
-  /* Complex Luxury Backdrop */
-  background-image: 
-    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  background-blend-mode: normal, normal, overlay;
-  opacity: 0.98;
+  /* 🌈 Three-layer mesh gradient for depth */
+  background: 
+    radial-gradient(circle at 0% 0%, rgba(112, 0, 255, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.12) 0%, transparent 40%),
+    #050505;
+  background-attachment: fixed;
 }
 
-/* 🕹️ FLOATING CONTROLS */
+/* 🌫️ PREMIUM GRAIN OVERLAY */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* 🏢 AUTH MAIN WRAPPER */
+.main {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  perspective: 1200px;
+  position: relative;
+}
+
+/* 🎨 TOP DOCK (Floating Controls) */
 .top-controls {
   position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  padding: 6px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  top: 30px;
+  right: 30px;
   display: flex;
-  gap: 8px;
+  gap: 15px;
   z-index: 1000;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border-radius: 100px;
+  border: 1px solid var(--glass-border);
 }
 
 .theme-toggle, .color-picker {
-  background: transparent;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  cursor: pointer;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  border: 1px solid transparent;
 }
 
-.theme-toggle:hover { background: rgba(255, 255, 255, 0.05); }
+.theme-toggle:hover {
+  transform: rotate(180deg) scale(1.1);
+  background: var(--primary);
+  color: #000;
+  box-shadow: 0 0 20px var(--primary-glow);
+}
 
-/* 🃏 THE TITAN CARD (Master Class Bento style) */
+/* 📦 ULTIMATE AUTH CARD */
 .card {
+  background: rgba(10, 10, 10, 0.6); 
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  padding: 50px;
+  border-radius: 40px;
+  border: 1px solid var(--glass-border);
   width: 100%;
-  max-width: 420px;
-  padding: 3.5rem;
-  background: var(--card-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--border-subtle);
-  border-radius: 32px;
-  box-shadow: 
-    0 0 0 1px var(--border-subtle),
-    0 30px 60px -12px rgba(0, 0, 0, 0.6),
-    0 18px 36px -18px rgba(0, 0, 0, 0.7);
+  max-width: 460px;
+  text-align: center;
+  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
   position: relative;
   overflow: hidden;
-  animation: entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: cardEntrance 1.2s var(--bezier);
 }
 
-@keyframes entrance {
-  from { opacity: 0; transform: translateY(20px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  animation: borderSlide 4s linear infinite;
 }
 
-/* Luxury Header with Reflection */
-h2 {
+@keyframes borderSlide {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(50px) rotateX(-10deg); }
+  to { opacity: 1; transform: translateY(0) rotateX(0); }
+}
+
+/* 🖋️ HEADER & TEXT VISIBILITY */
+.card h2 {
+  font-size: 36px;
+  margin-bottom: 35px;
   font-weight: 800;
-  font-size: 2.4rem;
-  margin-bottom: 0.8rem;
-  letter-spacing: -0.06em;
-  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.5) 100%);
+  background: linear-gradient(to bottom, #ffffff 40%, var(--primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-align: center;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  letter-spacing: -1px;
 }
 
-/* ⌨️ INPUT RE-ENGINEERING */
-input, select {
+/* ⌨️ FUTURISTIC INPUTS & SELECTS - HIGH VISIBILITY */
+.card input, .card select {
   width: 100%;
-  padding: 16px 20px;
-  margin-top: 1.2rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  color: #fff;
-  font-size: 15px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--inner-glow);
-}
-
-input:focus, select:focus {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--border-bright);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.03), var(--inner-glow);
-  outline: none;
-}
-
-/* 🔘 THE "ELITE" BUTTON */
-button {
-  width: 100%;
-  padding: 16px;
-  margin-top: 1.8rem;
-  border-radius: 14px;
+  padding: 18px 24px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.03); 
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #ffffff;
-  color: #000;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  position: relative;
+  border-radius: 18px;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
   transition: all 0.3s ease;
 }
 
-button:hover {
-  transform: translateY(-2px);
-  background: var(--primary);
-  color: #fff;
-  box-shadow: 0 12px 24px -6px rgba(99, 102, 241, 0.4);
+/* 🎯 SPECIFIC SELECT DROPDOWN FIX */
+.card select {
+  appearance: none; /* Removes native ugly arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+  background-size: 18px;
+  cursor: pointer;
 }
 
-button:active { transform: translateY(0); }
+.card select option {
+  background: #0a0a0a; /* Dark background for dropdown list */
+  color: #fff;
+  padding: 10px;
+}
 
-/* 📝 TECH-STYLE VALIDATION */
+.card input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.card input:focus, .card select:focus {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--primary);
+  box-shadow: 0 0 20px var(--primary-glow);
+  transform: scale(1.01);
+}
+
+/* 🔐 PASSWORD GRID */
 .password-check {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 18px;
+  border-radius: 20px;
+  margin-bottom: 25px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 15px;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.password-check p {
-  margin: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  padding: 6px;
-  text-align: center;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-subtle);
-}
-
-.valid { color: #4ade80 !important; border-color: rgba(74, 222, 128, 0.2) !important; }
-.invalid { color: #f87171 !important; opacity: 0.5; }
-
-/* 🌓 CLASSY LIGHT MODE */
-body.light {
-  background-color: #fcfcfc;
-  background-image: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
-}
-
-body.light .card {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.08);
-}
-
-body.light h2 {
-  background: linear-gradient(180deg, #111 0%, #666 100%);
-  -webkit-background-clip: text;
-}
-
-body.light button {
-  background: #000;
-  color: #fff;
-}
-/* 🏛️ TITAN ENTERPRISE - SUNSET GOLDEN EDITION */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
-
-:root {
-  --primary: #FFD700; /* Pure Gold */
-  --primary-glow: #FFB800; /* Sunset Orange-Gold */
-  --bg-pure: #000000;
-  --card-bg: rgba(18, 18, 20, 0.8);
-  --border-subtle: rgba(255, 215, 0, 0.15); /* Golden Tint Border */
-  --text-main: #ffffff;
-  --text-muted: #a1a1aa;
-  --glass-blur: 25px;
-  --inner-glow: inset 0 1px 1px rgba(255, 215, 0, 0.2);
-}
-
-/* 🌀 GLOBAL RESET */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* 🌓 LIGHT THEME FIXES (Everything clearly visible) */
-body.light {
-  --bg-pure: #fcfcfc;
-  --card-bg: rgba(255, 255, 255, 0.9);
-  --text-main: #121212; /* Dark text for light mode */
-  --text-muted: #52525b;
-  --border-subtle: rgba(184, 134, 11, 0.2); /* Dark Golden Border */
-  background-image: radial-gradient(circle at 0% 0%, rgba(255, 184, 0, 0.1) 0%, transparent 40%);
-}
-
-body {
-  background-color: var(--bg-pure);
-  color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background 0.5s ease, color 0.5s ease;
-  background-image: radial-gradient(circle at 0% 0%, rgba(255, 184, 0, 0.1) 0%, transparent 40%);
-}
-
-/* 🃏 THE GOLDEN CARD */
-.card {
-  width: 100%;
-  max-width: 420px;
-  padding: 3.5rem;
-  background: var(--card-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--border-subtle);
-  border-radius: 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  position: relative;
-  color: var(--text-main); /* Force current theme text color */
-}
-
-/* Header with Golden Gradient */
-h2 {
-  font-weight: 800;
-  font-size: 2.4rem;
-  margin-bottom: 0.8rem;
-  letter-spacing: -0.06em;
-  background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-align: center;
-}
-
-/* ⌨️ INPUTS (Golden Focus) */
-input, select {
-  width: 100%;
-  padding: 16px 20px;
-  margin-top: 1.2rem;
-  background: rgba(128, 128, 128, 0.05);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  color: var(--text-main); /* Automatic visibility */
-  font-size: 15px;
-  box-shadow: var(--inner-glow);
-}
-
-input:focus {
-  border-color: var(--primary-glow);
-  outline: none;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.1), var(--inner-glow);
-}
-
-/* 🔘 SUNSET GOLDEN BUTTON */
-button {
-  width: 100%;
-  padding: 16px;
-  margin-top: 1.8rem;
-  border-radius: 14px;
-  border: none;
-  background: linear-gradient(135deg, #FFD700 0%, #DAA520 100%);
-  color: #000; /* Black text on Gold looks elite */
-  font-weight: 800;
-  font-size: 15px;
-  cursor: pointer;
-  box-shadow: 0 8px 20px -6px rgba(218, 165, 32, 0.4);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-button:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 15px 30px -8px rgba(218, 165, 32, 0.6);
-  filter: brightness(1.1);
-}
-
-/* 🏷️ STATUS BADGES (Sunset Gold) */
-.status {
-  font-family: 'JetBrains Mono', monospace;
+.password-check span {
   font-size: 11px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: rgba(255, 215, 0, 0.1);
-  color: #DAA520;
-  border: 1px solid rgba(218, 165, 32, 0.3);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* 🌓 LIGHT MODE BUTTON OVERRIDE */
-body.light button {
-  background: #000;
-  color: #FFD700; /* Gold text on black for light mode button */
+.valid { 
+  color: var(--secondary) !important; 
+  filter: drop-shadow(0 0 8px var(--secondary));
 }
 
-/* 📋 DASHBOARD SPECIFIC FIXES */
-.dashboard-container {
-  padding: 20px;
+/* 🔘 THE MAGNETIC BUTTON */
+.card button {
   width: 100%;
-  color: var(--text-main);
+  padding: 18px;
+  background: linear-gradient(135deg, var(--primary), #0082ff);
+  border-radius: 18px;
+  color: #000;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 10px 30px var(--primary-glow);
 }
 
-.notification-card, .task-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: 20px;
-  padding: 20px;
-  color: var(--text-main);
+.card button:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.1);
+  box-shadow: 0 15px 40px var(--primary-glow);
+}
+
+/* 🔗 LINKS */
+.card p {
+  margin-top: 25px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+}
+
+.card p span {
+  color: var(--primary);
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.card p span:hover {
+  text-shadow: 0 0 12px var(--primary);
+}
+
+/* 🖱️ CUSTOM SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+/* 📱 MOBILE OPTIMIZATION */
+@media (max-width: 480px) {
+  .card { padding: 40px 20px; }
+  .card h2 { font-size: 28px; }
+  .top-controls { top: 15px; right: 15px; }
 }

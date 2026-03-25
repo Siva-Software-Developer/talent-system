@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./Dashboard.css";
 
 const API = "http://localhost:5000";
 
@@ -11,7 +12,9 @@ function Dashboard({ setPage }) {
     title: "",
     description: "",
     dueDate: "",
-    assigned_to: ""
+    assigned_to: "",
+    github: "",
+    file: null
   });
 
   const [user, setUser] = useState(null);
@@ -66,7 +69,7 @@ function Dashboard({ setPage }) {
       })
     });
 
-    setForm({ title: "", description: "", dueDate: "", assigned_to: "" });
+    setForm({ title: "", description: "", dueDate: "", assigned_to: "", github: "", file: null });
     fetchTasks();
     fetchNotifications(user);
   };
@@ -95,7 +98,6 @@ function Dashboard({ setPage }) {
     setReadNotifications([...readNotifications, id]);
   };
 
-  // 🔥 CLEAR ALL
   const clearAllNotifications = () => {
     setReadNotifications(notifications.map(n => n.id));
     setNotifications([]);
@@ -119,10 +121,17 @@ function Dashboard({ setPage }) {
         </button>
       </div>
 
-      {/* 🔹 MAIN CONTENT */}
+      {/* 🔹 MAIN */}
       <div className="main-content-area">
 
-        {/* 📊 STATS SECTION */}
+        {/* 🔔 RUNNING NOTIFICATION */}
+        <div className="running-bar">
+          <div className="scroll-text">
+            🔔 You have {notifications.length} new notifications | Stay productive 🚀
+          </div>
+        </div>
+
+        {/* 📊 STATS */}
         <div className="stats-grid">
 
           <div className="stat-card">
@@ -194,6 +203,19 @@ function Dashboard({ setPage }) {
             onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
           />
 
+          {/* 🔗 GitHub Link */}
+          <input
+            placeholder="GitHub Repo Link (optional)"
+            value={form.github}
+            onChange={(e) => setForm({ ...form, github: e.target.value })}
+          />
+
+          {/* 📎 File Upload */}
+          <input
+            type="file"
+            onChange={(e) => setForm({ ...form, file: e.target.files[0] })}
+          />
+
           {user?.role === "admin" && (
             <input
               placeholder="Assign email"
@@ -232,6 +254,9 @@ function Dashboard({ setPage }) {
 
               <p>📅 {task.dueDate}</p>
               <p>👤 {task.assigned_by}</p>
+
+              {task.github && <p>🔗 {task.github}</p>}
+              {task.file && <p>📎 File attached</p>}
 
               {task.status === "pending" && (
                 <div className="task-actions">
