@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./Forgot.css";
 
 const API = "http://localhost:5000";
 
@@ -13,7 +14,6 @@ function Forgot({ setPage }) {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ email })
     });
-
     alert((await res.json()).message);
   };
 
@@ -29,19 +29,44 @@ function Forgot({ setPage }) {
   };
 
   return (
-    <>
-      <h2>Forgot Password</h2>
+    <div className="forgot-content">
+      <h2 className="text-gradient">Recovery ✨</h2>
+      <p className="subtitle">Enter your email to receive an OTP</p>
 
-      <input placeholder="Email" onChange={(e)=>setEmail(e.target.value)} />
-      <button onClick={sendOtp}>Send OTP</button>
+      <div className="input-section">
+        <input 
+          className="premium-input" 
+          placeholder="Email Address" 
+          onChange={(e)=>setEmail(e.target.value)} 
+        />
+        <button className="btn-otp" onClick={sendOtp}>
+          Send OTP 📩
+        </button>
+      </div>
 
-      <input placeholder="OTP" onChange={(e)=>setOtp(e.target.value)} />
-      <input type="password" placeholder="New Password" onChange={(e)=>setPassword(e.target.value)} />
+      <div className="divider"><span>verification</span></div>
 
-      <button onClick={reset}>Reset Password</button>
+      <div className="input-section">
+        <input 
+          className="premium-input" 
+          placeholder="Enter OTP" 
+          onChange={(e)=>setOtp(e.target.value)} 
+        />
+        <input 
+          type="password" 
+          className="premium-input" 
+          placeholder="New Password" 
+          onChange={(e)=>setPassword(e.target.value)} 
+        />
+        <button className="btn-premium" onClick={reset}>
+          Reset Password 🔐
+        </button>
+      </div>
 
-      <p onClick={()=>setPage("login")}>Back to Login</p>
-    </>
+      <p className="back-link" onClick={()=>setPage("login")}>
+        ← Back to Login
+      </p>
+    </div>
   );
 }
 

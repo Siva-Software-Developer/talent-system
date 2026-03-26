@@ -1,0 +1,111 @@
+/* Sidebar.css */
+
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  display: flex;
+  flex-direction: column;
+  padding: 40px 20px;
+  position: sticky;
+  top: 0;
+  border-right: 1px solid var(--glass-border);
+  transition: var(--transition);
+  z-index: 100;
+}
+
+/* Sidebar Branding */
+.sidebar-brand {
+  margin-bottom: 50px;
+  padding-left: 10px;
+}
+
+.sidebar h2 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+/* Navigation Buttons */
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.sidebar-btn {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid transparent;
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 16px;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Hover Effect 🔥 */
+.sidebar-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+}
+
+/* Active Tab Styling - The "Mass" Look */
+.sidebar-btn.active {
+  background: var(--primary);
+  color: #000;
+  box-shadow: 0 10px 25px var(--primary-glow);
+}
+
+.sidebar-btn.active .icon {
+  filter: brightness(0); /* Icons-a black-ah mathum dark contrast-kaga */
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.version-tag {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* 📱 Mobile Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 80px;
+    padding: 30px 10px;
+    align-items: center;
+  }
+  
+  .sidebar h2 { font-size: 0; }
+  .sidebar h2::before { content: "🚀"; font-size: 24px; }
+
+  .sidebar-btn {
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    font-size: 0; /* Hide text */
+    padding: 0;
+  }
+  
+  .sidebar-btn .icon { font-size: 20px; margin: 0; }
+  
+  .sidebar-btn:hover { transform: scale(1.1); }
+}

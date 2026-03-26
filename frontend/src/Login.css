@@ -1,0 +1,71 @@
+/* Login.css */
+
+.auth-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.auth-content .subtitle {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+/* 1. Input Override for Login */
+.auth-content .premium-input {
+  margin-bottom: 15px;
+  backdrop-filter: blur(10px);
+}
+
+/* 2. Login Navigation Links */
+.auth-nav {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-nav p {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: var(--transition);
+  opacity: 0.8;
+}
+
+.auth-nav p:hover {
+  color: var(--primary);
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.auth-nav .dot {
+  color: var(--glass-border);
+  font-size: 12px;
+}
+
+/* 3. Light Mode Adjustments */
+body.light .auth-content .premium-input {
+  background: rgba(0, 0, 0, 0.03);
+  color: #1e293b;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .auth-nav p {
+  color: #64748b;
+}
+
+body.light .auth-nav p:hover {
+  color: var(--primary);
+}
+
+/* 4. Button Mass Hover Effect */
+.auth-content .btn-premium {
+  margin-top: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}

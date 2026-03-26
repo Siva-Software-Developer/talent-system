@@ -1,21 +1,13 @@
 import { useState } from "react";
+import "./Login.css"; // Import styles properly
 
 const API = "http://localhost:5000";
 
 function Login({ setPage }) {
-
-  // ===========================
-  // 📌 STATE
-  // ===========================
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // ===========================
-  // 🔐 LOGIN FUNCTION
-  // ===========================
   const login = async () => {
-
-    // Basic validation
     if (!email || !password) {
       alert("Please enter email and password");
       return;
@@ -29,35 +21,27 @@ function Login({ setPage }) {
       });
 
       let data = await res.json();
-
-      // Show message
       alert(data.message);
 
-      // ✅ SUCCESS → GO TO DASHBOARD
       if (res.status === 200) {
-
-        // ✅ NEW LINE (IMPORTANT - DO NOT REMOVE)
         localStorage.setItem("user", JSON.stringify(data.user));
-
         setPage("dashboard");
       }
-
     } catch (error) {
       console.log(error);
       alert("Server error");
     }
   };
 
-  // ===========================
-  // 🖥️ UI
-  // ===========================
   return (
-    <>
-      <h2>Login</h2>
+    <div className="auth-content">
+      <h2 className="text-gradient">Welcome Back</h2>
+      <p className="subtitle">Sign in to manage your talent portal</p>
 
       {/* 📧 EMAIL */}
       <input
-        placeholder="Email"
+        className="premium-input"
+        placeholder="Email Address"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
@@ -65,25 +49,24 @@ function Login({ setPage }) {
       {/* 🔑 PASSWORD */}
       <input
         type="password"
+        className="premium-input"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
 
       {/* 🔘 LOGIN BUTTON */}
-      <button onClick={login}>
-        Login
+      <button className="btn-premium" onClick={login}>
+        Login to Dashboard 🚀
       </button>
 
       {/* 🔁 NAVIGATION */}
-      <p onClick={() => setPage("forgot")}>
-        Forgot Password?
-      </p>
-
-      <p onClick={() => setPage("register")}>
-        Create Account
-      </p>
-    </>
+      <div className="auth-nav">
+        <p onClick={() => setPage("forgot")}>Forgot Password?</p>
+        <span className="dot">•</span>
+        <p onClick={() => setPage("register")}>Create Account</p>
+      </div>
+    </div>
   );
 }
 

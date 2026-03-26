@@ -1,0 +1,90 @@
+/* Forgot.css */
+
+.forgot-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 1. Inputs Style */
+.premium-input {
+  width: 100%;
+  padding: 14px 18px;
+  margin: 8px 0;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  color: var(--text-main);
+  font-size: 15px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.premium-input:focus {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 15px var(--primary-glow);
+}
+
+/* 2. OTP Button (Outline Style) */
+.btn-otp {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: var(--transition);
+}
+
+.btn-otp:hover {
+  background: var(--primary);
+  color: #000;
+  box-shadow: 0 5px 15px var(--primary-glow);
+}
+
+/* 3. Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+/* 4. Back Link */
+.back-link {
+  margin-top: 20px;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.back-link:hover {
+  color: var(--primary);
+  transform: translateX(-5px);
+}
+
+/* 5. Light Mode Support */
+body.light .premium-input {
+  background: #fff;
+  border-color: rgba(0,0,0,0.1);
+}
