@@ -1,42 +1,39 @@
 /* App.css */
 
-/* 1. Global Variables */
+/* 1. Global Variables - FIXED TO DARK ONLY */
 :root {
   --primary: #6366f1; 
   --primary-glow: rgba(99, 102, 241, 0.3);
   --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   --bezier: cubic-bezier(0.23, 1, 0.32, 1);
+  
+  /* Glassmorphism Settings */
   --glass: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: blur(15px);
-}
 
-/* 🌙 Dark & Light Setup */
-body.dark {
+  /* Hardcoded Dark Theme Values */
   --bg-dark: #020617;
   --text-main: #f8fafc;
   --text-dim: #94a3b8;
 }
 
-body.light {
-  --bg-dark: #f8fafc;
-  --text-main: #0f172a;
-  --text-dim: #64748b;
-  --glass: rgba(0, 0, 0, 0.02);
-  --glass-border: rgba(0, 0, 0, 0.08);
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text-main);
+  /* Forced Dark Background */
+  background-color: #020617 !important; 
+  color: #f8fafc;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  transition: background 0.5s ease;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* 2. Main Background Effects */
+/* 2. Main Background Effects (Login/Register Pages) */
 .main {
   display: flex;
   align-items: center;
@@ -44,19 +41,21 @@ body {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
+  /* Deep Dark Gradient */
   background: 
     radial-gradient(circle at 0% 0%, var(--primary-glow) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, var(--primary-glow) 0%, transparent 40%);
+    radial-gradient(circle at 100% 100%, var(--primary-glow) 0%, transparent 40%),
+    #020617;
 }
 
 /* Reset for Dashboard Mode */
 .main.dashboard-mode {
   display: block;
   padding: 0;
-  background: var(--bg-dark);
+  background: #020617;
 }
 
-/* 3. Floating Top Controls */
+/* 3. Floating Top Controls (Fixed to Dark) */
 .top-controls {
   position: fixed;
   top: 25px;
@@ -64,17 +63,17 @@ body {
   display: flex;
   gap: 15px;
   padding: 10px 20px;
-  background: var(--glass);
+  background: rgba(15, 23, 42, 0.8);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   border-radius: 100px;
   z-index: 2000;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
+/* Hide theme toggle since we are dark-only now */
 .theme-toggle {
-  background: none; border: none; font-size: 1.2rem; cursor: pointer;
-  transition: var(--transition);
+  display: none; 
 }
 
 .color-picker {
@@ -84,13 +83,13 @@ body {
 }
 .color-picker::-webkit-color-swatch { border: 2px solid #fff; border-radius: 50%; }
 
-/* 4. Premium Auth Card */
+/* 4. Premium Auth Card (Login/Register Card) */
 .premium-glass {
-  background: var(--glass);
+  background: rgba(15, 23, 42, 0.7);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
 }
 
 .card {
@@ -109,18 +108,28 @@ body {
 
 /* 5. Typography & Buttons */
 .text-gradient {
-  background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+  background: linear-gradient(135deg, #ffffff 0%, var(--primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 800;
 }
 
-.subtitle { color: var(--text-dim); margin-bottom: 30px; font-size: 14px; }
+.subtitle { 
+  color: #94a3b8; 
+  margin-bottom: 30px; 
+  font-size: 14px; 
+}
 
 .btn-premium {
-  width: 100%; padding: 15px; background: var(--primary);
-  color: #000; border: none; border-radius: 14px;
-  font-weight: 800; cursor: pointer; transition: var(--transition);
+  width: 100%; 
+  padding: 15px; 
+  background: var(--primary);
+  color: #ffffff; 
+  border: none; 
+  border-radius: 14px;
+  font-weight: 800; 
+  cursor: pointer; 
+  transition: var(--transition);
   margin-bottom: 15px;
 }
 
@@ -131,12 +140,19 @@ body {
 }
 
 .btn-outline {
-  width: 100%; padding: 14px; background: transparent;
-  color: var(--text-main); border: 1px solid var(--glass-border);
-  border-radius: 14px; font-weight: 600; cursor: pointer;
+  width: 100%; 
+  padding: 14px; 
+  background: transparent;
+  color: #f8fafc; 
+  border: 1px solid var(--glass-border);
+  border-radius: 14px; 
+  font-weight: 600; 
+  cursor: pointer;
 }
 
-.btn-outline:hover { background: rgba(255,255,255,0.05); }
+.btn-outline:hover { 
+  background: rgba(255, 255, 255, 0.05); 
+}
 
 /* 6. Dashboard Container Integration */
 .dashboard-container, .admin-container {

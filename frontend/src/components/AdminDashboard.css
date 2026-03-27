@@ -1,27 +1,38 @@
 /* AdminDashboard.css */
 
-/* 1. Main Wrapper - Integrated with Global SaaS Theme */
+:root {
+  --primary: #00d2ff;
+  --secondary: #6366f1;
+  --bg-dark: #020617;
+  --glass: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-dim: #94a3b8;
+  --transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* 1. Main Wrapper */
 .admin-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 40px 20px;
   min-height: 100vh;
-  animation: fadeIn 0.8s var(--bezier);
+  background-color: var(--bg-dark);
+  animation: fadeIn 0.8s ease-out;
+  color: #fff;
 }
 
-/* 2. Header Section (Glassmorphism) */
+/* 2. Header Section */
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   padding: 25px 35px;
   background: var(--glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .admin-header h2 {
@@ -30,201 +41,286 @@
   background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin: 0;
+}
+
+.admin-badge {
+  background: rgba(0, 210, 255, 0.1);
+  color: var(--primary);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  margin-right: 15px;
 }
 
 .logout-btn {
-  background: rgba(247, 37, 133, 0.1);
-  color: #f72585;
-  border: 1px solid rgba(247, 37, 133, 0.3);
-  padding: 12px 28px;
-  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 10px 24px;
+  border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition);
 }
 
 .logout-btn:hover {
-  background: #f72585;
+  background: #ef4444;
   color: white;
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(247, 37, 133, 0.3);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
 }
 
-/* 3. Task Form Section */
+/* 3. Grid Layout for Form & Stats */
+.admin-grid-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
 .task-form-section {
   background: var(--glass);
-  backdrop-filter: var(--glass-blur);
   padding: 35px;
   border-radius: 24px;
-  margin-bottom: 50px;
   border: 1px solid var(--glass-border);
 }
 
 .task-form-section h3 {
+  color: var(--primary);
   margin-bottom: 25px;
   font-size: 20px;
-  color: var(--primary);
-  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
+/* 4. Form Controls */
 .input-group {
-  display: grid;
-  grid-template-columns: 1.2fr 1.5fr 1fr auto;
-  gap: 20px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.admin-input, .admin-select {
-  width: 100%;
-  padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.03);
+.admin-input {
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  color: white;
+  padding: 15px 20px;
+  border-radius: 14px;
+  color: #fff;
   font-size: 14px;
   transition: var(--transition);
 }
 
-.admin-input:focus, .admin-select:focus {
+.admin-input:focus {
   border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 0 20px var(--primary-glow);
+  background: rgba(255, 255, 255, 0.05);
   outline: none;
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
 }
 
-.admin-select option {
-  background: #0f172a;
-  color: white;
-}
-
-.assign-btn {
-  background: var(--primary);
-  color: #000;
-  border: none;
-  padding: 16px 35px;
-  border-radius: 16px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.assign-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 15px 30px var(--primary-glow);
-  filter: brightness(1.1);
-}
-
-/* 4. Users Section */
-.users-section {
-  background: rgba(255, 255, 255, 0.02);
-  padding: 30px;
-  border-radius: 24px;
-  margin-bottom: 50px;
-  border: 1px solid var(--glass-border);
-}
-
-.user-list-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.user-tag {
-  background: rgba(0, 210, 255, 0.1);
-  color: var(--primary);
-  padding: 10px 20px;
-  border-radius: 100px;
-  font-size: 13px;
-  font-weight: 700;
-  border: 1px solid rgba(0, 210, 255, 0.2);
-  transition: var(--transition);
-}
-
-.user-tag:hover {
-  background: var(--primary);
-  color: #000;
-  transform: translateY(-2px);
-}
-
-/* 5. Tasks Grid & Cards */
-.tasks-grid {
+.form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 30px;
-  margin-top: 30px;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
 }
 
-.task-card {
-  background: var(--glass);
-  backdrop-filter: var(--glass-blur);
-  padding: 30px;
-  border-radius: 24px;
-  border: 1px solid var(--glass-border);
-  transition: var(--transition);
+/* PDF Upload Styling */
+.file-upload-btn {
   position: relative;
   overflow: hidden;
 }
 
-.task-card::after {
-  content: "";
+.file-upload-btn input {
   position: absolute;
-  top: 0; left: 0; width: 4px; height: 100%;
-  background: var(--primary);
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
 }
 
-.task-card:hover {
-  transform: translateY(-10px);
-  background: rgba(255, 255, 255, 0.05);
+.file-upload-btn label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--glass-border);
+  border-radius: 14px;
+  color: var(--text-dim);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.file-upload-btn:hover label {
   border-color: var(--primary);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+  color: var(--primary);
 }
 
-.task-card h4 {
-  font-size: 20px;
+/* 5. Multi-Assign Box */
+.multi-assign-box {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+}
+
+.multi-assign-box p {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.employee-selection-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.emp-option {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: var(--transition);
+}
+
+.emp-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.emp-option.selected {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+}
+
+.assign-btn {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  padding: 18px;
+  border-radius: 14px;
+  border: none;
   font-weight: 800;
-  margin-bottom: 15px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: var(--transition);
+}
+
+.assign-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 210, 255, 0.4);
+}
+
+/* 6. Stats Section */
+.stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stat-card {
+  background: var(--glass);
+  padding: 30px;
+  border-radius: 24px;
+  border: 1px solid var(--glass-border);
+  text-align: center;
+}
+
+.stat-card span {
+  color: var(--text-dim);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-card h3 {
+  font-size: 42px;
+  margin-top: 10px;
+  font-weight: 800;
+}
+
+/* 7. Status Tracking Table */
+.section-title {
+  margin: 40px 0 20px;
   color: #fff;
 }
 
-.task-card p {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
-  line-height: 1.6;
+.admin-tasks-table-wrapper {
+  background: var(--glass);
+  border-radius: 24px;
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
 }
 
-.status-badge {
-  background: rgba(146, 254, 157, 0.1);
-  color: #92fe9d;
-  padding: 6px 14px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 900;
+.admin-tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-tasks-table th {
+  padding: 20px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--primary);
+  font-size: 13px;
   text-transform: uppercase;
-  border: 1px solid rgba(146, 254, 157, 0.2);
+  letter-spacing: 1px;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .input-group {
-    grid-template-columns: 1fr 1fr;
-  }
-  .assign-btn {
-    grid-column: span 2;
-  }
+.admin-tasks-table td {
+  padding: 20px;
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 14px;
 }
 
-@media (max-width: 600px) {
-  .input-group {
-    grid-template-columns: 1fr;
-  }
-  .assign-btn {
-    grid-column: span 1;
-  }
+.admin-tasks-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.status-pill {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.status-pill.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.status-pill.completed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+.links-group {
+  display: flex;
+  gap: 15px;
+}
+
+.links-group a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 4px 10px;
+  background: rgba(0, 210, 255, 0.1);
+  border-radius: 6px;
+  transition: var(--transition);
+}
+
+.links-group a:hover {
+  background: var(--primary);
+  color: #000;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Fixes */
+@media (max-width: 992px) {
+  .admin-grid-layout { grid-template-columns: 1fr; }
 }
