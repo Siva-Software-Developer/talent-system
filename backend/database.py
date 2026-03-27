@@ -124,5 +124,3 @@ def fix_missing_roles():
     )
 
 # ==========================================
-# Machi, database logic ready! 
-# Run panna idhu automatic-ah collections create pannidum.
