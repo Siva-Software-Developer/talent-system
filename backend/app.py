@@ -10,7 +10,6 @@ import time
 import os
 
 app = Flask(__name__)
-# Machi, security-kaga resources handle pannalaam
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ================= STORAGE CONFIG =================
@@ -31,7 +30,7 @@ app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
 mail = Mail(app)
 
-# ================= UTILS & VALIDATION =================
+# ================= UTILS =================
 
 def is_strong_password(password):
     if len(password) < 8: return False
@@ -43,8 +42,7 @@ def is_strong_password(password):
 
 def is_valid_email(email):
     pattern = r"[^@]+@[^@]+\.[^@]+"
-    result = re.match(pattern, email)
-    return result is not None
+    return re.match(pattern, email) is not None
 
 otp_store = {}
 
@@ -53,50 +51,45 @@ def send_otp(email, otp):
         msg = Message(
             subject="Your OTP Code - Talent OS",
             recipients=[email],
-            body=f"Your Secure OTP for registration is: {otp}. This code is valid for 5 minutes."
+            body=f"Your OTP for verification is: {otp}"
         )
         mail.send(msg)
         return True
     except Exception as e:
-        print("CRITICAL MAIL ERROR:", e)
+        print("MAIL ERROR:", e)
         return False
 
 def send_task_notification(email, title):
     try:
         msg = Message(
-            subject="New Task Assigned - Talent OS",
+            subject="New Task Assigned",
             recipients=[email],
-            body=f"Hi, a new task '{title}' has been assigned to you. Please check your dashboard for details and the PDF document."
+            body=f"New task '{title}' assigned to you."
         )
         mail.send(msg)
     except Exception as e:
-        print("NOTIF MAIL ERROR:", e)
+        print("NOTIF ERROR:", e)
 
-# ================= AUTH ROUTES =================
+# ================= AUTH =================
 
 @app.route("/register-send-otp", methods=["POST"])
 def register_send_otp():
     data = request.get_json()
     email = data.get("email")
-    
+
     if not email or not is_valid_email(email):
-        return jsonify({"message": "Invalid email format provided"}), 400
-        
-    existing_user = users.find_one({"email": email})
-    if existing_user:
-        return jsonify({"message": "Email already registered with us"}), 400
-        
+        return jsonify({"message": "Invalid email"}), 400
+
+    if users.find_one({"email": email}):
+        return jsonify({"message": "Email already exists"}), 400
+
     otp = str(random.randint(1000, 9999))
-    otp_store[email] = {
-        "otp": otp,
-        "time": time.time()
-    }
-    
-    sent = send_otp(email, otp)
-    if sent:
-        return jsonify({"message": "OTP sent successfully to your email"}), 200
-    else:
-        return jsonify({"message": "Failed to send OTP. Please try again later"}), 500
+    otp_store[email] = {"otp": otp, "time": time.time()}
+
+    if send_otp(email, otp):
+        return jsonify({"message": "OTP sent"}), 200
+    return jsonify({"message": "OTP failed"}), 500
+
 
 @app.route("/register-verify", methods=["POST"])
 def register_verify():
@@ -104,88 +97,126 @@ def register_verify():
     email = data.get("email")
     user_otp = data.get("otp")
     password = data.get("password")
-    
-    stored_data = otp_store.get(email)
-    
-    if not stored_data:
-        return jsonify({"message": "No OTP session found. Please request again"}), 400
-        
-    current_time = time.time()
-    time_diff = current_time - stored_data["time"]
-    
-    if time_diff > 300:
+
+    stored = otp_store.get(email)
+    if not stored:
+        return jsonify({"message": "No OTP"}), 400
+
+    if time.time() - stored["time"] > 300:
         del otp_store[email]
-        return jsonify({"message": "OTP has expired. Maximum 5 minutes allowed"}), 400
-        
-    if stored_data["otp"] != user_otp:
-        return jsonify({"message": "Invalid OTP entered"}), 400
-        
+        return jsonify({"message": "OTP expired"}), 400
+
+    if stored["otp"] != user_otp:
+        return jsonify({"message": "Wrong OTP"}), 400
+
     if not is_strong_password(password):
-        return jsonify({"message": "Password must be stronger (8+ chars, upper, lower, digit, symbol)"}), 400
-    
+        return jsonify({"message": "Weak password"}), 400
+
     users.insert_one({
         "name": data.get("name"),
         "email": email,
-        "dob": data.get("dob"),
         "password": generate_password_hash(password),
         "role": data.get("role", "employee"),
         "job": data.get("job"),
-        "created_at": time.time(),
         "is_verified": True
     })
-    
-    if email in otp_store:
-        del otp_store[email]
-        
-    return jsonify({"message": "Account created and verified successfully!"}), 201
+
+    del otp_store[email]
+    return jsonify({"message": "Registered"}), 201
+
 
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    email = data.get("email")
-    password = data.get("password")
-    
-    user = users.find_one({"email": email})
-    
+    user = users.find_one({"email": data.get("email")})
+
     if not user:
-        return jsonify({"message": "Account not found"}), 404
-        
-    if not user.get("is_verified"):
-        return jsonify({"message": "Account exists but email not verified"}), 403
-        
-    if not check_password_hash(user["password"], password):
-        return jsonify({"message": "Invalid password entered"}), 401
-        
+        return jsonify({"message": "No user"}), 404
+
+    if not check_password_hash(user["password"], data.get("password")):
+        return jsonify({"message": "Wrong password"}), 401
+
     return jsonify({
         "message": "Login success",
         "user": {
-            "name": user.get("name"),
-            "email": user.get("email"),
-            "role": user.get("role"),
-            "job": user.get("job")
+            "name": user["name"],
+            "email": user["email"],
+            "role": user["role"]
         }
     }), 200
 
-# ================= TASK SYSTEM (ADVANCED) =================
+
+# ================= FORGOT PASSWORD =================
+
+@app.route("/forgot-send-otp", methods=["POST"])
+def forgot_send_otp():
+    data = request.get_json()
+    email = data.get("email")
+
+    if not email or not is_valid_email(email):
+        return jsonify({"message": "Invalid email"}), 400
+
+    user = users.find_one({"email": email})
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    otp = str(random.randint(1000, 9999))
+    otp_store[email] = {"otp": otp, "time": time.time()}
+
+    if send_otp(email, otp):
+        return jsonify({"message": "OTP sent successfully"}), 200
+
+    return jsonify({"message": "Failed to send OTP"}), 500
+
+
+@app.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    email = data.get("email")
+    user_otp = data.get("otp")
+    new_password = data.get("password")
+
+    stored = otp_store.get(email)
+
+    if not stored:
+        return jsonify({"message": "No OTP found"}), 400
+
+    if time.time() - stored["time"] > 300:
+        del otp_store[email]
+        return jsonify({"message": "OTP expired"}), 400
+
+    if stored["otp"] != user_otp:
+        return jsonify({"message": "Invalid OTP"}), 400
+
+    if not is_strong_password(new_password):
+        return jsonify({"message": "Weak password"}), 400
+
+    users.update_one(
+        {"email": email},
+        {"$set": {"password": generate_password_hash(new_password)}}
+    )
+
+    del otp_store[email]
+
+    return jsonify({"message": "Password reset successful"}), 200
+
+
+# ================= TASK =================
 
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    # Admin-um Employee-um live status pakkalaam
     all_tasks = list(tasks_db.find({}, {"_id": 0}))
     return jsonify(all_tasks), 200
 
+
 @app.route('/admin/assign-task', methods=['POST'])
 def admin_assign_task():
-    # Multi-Employee & PDF Logic
     title = request.form.get("title")
     description = request.form.get("description")
     due_date = request.form.get("dueDate")
     assigned_by = request.form.get("assigned_by")
-    
-    # Frontend-la irundhu vara employee list
     assigned_emails = request.form.getlist("assigned_to")
-    
-    # PDF File Handling
+
     pdf_filename = None
     if 'task_file' in request.files:
         file = request.files['task_file']
@@ -197,6 +228,7 @@ def admin_assign_task():
 
     for email in assigned_emails:
         task_id = int(time.time() * 1000) + random.randint(1, 999)
+
         new_task = {
             "id": task_id,
             "group_id": group_id,
@@ -212,59 +244,65 @@ def admin_assign_task():
             "proof_link": None,
             "github_link": None
         }
+
         tasks_db.insert_one(new_task)
-        
-        # Notification System
+
         notifications.insert_one({
             "user_email": email,
-            "message": f"New Task Alert: {title}",
+            "message": f"New Task: {title}",
             "task_id": task_id,
-            "created_at": time.time(),
             "read": False
         })
-        # Instant Mail Alert
+
         send_task_notification(email, title)
 
-    return jsonify({"message": f"Task successfully assigned to {len(assigned_emails)} employees"}), 201
+    return jsonify({"message": f"Task assigned to {len(assigned_emails)} employees"}), 201
+
 
 @app.route('/employee/complete-task', methods=['POST'])
-def employee_complete_task():
+def complete_task():
     data = request.get_json()
-    task_id = data.get("id")
-    
+
     result = tasks_db.update_one(
-        {"id": task_id},
+        {"id": data.get("id")},
         {"$set": {
             "status": "completed",
-            "completed_at": time.strftime('%Y-%m-%d %H:%M:%S'),
             "proof_link": data.get("proof_link"),
             "github_link": data.get("github_link")
         }}
     )
-    
+
     if result.modified_count:
-        return jsonify({"message": "Completion data submitted for review!"}), 200
-    return jsonify({"message": "Target Task not found"}), 404
+        return jsonify({"message": "Completed"}), 200
+
+    return jsonify({"message": "Task not found"}), 404
+
 
 @app.route('/uploads/pdfs/<filename>')
 def download_pdf(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+
 @app.route("/users", methods=["GET"])
 def get_users():
+    user_list = list(users.find({}, {"_id": 0, "password": 0}))
+    return jsonify(user_list), 200
+# ================= DELETE TASK =================
+
+@app.route('/delete-task/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
     try:
-        user_cursor = users.find({}, {"_id": 0, "password": 0})
-        user_list = list(user_cursor)
-        return jsonify(user_list), 200
+        result = tasks_db.delete_one({"id": task_id})
+
+        if result.deleted_count == 1:
+            return jsonify({"message": "Task deleted successfully"}), 200
+        else:
+            return jsonify({"error": "Task not found"}), 404
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/admin/delete-task/<int:id>', methods=['DELETE'])
-def delete_task(id):
-    result = tasks_db.delete_one({"id": id})
-    if result.deleted_count:
-        return jsonify({"message": "Task successfully removed"}), 200
-    return jsonify({"message": "Task ID not found"}), 404
+# ================= RUN =================
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
