@@ -29,43 +29,53 @@ function Forgot({ setPage }) {
   };
 
   return (
-    <div className="forgot-content">
-      <h2 className="text-gradient">Recovery ✨</h2>
-      <p className="subtitle">Enter your email to receive an OTP</p>
-
-      <div className="input-section">
-        <input 
-          className="premium-input" 
-          placeholder="Email Address" 
-          onChange={(e)=>setEmail(e.target.value)} 
-        />
-        <button className="btn-otp" onClick={sendOtp}>
-          Send OTP 📩
-        </button>
+    <div className="recovery-container animate-fade-in">
+      <div className="recovery-header">
+        <h2 className="recovery-title-gradient">Recovery ✨</h2>
+        <p className="recovery-subtitle">Regain access to your mission control</p>
       </div>
 
-      <div className="divider"><span>verification</span></div>
+      {/* STEP 1: Email & OTP Request */}
+      <div className="recovery-section">
+        <div className="input-group-glass">
+          <input 
+            className="recovery-input" 
+            placeholder="Registered Email" 
+            onChange={(e)=>setEmail(e.target.value)} 
+          />
+          <button className="btn-send-otp" onClick={sendOtp}>
+            Send OTP 📩
+          </button>
+        </div>
+      </div>
 
-      <div className="input-section">
+      <div className="recovery-divider">
+        <span>VERIFICATION DETAILS</span>
+      </div>
+
+      {/* STEP 2: OTP & New Password */}
+      <div className="recovery-section">
         <input 
-          className="premium-input" 
-          placeholder="Enter OTP" 
+          className="recovery-input" 
+          placeholder="Enter 6-Digit OTP" 
           onChange={(e)=>setOtp(e.target.value)} 
         />
         <input 
           type="password" 
-          className="premium-input" 
-          placeholder="New Password" 
+          className="recovery-input" 
+          placeholder="Set New Password" 
           onChange={(e)=>setPassword(e.target.value)} 
         />
-        <button className="btn-premium" onClick={reset}>
+        <button className="btn-reset-password" onClick={reset}>
           Reset Password 🔐
         </button>
       </div>
 
-      <p className="back-link" onClick={()=>setPage("login")}>
-        ← Back to Login
-      </p>
+      <div className="recovery-footer">
+        <p className="back-to-login" onClick={()=>setPage("login")}>
+          <span className="arrow">←</span> Back to Login
+        </p>
+      </div>
     </div>
   );
 }

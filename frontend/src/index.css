@@ -1,11 +1,11 @@
-/* 🪐 ULTIMATE SAAS FRAMEWORK - FIXED PERMANENT DARK 
+/* 🪐 TALENT OS - MASTER GLOBAL STYLES (index.css)
    Optimized for Performance, Visual Depth, and High Contrast
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* 🎨 Master Theme Palette - FIXED DARK */
+  /* 🎨 Master Theme Palette - DYNAMICALLY UPDATED BY APP.JS */
   --primary: #00d2ff; 
   --primary-glow: rgba(0, 210, 255, 0.3);
   --secondary: #92fe9d;
@@ -14,17 +14,17 @@
   --text-main: #f1f1f1;
   --text-dim: rgba(255, 255, 255, 0.6);
   
-  /* 🧊 Glassmorphism 2.0 Core - Enhanced for Dark */
+  /* 🧊 Glassmorphism 2.0 Core */
   --glass: rgba(255, 255, 255, 0.02);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: blur(20px) saturate(160%);
   
-  /* 🏎️ Smoothness */
+  /* 🏎️ Smoothness Variables */
   --bezier: cubic-bezier(0.19, 1, 0.22, 1);
   --transition: 0.5s var(--bezier);
 }
 
-/* 🛠️ RESET & PERFORMANCE */
+/* 🛠️ RESET & PERFORMANCE SETUP */
 * {
   margin: 0;
   padding: 0;
@@ -36,110 +36,163 @@
 body {
   width: 100%;
   min-height: 100vh;
-  /* FORCED DARK MODE */
-  background-color: #030508 !important; 
-  color: #f1f1f1 !important;
+  margin: 0;
+  background-color: var(--bg-dark) !important; 
+  color: var(--text-main) !important;
   overflow-x: hidden;
+  line-height: 1.6;
 
-  /* 🌈 DYNAMIC MESH BACKGROUND - Pure Mass! */
+  /* 🌈 DYNAMIC MESH BACKGROUND */
   background: 
-    radial-gradient(circle at 0% 0%, rgba(112, 0, 255, 0.15) 0%, transparent 45%),
-    radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.15) 0%, transparent 45%),
-    #030508;
+    radial-gradient(circle at 0% 0%, rgba(112, 0, 255, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.12) 0%, transparent 40%),
+    var(--bg-dark);
   background-attachment: fixed;
 }
 
-/* 🌫️ THE "PREMIUM" GRAIN OVERLAY - Mass Texture */
+/* 🌫️ THE "PREMIUM" GRAIN OVERLAY */
 body::after {
   content: "";
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  opacity: 0.04; /* Slightly increased for dark depth */
+  opacity: 0.03; 
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* 🧊 PREMIUM GLASS CLASS - For Cards/Sidebars */
+/* --- GLOBAL UTILITY CLASSES --- */
+
+/* 🧊 Premium Glass Card Styling */
 .premium-glass {
-  background: rgba(255, 255, 255, 0.025); /* Fixed Dark Glass */
+  background: rgba(255, 255, 255, 0.03); 
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
   transition: var(--transition);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .premium-glass:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.15);
   transform: translateY(-5px);
-  box-shadow: 0 40px 80px -20px rgba(0, 210, 255, 0.15);
+  box-shadow: 0 30px 60px -12px var(--primary-glow);
 }
 
-/* 🖋️ TYPOGRAPHY UTILITIES */
+/* 🖋️ Typography Gradients */
 .text-gradient {
-  background: linear-gradient(135deg, #ffffff 40%, #00d2ff 100%);
+  background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
-/* 🔘 UNIVERSAL PREMIUM BUTTON */
+/* 🔘 Universal Premium Button */
 .btn-premium {
-  padding: 14px 28px;
-  border-radius: 14px;
+  padding: 12px 28px;
+  border-radius: 12px;
   font-weight: 700;
   border: none;
-  background: #ffffff;
-  color: #000000;
+  background: var(--primary);
+  color: #000;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+  transition: all 0.4s var(--bezier);
+  box-shadow: 0 4px 15px var(--primary-glow);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
 }
 
 .btn-premium:hover {
   transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 15px 30px rgba(0, 210, 255, 0.4);
-  background: #00d2ff; /* Glow Primary */
-  color: #ffffff;
+  box-shadow: 0 10px 30px var(--primary-glow);
+  filter: brightness(1.1);
 }
 
-/* 🎹 INPUT FIELDS - FIXED DARK */
+/* 🎹 Input Fields (Used in Login/Forgot/Register) */
 .premium-input {
   width: 100%;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.4); /* Solid dark input */
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   color: #ffffff;
   outline: none;
   transition: var(--transition);
+  font-size: 1rem;
 }
 
 .premium-input:focus {
-  border-color: #00d2ff;
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 25px var(--primary-glow);
 }
 
-/* 🖱️ MINIMAL SCROLLBAR */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+/* 🖱️ Minimal Futuristic Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
+  transition: background 0.3s ease;
 }
-::-webkit-scrollbar-thumb:hover { background: #00d2ff; }
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* 🚀 Animations */
+.animate-fade-in {
+  animation: fadeIn 0.8s var(--bezier) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- LIGHT MODE SUPPORT (Only if body.light class is active) --- */
+body.light {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  background: radial-gradient(circle at 0% 0%, rgba(0, 210, 255, 0.05) 0%, transparent 40%), #f8fafc;
+}
+
+body.light .premium-glass {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+body.light .text-gradient {
+  background: linear-gradient(135deg, #0f172a 40%, var(--primary) 100%);
+  -webkit-background-clip: text;
+}
 
 /* 📱 MOBILE OPTIMIZATION */
 @media (max-width: 768px) {
-  .premium-glass { border-radius: 16px; }
-  .btn-premium { width: 100%; }
+  .premium-glass { 
+    border-radius: 16px; 
+    padding: 20px;
+  }
+  .btn-premium { 
+    width: 100%; 
+  }
+  .brand-logo-text {
+    font-size: 2.2rem;
+  }
 }

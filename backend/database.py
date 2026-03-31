@@ -1,10 +1,10 @@
 from pymongo import MongoClient
 from datetime import datetime
+import time
 
 # ===========================
 # 🔗 CONNECT TO MONGODB
 # ===========================
-# Machi, connection string-ah check panniko, localhost default 27017
 client = MongoClient("mongodb://localhost:27017/")
 
 # ===========================
@@ -13,11 +13,15 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["talent_db"]
 
 # ===========================
-# 📂 COLLECTIONS
+# 📂 COLLECTIONS (EXISTING + NEW 🔥)
 # ===========================
 users = db["users"]
-tasks_db = db["tasks"] # Machi, app.py kooda sync aaga idhu tasks_db nu mathitaen
+tasks_db = db["tasks"]
 notifications = db["notifications"]
+sod_db = db["sod"]              # 🆕 SOD Collection
+eod_db = db["eod"]              # 🆕 EOD Collection
+messages_db = db["messages"]    # 🆕 Chat Collection
+help_tickets = db["help_tickets"] # 🆕 Support Collection
 
 # ===========================
 # 🆕 👤 USER STRUCTURE
@@ -27,42 +31,55 @@ notifications = db["notifications"]
     "name": "Siva",
     "email": "siva@gmail.com",
     "password": "hashed_password",
-    "role": "admin",             # (admin / employee)
-    "job": "Full Stack Dev",     # Optional job profile
-    "is_verified": True,         # For OTP verification
+    "role": "admin",
+    "job": "Full Stack Dev",
+    "is_verified": True,
     "created_at": datetime.now()
 }
 """
 
 # ===========================
-# 🧠 TASK STRUCTURE (ADVANCED)
+# 🧠 TASK STRUCTURE (UPDATED 🔥)
 # ===========================
 """
 {
-    "id": 123456789,             # Unique Integer ID (Timestamp based)
-    "group_id": 987654,          # To identify multi-employee assignments
+    "id": 123456789,
+    "group_id": 987654,
     "title": "Build UI",
     "description": "Clean Glass UI",
-    
     "assigned_to": "emp@gmail.com",
     "assigned_by": "admin@gmail.com",
-    
-    "pdf_url": "filename.pdf",   # Path to the assigned PDF task
-    "status": "pending",         # (pending / completed)
-    
-    "proof_link": None,          # Submitted by employee (Live link)
-    "github_link": None,         # Submitted by employee (Code link)
-    
+    "pdf_url": "filename.pdf",
+    "status": "pending",            # pending / in_progress / completed / blocked
+    "progress": 0,                  # 🔥 NEW
+    "daily_updates": [],            # 🔥 NEW
+    "dueDate": "YYYY-MM-DD",        # 🔥 NEW
+    "blocker": None,                # 🔥 NEW
+    "blocker_reported_at": None,    # 🔥 NEW
+    "proof_link": None,
+    "github_link": None,
     "created_at": "YYYY-MM-DD",
     "completed_at": None
 }
 """
 
 # ===========================
-# 🆕 HELPER FUNCTIONS
+# 🔥 HELPER: OVERDUE CHECK
+# ===========================
+def is_overdue(task):
+    try:
+        if task.get("dueDate") and task.get("status") != "completed":
+            due_time = time.mktime(time.strptime(task["dueDate"], "%Y-%m-%d"))
+            return time.time() > due_time
+    except:
+        return False
+    return False
+
+
+# ===========================
+# 🆕 USER & AUTH HELPERS
 # ===========================
 
-# 🔹 CREATE USER
 def create_user(name, email, password, role="employee", job=None):
     return users.insert_one({
         "name": name,
@@ -70,31 +87,39 @@ def create_user(name, email, password, role="employee", job=None):
         "password": password,
         "role": role,
         "job": job,
-        "is_verified": False, # Default-ah false, OTP verify aana dhaan true
+        "is_verified": False,
         "created_at": datetime.now()
     })
 
-# 🔹 GET USER BY EMAIL
 def get_user_by_email(email):
     return users.find_one({"email": email})
 
-# 🔹 CREATE TASK (Advanced with ID and PDF)
+
+# ===========================
+# 🛠️ TASK HELPERS (UPDATED)
+# ===========================
+
 def create_advanced_task(task_data):
-    # Machi, indha fields ellam app.py-le irundhu accurate-ah varum
     if "status" not in task_data:
         task_data["status"] = "pending"
+
+    task_data.setdefault("progress", 0)
+    task_data.setdefault("daily_updates", [])
+    task_data.setdefault("blocker", None)
+    task_data.setdefault("blocker_reported_at", None)
+
     if "created_at" not in task_data:
         task_data["created_at"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
+
     return tasks_db.insert_one(task_data)
 
-# 🔹 UPDATE TASK STATUS (Employee Submission)
 def update_task_completion(task_id, proof_link, github_link):
     return tasks_db.update_one(
         {"id": task_id},
         {
             "$set": {
                 "status": "completed",
+                "progress": 100,
                 "proof_link": proof_link,
                 "github_link": github_link,
                 "completed_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -102,7 +127,70 @@ def update_task_completion(task_id, proof_link, github_link):
         }
     )
 
-# 🔹 CREATE NOTIFICATION
+def update_task_progress(task_id, progress, update_text):
+    task = tasks_db.find_one({"id": task_id})
+    if not task: return False
+
+    if task.get("blocker"):
+        status = "blocked"
+    elif progress == 0:
+        status = "pending"
+    elif progress < 100:
+        status = "in_progress"
+    else:
+        status = "completed"
+
+    return tasks_db.update_one(
+        {"id": task_id},
+        {
+            "$set": {"progress": progress, "status": status},
+            "$push": {
+                "daily_updates": {
+                    "date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "update": update_text,
+                    "progress": progress
+                }
+            }
+        }
+    )
+
+def report_blocker(task_id, blocker_msg):
+    return tasks_db.update_one(
+        {"id": task_id},
+        {
+            "$set": {
+                "blocker": blocker_msg,
+                "blocker_reported_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "status": "blocked"
+            }
+        }
+    )
+
+def get_filtered_tasks(status=None, assigned_to=None):
+    query = {}
+    if status: query["status"] = status
+    if assigned_to: query["assigned_to"] = assigned_to
+    tasks = list(tasks_db.find(query, {"_id": 0}))
+    for t in tasks: t["isOverdue"] = is_overdue(t)
+    return tasks
+
+# ===========================
+# 📈 ANALYTICS & NOTIFS
+# ===========================
+
+def get_task_analytics():
+    tasks = list(tasks_db.find({}, {"_id": 0}))
+    total = len(tasks)
+    completed = len([t for t in tasks if t.get("status") == "completed"])
+    avg_progress = (sum(t.get("progress", 0) for t in tasks) / total) if total > 0 else 0
+    completion_rate = (completed / total * 100) if total > 0 else 0
+    return {
+        "total_tasks": total,
+        "completed_tasks": completed,
+        "completion_rate": completion_rate,
+        "average_progress": avg_progress
+    }
+
 def create_notification(user_email, message, task_id=None):
     return notifications.insert_one({
         "user_email": user_email,
@@ -112,15 +200,43 @@ def create_notification(user_email, message, task_id=None):
         "read": False
     })
 
-# 🔹 GET USER NOTIFICATIONS (Latest First)
-def get_notifications(user_email):
-    return list(notifications.find({"user_email": user_email}).sort("created_at", -1))
+# ===========================
+# 🆕 HELP & SUPPORT HELPERS
+# ===========================
 
-# 🔹 CLEANUP/MIGRATION: ADD ROLE TO OLD USERS
+def raise_ticket(email, name, message):
+    return help_tickets.insert_one({
+        "ticket_id": int(time.time()),
+        "email": email,
+        "name": name,
+        "message": message,
+        "status": "open",
+        "created_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+
+def get_all_tickets():
+    return list(help_tickets.find({}, {"_id": 0}))
+
+# ===========================
+# 🛠️ MIGRATION & MAINTENANCE
+# ===========================
+
 def fix_missing_roles():
-    users.update_many(
-        {"role": {"$exists": False}},
-        {"$set": {"role": "employee"}}
+    users.update_many({"role": {"$exists": False}}, {"$set": {"role": "employee"}})
+
+def migrate_old_tasks():
+    tasks_db.update_many(
+        {},
+        {
+            "$set": {
+                "progress": 0,
+                "daily_updates": [],
+                "blocker": None,
+                "blocker_reported_at": None
+            }
+        }
     )
 
-# ==========================================
+# Machi, ithu run panna migration correct-ah aagum.
+if __name__ == "__main__":
+    print("Database connected and collections initialized, Machi! 🚀")

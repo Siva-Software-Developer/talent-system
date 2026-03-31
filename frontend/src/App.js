@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
+import "./App.css";
+
+// 📂 AUTH COMPONENTS
 import Register from "./Register";
 import Login from "./Login";
 import Forgot from "./Forgot";
-import "./App.css";
+
+// 📂 DASHBOARD COMPONENTS
 import Dashboard from "./components/Dashboard";
 import AdminDashboard from "./components/AdminDashboard";
 
@@ -12,17 +16,16 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState("");
 
+  // 🛠️ THEME & SESSION INITIALIZATION
   useEffect(() => {
     // Apply Theme (Dark/Light)
     document.body.className = theme;
 
-    // Apply Custom Primary Color
-    const savedColor = localStorage.getItem("themeColor");
-    if (savedColor) {
-      applyColor(savedColor);
-    }
+    // Apply Global Primary Color
+    const savedColor = localStorage.getItem("themeColor") || "#6366f1";
+    applyColor(savedColor);
 
-    // Auto-login logic
+    // 🔄 SESSION CHECK (Auto-Login)
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
       setRole(user.role);
@@ -31,19 +34,22 @@ function App() {
     }
   }, [theme]);
 
+  // 🌓 TOGGLE THEME LOGIC
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
   };
 
+  // 🎨 DYNAMIC COLOR THEMING
   const applyColor = (color) => {
     document.documentElement.style.setProperty("--primary", color);
-    // Dynamic Glow Calculation (Adding 30% opacity)
+    // Dynamic Glow Calculation (Adding opacity)
     document.documentElement.style.setProperty("--primary-glow", `${color}4d`);
     localStorage.setItem("themeColor", color);
   };
 
+  // 🚪 LOGOUT LOGIC
   const handleLogout = () => {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
@@ -51,59 +57,85 @@ function App() {
     setPage("login");
   };
 
+  // 🔄 LOGIN SUCCESS HANDLER
+  const handleLoginSuccess = (userRole) => {
+    setRole(userRole);
+    setIsLoggedIn(true);
+    setPage("dashboard");
+  };
+
   return (
-    // Dashboard irukkum bodu centering remove panna 'dashboard-mode' class add pannuvom
-    <div className={`main ${(page === "dashboard" && isLoggedIn) ? "dashboard-mode" : ""}`}>
+    <div className={`app-root-container ${theme} ${(page === "dashboard" && isLoggedIn) ? "layout-dashboard" : "layout-auth"}`}>
       
-      {/* 🎨 TOP CONTROLS (Floating Glass) */}
-      <div className="top-controls">
-        <button className="theme-toggle" onClick={toggleTheme}>
+      {/* 🎨 FLOATING GLOBAL CONTROLS (Glassmorphism Style) */}
+      <div className="global-controls-glass">
+        <button className="ctrl-theme-btn" onClick={toggleTheme} title="Toggle Mode">
           {theme === "dark" ? "🌙" : "☀️"}
         </button>
-        <div className="color-wrapper">
+        
+        <div className="ctrl-color-picker-wrapper">
           <input
             type="color"
-            className="color-picker"
-            value={getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || "#6366f1"}
+            className="ctrl-color-input"
             onChange={(e) => applyColor(e.target.value)}
+            title="Customize Theme Color"
           />
         </div>
       </div>
 
-      {/* ✅ CONDITIONAL RENDERING */}
+      {/* ✅ MAIN ROUTING LOGIC */}
       {isLoggedIn && page === "dashboard" ? (
-        role === "admin" ? (
-          <AdminDashboard setPage={(p) => p === "login" ? handleLogout() : setPage(p)} />
-        ) : (
-          <Dashboard setPage={(p) => p === "login" ? handleLogout() : setPage(p)} />
-        )
+        <div className="dashboard-view-wrapper animate-fade-in">
+          {role === "admin" ? (
+            <AdminDashboard setPage={(p) => p === "login" ? handleLogout() : setPage(p)} />
+          ) : (
+            <Dashboard setPage={(p) => p === "login" ? handleLogout() : setPage(p)} />
+          )}
+        </div>
       ) : (
-        <div className="auth-wrapper">
-          <div className="card premium-glass">
+        /* 🔐 AUTH SCREENS (Home, Login, Register, Forgot) */
+        <div className="auth-screen-overlay">
+          <div className="auth-card-glass animate-fade-in">
+            
+            {/* 🏠 HOME HERO */}
             {page === "home" && (
-              <div className="home-content">
-                <h2 className="text-gradient">🚀 Talent OS</h2>
-                <p className="subtitle">Master your workflow with precision.</p>
-                <button className="btn-premium" onClick={() => setPage("login")}>Get Started</button>
-                <button className="btn-outline" onClick={() => setPage("register")}>Create Account</button>
+              <div className="home-hero-content">
+                <h1 className="brand-logo-text">🚀 Talent OS</h1>
+                <p className="brand-tagline">Streamlining professional workflows with AI-driven intelligence.</p>
+                <div className="home-action-btns">
+                  <button className="btn-primary-glow" onClick={() => setPage("login")}>Get Started</button>
+                  <button className="btn-secondary-outline" onClick={() => setPage("register")}>Join Team</button>
+                </div>
               </div>
             )}
 
+            {/* 🔑 LOGIN PAGE */}
             {page === "login" && (
               <Login setPage={(p) => {
                 if (p === "dashboard") {
                   const user = JSON.parse(localStorage.getItem("user"));
-                  setRole(user?.role || "employee");
-                  setIsLoggedIn(true);
-                  setPage("dashboard");
-                } else { setPage(p); }
+                  handleLoginSuccess(user?.role || "employee");
+                } else {
+                  setPage(p);
+                }
               }} />
             )}
 
+            {/* 📝 REGISTER PAGE */}
             {page === "register" && <Register setPage={setPage} />}
+
+            {/* 🛠️ FORGOT PASSWORD */}
             {page === "forgot" && <Forgot setPage={setPage} />}
+            
           </div>
         </div>
+      )}
+
+      {/* 📱 FOOTER CREDITS (Optional) */}
+      {page !== "dashboard" && (
+        <footer className="global-footer">
+          <p>© 2026 Talent OS • Built for Efficiency</p>
+        </footer>
       )}
     </div>
   );

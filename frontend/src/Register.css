@@ -1,127 +1,159 @@
-/* Register.css */
+/* =========================================
+   TALENT OS - REGISTER STYLES (Register.css)
+   ========================================= */
 
-.register-content {
+.register-container {
   display: flex;
   flex-direction: column;
+  gap: 20px;
   width: 100%;
+  max-width: 500px;
 }
 
-.form-grid {
+/* 🚀 HEADER */
+.register-header {
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+.register-title-gradient {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 5px;
+}
+
+.register-subtitle {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* 📋 FORM GRID */
+.register-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-@media (max-width: 480px) {
-  .form-grid { grid-template-columns: 1fr; }
+/* Date input specific fix */
+.date-input {
+  color-scheme: dark; /* Makes the calendar icon white in dark mode */
 }
 
-/* 1. Password Checklist (Neon Mode - Fixed Dark) */
-.password-check {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+/* 🔐 STRENGTH TRACKER (Badges) */
+.strength-tracker {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin: 15px 0;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.02); /* Fixed Dark Background */
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  margin: 5px 0;
 }
 
-.password-check p {
-  font-size: 10px;
+.badge-v, .badge-i {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
 }
 
-.password-check p.invalid { 
-  color: #94a3b8; /* Dim Slate */
-  opacity: 0.5; 
+/* Valid State */
+.badge-v {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-.password-check p.invalid::before { 
-  content: "○"; 
-  color: #ef4444; /* Red for invalid */
+/* Invalid State */
+.badge-i {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.password-check p.valid { 
-  color: #10b981; /* Green for valid */
+/* 👔 PROFESSIONAL INFO ROW */
+.input-group-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-.password-check p.valid::before { 
-  content: "●"; 
-  color: #10b981; 
-  animation: pulse 1.5s infinite; 
+.select-styled {
+  cursor: pointer;
+  appearance: none; /* Removes default arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
 }
 
-/* 2. OTP Grouping */
-.otp-group {
-  display: flex;
+/* ✉️ OTP SECTION */
+.otp-verification-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
   gap: 10px;
   align-items: center;
+}
+
+.btn-send-otp-inline {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--bezier);
+}
+
+.btn-send-otp-inline:hover {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+}
+
+/* 🔘 REGISTER BUTTON */
+.register-btn-full {
+  width: 100%;
+  padding: 16px !important;
   margin-top: 10px;
 }
 
-.btn-otp {
-  background: transparent;
-  color: #00d2ff; /* Primary Cyan */
-  border: 1px solid #00d2ff;
-  padding: 12px 15px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 12px;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-otp:hover {
-  background: #00d2ff;
-  color: #000000;
-  box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
-}
-
-/* 3. Dropdown Styling */
-select.premium-input option {
-  background: #030508; /* Darker than slate for match */
-  color: #ffffff;
-}
-
-/* 4. Footer Styling */
-.back-link {
-  margin-top: 20px;
-  color: #94a3b8;
-  font-size: 13px;
+/* 🔁 FOOTER */
+.register-footer {
   text-align: center;
+  margin-top: 10px;
+}
+
+.login-link-text {
+  color: var(--text-dim);
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.back-link:hover {
-  color: #ffffff;
-}
-
-.back-link span {
-  color: #00d2ff;
+.highlight-text {
+  color: var(--primary);
   font-weight: 700;
+  margin-left: 5px;
+}
+
+.highlight-text:hover {
   text-decoration: underline;
 }
 
-/* 5. Date Picker Indicator - Force visible in Dark Mode */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  opacity: 0.7;
-  cursor: pointer;
+/* 📱 MOBILE RESPONSIVE */
+@media (max-width: 480px) {
+  .input-group, .input-group-row {
+    grid-template-columns: 1fr; /* Stack inputs on small screens */
+  }
 }
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.5; }
-}
-
-/* 6. Light Mode Adjustments - REMOVED */
-/* Staying consistent with the Ultimate SaaS Dark Theme */

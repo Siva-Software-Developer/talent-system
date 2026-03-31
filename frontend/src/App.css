@@ -1,165 +1,214 @@
-/* App.css */
+/* =========================================
+   TALENT OS - GLOBAL STYLES (App.css)
+   ========================================= */
 
-/* 1. Global Variables - FIXED TO DARK ONLY */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
 :root {
-  --primary: #6366f1; 
+  /* Default Primary - App.js will override this */
+  --primary: #6366f1;
   --primary-glow: rgba(99, 102, 241, 0.3);
-  --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  --bezier: cubic-bezier(0.23, 1, 0.32, 1);
   
-  /* Glassmorphism Settings */
-  --glass: rgba(255, 255, 255, 0.03);
+  /* Glass Colors */
+  --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: blur(15px);
-
-  /* Hardcoded Dark Theme Values */
-  --bg-dark: #020617;
-  --text-main: #f8fafc;
+  --text-main: #f1f5f9;
   --text-dim: #94a3b8;
+  
+  /* Utilities */
+  --bezier: cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-lg: 24px;
+  --radius-md: 12px;
 }
 
-* { 
-  margin: 0; 
-  padding: 0; 
-  box-sizing: border-box; 
+/* 🌓 THEME SWITCHING */
+body.light {
+  --glass-bg: rgba(0, 0, 0, 0.03);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --text-main: #1e293b;
+  --text-dim: #64748b;
+  background: #f8fafc;
 }
 
-body {
-  /* Forced Dark Background */
-  background-color: #020617 !important; 
-  color: #f8fafc;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
+body.dark {
+  background: #0f172a;
+  color: var(--text-main);
 }
 
-/* 2. Main Background Effects (Login/Register Pages) */
-.main {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  position: relative;
-  overflow: hidden;
-  /* Deep Dark Gradient */
-  background: 
-    radial-gradient(circle at 0% 0%, var(--primary-glow) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, var(--primary-glow) 0%, transparent 40%),
-    #020617;
-}
-
-/* Reset for Dashboard Mode */
-.main.dashboard-mode {
-  display: block;
+* {
+  margin: 0;
   padding: 0;
-  background: #020617;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
-/* 3. Floating Top Controls (Fixed to Dark) */
-.top-controls {
-  position: fixed;
-  top: 25px;
-  right: 25px;
+/* 🚀 MAIN WRAPPER */
+.app-root-container {
+  min-height: 100vh;
   display: flex;
-  gap: 15px;
-  padding: 10px 20px;
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: var(--glass-blur);
+  flex-direction: column;
+  transition: background 0.5s var(--bezier);
+}
+
+/* 🎨 GLOBAL CONTROLS (Floating Glass) */
+.global-controls-glass {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: 100px;
-  z-index: 2000;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border-radius: 50px;
+  z-index: 9999;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-/* Hide theme toggle since we are dark-only now */
-.theme-toggle {
-  display: none; 
+.ctrl-theme-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.3s var(--bezier);
 }
 
-.color-picker {
-  -webkit-appearance: none;
-  width: 25px; height: 25px; border: none; border-radius: 50%;
-  cursor: pointer; background: none;
-}
-.color-picker::-webkit-color-swatch { border: 2px solid #fff; border-radius: 50%; }
-
-/* 4. Premium Auth Card (Login/Register Card) */
-.premium-glass {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+.ctrl-theme-btn:hover {
+  transform: rotate(20deg) scale(1.2);
 }
 
-.card {
-  padding: 50px 40px;
-  border-radius: 28px;
+.ctrl-color-input {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid white;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* 🔐 AUTH SCREENS */
+.auth-screen-overlay {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, var(--primary-glow) 0%, transparent 70%);
+  padding: 20px;
+}
+
+.auth-card-glass {
   width: 100%;
-  max-width: 440px;
+  max-width: 450px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* 🏠 HOME HERO CONTENT */
+.home-hero-content {
   text-align: center;
-  animation: slideUp 0.6s var(--bezier);
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(40px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* 5. Typography & Buttons */
-.text-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, var(--primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.brand-logo-text {
+  font-size: 3rem;
   font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
 }
 
-.subtitle { 
-  color: #94a3b8; 
-  margin-bottom: 30px; 
-  font-size: 14px; 
+.brand-tagline {
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  margin-bottom: 30px;
 }
 
-.btn-premium {
-  width: 100%; 
-  padding: 15px; 
+.home-action-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* ✨ PREMIUM BUTTONS */
+.btn-primary-glow {
   background: var(--primary);
-  color: #ffffff; 
-  border: none; 
-  border-radius: 14px;
-  font-weight: 800; 
-  cursor: pointer; 
-  transition: var(--transition);
-  margin-bottom: 15px;
+  color: white;
+  border: none;
+  padding: 16px 30px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s var(--bezier);
+  box-shadow: 0 10px 20px var(--primary-glow);
 }
 
-.btn-premium:hover {
-  box-shadow: 0 0 25px var(--primary-glow);
+.btn-primary-glow:hover {
   transform: translateY(-3px);
+  box-shadow: 0 15px 30px var(--primary-glow);
   filter: brightness(1.1);
 }
 
-.btn-outline {
-  width: 100%; 
-  padding: 14px; 
+.btn-secondary-outline {
   background: transparent;
-  color: #f8fafc; 
+  color: var(--text-main);
   border: 1px solid var(--glass-border);
-  border-radius: 14px; 
-  font-weight: 600; 
+  padding: 16px 30px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s;
 }
 
-.btn-outline:hover { 
-  background: rgba(255, 255, 255, 0.05); 
+.btn-secondary-outline:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--primary);
 }
 
-/* 6. Dashboard Container Integration */
-.dashboard-container, .admin-container {
+/* 📊 DASHBOARD WRAPPER */
+.dashboard-view-wrapper {
+  width: 100%;
   animation: fadeIn 0.8s var(--bezier);
 }
 
+/* 🎬 ANIMATIONS */
+.animate-fade-in {
+  animation: fadeIn 0.6s var(--bezier);
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 📱 FOOTER */
+.global-footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+/* 🛠️ PREMIUM INPUTS (Used in Login/Register) */
+.premium-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  color: white;
+  margin-bottom: 15px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.premium-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-glow);
 }

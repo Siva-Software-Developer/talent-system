@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Login.css"; // Import styles properly
+import "./Login.css"; // Styles properly linked machi!
 
 const API = "http://localhost:5000";
 
@@ -9,7 +9,7 @@ function Login({ setPage }) {
 
   const login = async () => {
     if (!email || !password) {
-      alert("Please enter email and password");
+      alert("Machi, email and password renduமே mukkiyam! 🛑");
       return;
     }
 
@@ -21,50 +21,68 @@ function Login({ setPage }) {
       });
 
       let data = await res.json();
-      alert(data.message);
 
       if (res.status === 200) {
+        alert("Welcome back, machi! 🚀");
         localStorage.setItem("user", JSON.stringify(data.user));
+        // This triggers the App.js logic to switch to Dashboard
         setPage("dashboard");
+      } else {
+        alert(data.message || "Invalid credentials, machi!");
       }
     } catch (error) {
       console.log(error);
-      alert("Server error");
+      alert("Server error, backend check pannu machi! 🛠️");
     }
   };
 
   return (
-    <div className="auth-content">
-      <h2 className="text-gradient">Welcome Back</h2>
-      <p className="subtitle">Sign in to manage your talent portal</p>
+    <div className="login-container animate-fade-in">
+      {/* 🚀 HEADER SECTION */}
+      <div className="login-header">
+        <h2 className="login-title-gradient">Welcome Back</h2>
+        <p className="login-subtitle">Secure access to your Mission Control</p>
+      </div>
 
-      {/* 📧 EMAIL */}
-      <input
-        className="premium-input"
-        placeholder="Email Address"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      {/* 📋 FORM SECTION */}
+      <div className="login-form">
+        <div className="input-wrapper">
+          <label className="input-label">Email Address</label>
+          <input
+            type="email"
+            className="premium-input"
+            placeholder="email@talent-os.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-      {/* 🔑 PASSWORD */}
-      <input
-        type="password"
-        className="premium-input"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <div className="input-wrapper">
+          <label className="input-label">Password</label>
+          <input
+            type="password"
+            className="premium-input"
+            placeholder="ENTER YOUR REG PASSWORD"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
-      {/* 🔘 LOGIN BUTTON */}
-      <button className="btn-premium" onClick={login}>
-        Login to Dashboard 🚀
-      </button>
+        {/* 🔘 ACTION BUTTON */}
+        <button className="btn-premium login-btn-full" onClick={login}>
+          Authenticate & Enter 🚀
+        </button>
+      </div>
 
-      {/* 🔁 NAVIGATION */}
-      <div className="auth-nav">
-        <p onClick={() => setPage("forgot")}>Forgot Password?</p>
-        <span className="dot">•</span>
-        <p onClick={() => setPage("register")}>Create Account</p>
+      {/* 🔁 SECONDARY NAVIGATION */}
+      <div className="login-footer-nav">
+        <p className="nav-link" onClick={() => setPage("forgot")}>
+          Forgot Password?
+        </p>
+        <span className="nav-divider"></span>
+        <p className="nav-link highlight" onClick={() => setPage("register")}>
+          New here? Create Account
+        </p>
       </div>
     </div>
   );

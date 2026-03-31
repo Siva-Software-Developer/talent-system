@@ -37,6 +37,7 @@ function Register({ setPage }) {
   };
 
   const sendOtp = async () => {
+    if (!form.email) return alert("Email podu machi! 📧");
     let res = await fetch(`${API}/register-send-otp`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -47,11 +48,11 @@ function Register({ setPage }) {
 
   const register = async () => {
     if (!Object.values(valid).every(Boolean)) {
-      alert("Password not strong enough!");
+      alert("Password innum strong-ah illa machi! 🔐");
       return;
     }
-    if (!form.role || !form.job) {
-      alert("Please select role and job!");
+    if (!form.role || !form.job || !form.otp) {
+      alert("Ellaa details-um fill pannu machi! 📝");
       return;
     }
 
@@ -67,57 +68,68 @@ function Register({ setPage }) {
   };
 
   return (
-    <div className="register-content">
-      <h2 className="text-gradient">Join Us 🚀</h2>
-      <p className="subtitle">Create your professional profile</p>
-
-      <div className="form-grid">
-        <input className="premium-input" name="name" placeholder="Full Name" onChange={handleChange}/>
-        <input className="premium-input" name="email" placeholder="Email Address" onChange={handleChange}/>
-        <input className="premium-input" type="date" name="dob" onChange={handleChange}/>
-        <input className="premium-input" type="password" name="password" placeholder="Create Password" onChange={handleChange}/>
+    <div className="register-container animate-fade-in">
+      <div className="register-header">
+        <h2 className="register-title-gradient">Join Us 🚀</h2>
+        <p className="register-subtitle">Initialize your professional trajectory</p>
       </div>
 
-      <div className="password-check">
-        <p className={valid.length ? "valid" : "invalid"}>8+ Chars</p>
-        <p className={valid.upper ? "valid" : "invalid"}>Uppercase</p>
-        <p className={valid.lower ? "valid" : "invalid"}>Lowercase</p>
-        <p className={valid.number ? "valid" : "invalid"}>Number</p>
-        <p className={valid.special ? "valid" : "invalid"}>Symbol</p>
+      <div className="register-form-grid">
+        {/* Personal Info Section */}
+        <div className="input-group">
+          <input className="premium-input" name="name" placeholder="Full Name" onChange={handleChange}/>
+          <input className="premium-input" name="email" placeholder="Email Address" onChange={handleChange}/>
+          <input className="premium-input date-input" type="date" name="dob" title="Date of Birth" onChange={handleChange}/>
+          <input className="premium-input" type="password" name="password" placeholder="Secure Password" onChange={handleChange}/>
+        </div>
+
+        {/* Password Strength Indicators */}
+        <div className="strength-tracker">
+          <span className={valid.length ? "badge-v" : "badge-i"}>8+ Chars</span>
+          <span className={valid.upper ? "badge-v" : "badge-i"}>Upper</span>
+          <span className={valid.lower ? "badge-v" : "badge-i"}>Lower</span>
+          <span className={valid.number ? "badge-v" : "badge-i"}>Num</span>
+          <span className={valid.special ? "badge-v" : "badge-i"}>Sym</span>
+        </div>
+
+        {/* Professional Info Section */}
+        <div className="input-group-row">
+          <select className="premium-input select-styled" name="role" onChange={handleChange}>
+            <option value="">Select Role</option>
+            <option value="admin">Admin</option>
+            <option value="employee">Employee</option>
+          </select>
+
+          <select className="premium-input select-styled" name="job" onChange={handleChange}>
+            <option value="">Job Role</option>
+            <optgroup label="Development">
+              <option>Frontend Developer</option>
+              <option>Backend Developer</option>
+              <option>Full Stack Developer</option>
+            </optgroup>
+            <optgroup label="Management">
+              <option>Project Manager</option>
+              <option>Team Lead</option>
+            </optgroup>
+          </select>
+        </div>
+
+        {/* OTP Section */}
+        <div className="otp-verification-row">
+          <input className="premium-input otp-field" name="otp" placeholder="Verification OTP" onChange={handleChange}/>
+          <button className="btn-send-otp-inline" onClick={sendOtp}>Get OTP</button>
+        </div>
       </div>
 
-      <div className="form-grid">
-        <select className="premium-input" name="role" onChange={handleChange}>
-          <option value="">Select Role</option>
-          <option value="admin">Admin</option>
-          <option value="employee">Employee</option>
-        </select>
+      <button className="btn-premium register-btn-full" onClick={register}>
+        Complete Registration ✨
+      </button>
 
-        <select className="premium-input" name="job" onChange={handleChange}>
-          <option value="">Select Job Role</option>
-          <optgroup label="Development">
-            <option>Frontend Developer</option>
-            <option>Backend Developer</option>
-            <option>Full Stack Developer</option>
-          </optgroup>
-          <optgroup label="Management">
-            <option>Project Manager</option>
-            <option>Team Lead</option>
-          </optgroup>
-          {/* Add more optgroups as needed */}
-        </select>
+      <div className="register-footer">
+        <p className="login-link-text" onClick={()=>setPage("login")}>
+          Already have an account? <span className="highlight-text">Login</span>
+        </p>
       </div>
-
-      <div className="otp-group">
-        <button className="btn-otp" onClick={sendOtp}>Send OTP</button>
-        <input className="premium-input" name="otp" placeholder="Enter OTP" onChange={handleChange}/>
-      </div>
-
-      <button className="btn-premium" onClick={register}>Complete Registration ✨</button>
-
-      <p className="back-link" onClick={()=>setPage("login")}>
-        Already have account? <span>Login</span>
-      </p>
     </div>
   );
 }

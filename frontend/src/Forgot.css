@@ -1,87 +1,191 @@
-/* Forgot.css */
+/* =========================================
+   TALENT OS - RECOVERY SYSTEM (Forgot.css)
+   ========================================= */
 
-.forgot-content {
+/* Container Setup */
+.recovery-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
+  text-align: left;
 }
 
-/* 1. Inputs Style - Dark Glass Fixed */
-.premium-input {
+/* Header Text Styles */
+.recovery-header {
+  margin-bottom: 5px;
+}
+
+.recovery-title-gradient {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #fff, var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.recovery-subtitle {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Input Sections */
+.recovery-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Integrated Email + OTP Button */
+.input-group-glass {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.recovery-input {
   width: 100%;
-  padding: 14px 18px;
-  margin: 8px 0;
-  background: rgba(255, 255, 255, 0.03); /* Fixed Dark Background */
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  color: #f8fafc; /* Forced White Text */
-  font-size: 15px;
-  outline: none;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.premium-input:focus {
-  border-color: #6366f1; /* Primary Indigo */
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
-}
-
-/* 2. OTP Button (Outline Style) */
-.btn-otp {
-  background: transparent;
-  color: #6366f1;
-  border: 1px solid #6366f1;
-  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px 16px;
   border-radius: 12px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.recovery-input:focus {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.btn-send-otp {
+  position: absolute;
+  right: 8px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  margin-top: 5px;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.2s ease;
 }
 
-.btn-otp:hover {
-  background: #6366f1;
-  color: #ffffff; /* Changed to white for better contrast in dark mode */
-  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+.btn-send-otp:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
 }
 
-/* 3. Divider */
-.divider {
+/* Middle Divider Styling */
+.recovery-divider {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 20px 0;
-  color: #94a3b8; /* Dim Slate */
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  margin: 10px 0;
 }
 
-.divider::before, .divider::after {
-  content: '';
+.recovery-divider::before,
+.recovery-divider::after {
+  content: "";
   flex: 1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.divider span {
-  padding: 0 10px;
+.recovery-divider span {
+  padding: 0 15px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
-/* 4. Back Link */
-.back-link {
-  margin-top: 20px;
-  color: #94a3b8;
-  font-size: 14px;
-  font-weight: 600;
+/* Reset Button Premium */
+.btn-reset-password {
+  background: linear-gradient(135deg, var(--primary), #818cf8);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
+  margin-top: 5px;
+  box-shadow: 0 10px 20px -5px var(--primary-glow);
   transition: all 0.3s ease;
+}
+
+.btn-reset-password:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -5px var(--primary);
+}
+
+.btn-reset-password:active {
+  transform: translateY(0);
+}
+
+/* Footer Link Styles */
+.recovery-footer {
+  margin-top: 10px;
   text-align: center;
 }
 
-.back-link:hover {
-  color: #6366f1;
+.back-to-login {
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.back-to-login:hover {
+  color: var(--primary);
+}
+
+.back-to-login .arrow {
+  transition: transform 0.3s ease;
+}
+
+.back-to-login:hover .arrow {
   transform: translateX(-5px);
 }
 
-/* 5. Light Mode Support - REMOVED */
-/* No more light mode overrides here! */
+/* Entry Animation */
+.animate-fade-in {
+  animation: recoveryEntry 0.5s ease-out forwards;
+}
+
+@keyframes recoveryEntry {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Light Mode Overrides */
+body.light .recovery-input {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #1e293b;
+}
+
+body.light .recovery-subtitle, 
+body.light .back-to-login {
+  color: #64748b;
+}
+
+body.light .recovery-divider span {
+  color: #94a3b8;
+}

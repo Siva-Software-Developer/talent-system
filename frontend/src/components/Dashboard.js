@@ -1,46 +1,61 @@
 import { useEffect, useState, useCallback } from "react";
 import "./Dashboard.css";
-import Sidebar from "./Sidebar";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+
+// ✅ CUSTOM COMPONENTS
+import AllChat from "./AllChat";
+import AttendanceForm from "./AttendanceForm";
+import ProgressUpdateModal from "./ProgressUpdateModal";
+import HelpSupport from "./HelpSupport"; // Machi, namma puthu component!
 
 const API = "http://localhost:5000";
 
 function Dashboard({ setPage }) {
-  // 1. STATES
   const [tasks, setTasks] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [readNotifications, setReadNotifications] = useState([]);
   const [user, setUser] = useState(null);
   const [tab, setTab] = useState("pending");
   const [taskInputs, setTaskInputs] = useState({});
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [prevTaskCount, setPrevTaskCount] = useState(0);
+  
+  // Machi, Help section toggle panna intha state mukkiyam
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
-  // 2. FETCH TASKS LOGIC
   const fetchTasks = async () => {
     try {
       const res = await fetch(`${API}/tasks`);
       const data = await res.json();
+
+      if (data.length > prevTaskCount && user) {
+        const newTasks = data.filter(
+          (t) => t.assigned_to === user.email
+        );
+
+        if (newTasks.length > 0) {
+          setNotifications(newTasks);
+        }
+      }
+
+      setPrevTaskCount(data.length);
       setTasks(data);
     } catch (err) {
       console.error("Task fetch error:", err);
     }
   };
 
-  // 3. FETCH NOTIFICATIONS (FIXED WITH useCallback TO AVOID WARNING)
   const fetchNotifications = useCallback(async (currentUser) => {
-    if (!currentUser) {
-      return;
-    }
+    if (!currentUser) return;
 
     try {
       const res = await fetch(`${API}/tasks`);
       const data = await res.json();
 
-      // Only show tasks assigned to this specific user
       const myTasks = data.filter(
         (t) => t.assigned_to === currentUser.email
       );
 
-      // Filter out notifications that user already clicked 'Read'
       const unread = myTasks.filter(
         (t) => !readNotifications.includes(t.id)
       );
@@ -49,9 +64,8 @@ function Dashboard({ setPage }) {
     } catch (err) {
       console.error("Notification fetch error:", err);
     }
-  }, [readNotifications]); 
+  }, [readNotifications]);
 
-  // 4. LOAD INITIAL DATA
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
@@ -60,25 +74,19 @@ function Dashboard({ setPage }) {
       fetchTasks();
       fetchNotifications(storedUser);
     }
-  }, [fetchNotifications]); // Ippo warning varadhu machi!
 
-  // 5. TASK OPERATIONS (DELETE & COMPLETE)
-  const deleteTask = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this task?");
-    if (!confirmDelete) return;
-
-    try {
-      await fetch(`${API}/tasks/${id}`, { method: "DELETE" });
+    const interval = setInterval(() => {
       fetchTasks();
-      fetchNotifications(user);
-    } catch (err) {
-      alert("Delete failed");
-    }
-  };
+      if (storedUser) fetchNotifications(storedUser);
+    }, 5000);
+
+    return () => clearInterval(interval);
+
+  }, [fetchNotifications]);
 
   const markComplete = async (task) => {
     const inputs = taskInputs[task.id] || {};
-    
+
     if (!inputs.proof || !inputs.github) {
       alert("Please provide both Proof and GitHub links!");
       return;
@@ -100,104 +108,111 @@ function Dashboard({ setPage }) {
 
       fetchTasks();
       fetchNotifications(user);
+
     } catch (err) {
       alert("Error completing task");
     }
   };
 
-  // 6. NOTIFICATION CONTROLS
-  const markAsRead = (id) => {
-    setReadNotifications((prev) => [...prev, id]);
-  };
-
-  const clearAllNotifications = () => {
-    const allIds = notifications.map((n) => n.id);
-    setReadNotifications((prev) => [...prev, ...allIds]);
-    setNotifications([]);
-  };
-
-  // 7. FILTERED LISTS FOR RENDER
-  const pendingTasks = tasks.filter(
-    (t) => t.status === "pending" && t.assigned_to === user?.email
+  const userTasks = tasks.filter(
+    (t) => t.assigned_to === user?.email
   );
 
-  const completedTasks = tasks.filter(
-    (t) => t.status === "completed" && t.assigned_to === user?.email
-  );
+  const pendingTasks = userTasks.filter((t) => t.status === "pending");
+  const inProgressTasks = userTasks.filter((t) => t.status === "in_progress");
+  const completedTasks = userTasks.filter((t) => t.status === "completed");
+  const blockedTasks = userTasks.filter((t) => t.status === "blocked");
 
-  // Chart Data
   const chartData = [
     { name: "Pending", value: pendingTasks.length, color: "#ff4d4d" },
-    { name: "Completed", value: completedTasks.length, color: "#2ecc71" }
+    { name: "In Progress", value: inProgressTasks.length, color: "#f1c40f" },
+    { name: "Completed", value: completedTasks.length, color: "#2ecc71" },
+    { name: "Blocked", value: blockedTasks.length, color: "#8e44ad" }
   ];
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#f4f7f6" }}>
+    <div className="dashboard-root">
       
-      {/* LEFT SIDEBAR */}
-      <Sidebar setTab={setTab} tab={tab} />
-
-      <div className="dashboard-container" style={{ flex: 1, padding: "20px" }}>
-        
-        {/* USER PROFILE CARD */}
-        <div className="user-card premium-glass">
-          <div className="user-info">
-            <h2>Welcome back, {user?.name} 👋</h2>
-            <p className="user-meta">{user?.role} • {user?.job}</p>
+      {/* HEADER SECTION */}
+      <header className="dashboard-top-nav">
+        <div className="header-user-profile">
+          <h2 className="header-welcome-msg">Welcome, {user?.name} 👋</h2>
+          <div className="header-meta-info">
+            <span className="badge-pill role-badge">{user?.role}</span>
+            <span className="badge-pill job-badge">{user?.job}</span>
           </div>
-          <button className="logout-btn" onClick={() => setPage("login")}>
-            Logout
-          </button>
         </div>
+        
+        <div className="header-actions">
+           {/* HELP TOGGLE BUTTON */}
+           <button 
+             className={`help-toggle-btn ${isHelpOpen ? 'active' : ''}`} 
+             onClick={() => setIsHelpOpen(!isHelpOpen)}
+           >
+             {isHelpOpen ? "❌ Close Help" : "❓ Need Help?"}
+           </button>
 
-        {/* NOTIFICATION POPUP */}
-        {notifications.length > 0 && (
-          <div className="notification-popup-alert">
-            <span className="pulse-icon">🔔</span> 
-            {notifications.length} New Tasks need your attention!
-          </div>
-        )}
+           <button className="dashboard-signout-btn" onClick={() => setPage("login")}>
+             Sign Out
+           </button>
+        </div>
+      </header>
 
-        <div className="main-content-area">
+      {/* NOTIFICATION TOAST */}
+      {notifications.length > 0 && (
+        <div className="alert-banner-toast">
+          <span className="pulse-dot"></span>
+          🔔 <strong>{notifications.length}</strong> New Tasks Assigned!
+        </div>
+      )}
+
+      <main className="dashboard-grid-layout">
+        
+        {/* LEFT COLUMN: CHAT, ATTENDANCE & HELP */}
+        <aside className="dashboard-sidebar-widgets">
+          <AllChat />
+          <AttendanceForm />
           
-          {/* MARQUEE RUNNING BAR */}
-          <div className="running-bar">
-            <div className="scroll-text">
-              🚀 Status Update: {pendingTasks.length} tasks pending review. Keep it up! 🔔 {notifications.length} Unread Notifications.
-            </div>
+          {/* MACHI: Help Support-ah inga integrate panniruken, header button click panna open aagum */}
+          {isHelpOpen && <HelpSupport user={user} />}
+        </aside>
+
+        {/* RIGHT COLUMN: CONTENT */}
+        <div className="dashboard-main-content">
+          
+          {/* RUNNING STATS BAR */}
+          <div className="stats-ticker-bar">
+            <div className="ticker-item"><span className="dot pending-dot"></span> {pendingTasks.length} Pending</div>
+            <div className="ticker-item"><span className="dot progress-dot"></span> {inProgressTasks.length} In Progress</div>
+            <div className="ticker-item"><span className="dot complete-dot"></span> {completedTasks.length} Completed</div>
+            <div className="ticker-item"><span className="dot blocked-dot) "></span> {blockedTasks.length} Blocked</div>
           </div>
 
-          {/* ANALYTICS & STATS SECTION */}
-          <div className="analytics-section">
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h4>Assigned Tasks</h4>
-                <p className="stat-num">{pendingTasks.length + completedTasks.length}</p>
+          {/* ANALYTICS CARDS */}
+          <section className="analytics-dashboard-section">
+            <div className="metric-cards-grid">
+              <div className="metric-card card-total">
+                <p className="metric-label">Total Assigned</p>
+                <h3 className="metric-value">{userTasks.length}</h3>
               </div>
-              <div className="stat-card">
-                <h4 style={{ color: "#ff4d4d" }}>Pending</h4>
-                <p className="stat-num">{pendingTasks.length}</p>
+              <div className="metric-card card-pending">
+                <p className="metric-label">Remaining</p>
+                <h3 className="metric-value">{pendingTasks.length}</h3>
               </div>
-              <div className="stat-card">
-                <h4 style={{ color: "#2ecc71" }}>Completed</h4>
-                <p className="stat-num">{completedTasks.length}</p>
+              <div className="metric-card card-completed">
+                <p className="metric-label">Finished</p>
+                <h3 className="metric-value">{completedTasks.length}</h3>
               </div>
             </div>
 
-            <div className="chart-box premium-glass">
-              <h3>📊 Performance Overview</h3>
-              <div style={{ width: '100%', height: 250 }}>
-                <ResponsiveContainer>
+            <div className="performance-chart-container">
+              <h3 className="section-sub-title">Performance Overview</h3>
+              <div className="chart-wrapper-inner">
+                <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
-                    <Pie
-                      data={chartData}
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
+                    <Pie data={chartData} dataKey="value" innerRadius={60} outerRadius={80} paddingAngle={5}>
                       {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={index} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -205,107 +220,99 @@ function Dashboard({ setPage }) {
                 </ResponsiveContainer>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* NOTIFICATION CENTER */}
-          <div className="notification-center">
-            <div className="section-header">
-              <h3>Recent Notifications</h3>
-              {notifications.length > 0 && (
-                <button className="clear-btn" onClick={clearAllNotifications}>
-                  Mark All as Read
-                </button>
-              )}
-            </div>
-            
-            <div className="notification-list">
-              {notifications.length === 0 ? (
-                <p className="no-data">No new notifications</p>
-              ) : (
-                notifications.map((n) => (
-                  <div key={n.id} className="notification-item">
-                    <span>📌 New Task Assigned: <strong>{n.title}</strong></span>
-                    <button onClick={() => markAsRead(n.id)}>✕</button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* TASK MANAGEMENT TABS */}
-          <div className="task-management-section">
-            <div className="tab-buttons">
-              <button 
-                className={tab === "pending" ? "active-tab" : ""} 
-                onClick={() => setTab("pending")}
-              >
-                Pending List ({pendingTasks.length})
+          {/* TASK MANAGEMENT */}
+          <section className="task-board-section">
+            <div className="task-tabs-navigation">
+              <button className={`nav-tab-btn ${tab === "pending" ? "is-active" : ""}`} onClick={() => setTab("pending")}>
+                Pending ({pendingTasks.length})
               </button>
-              <button 
-                className={tab === "completed" ? "active-tab" : ""} 
-                onClick={() => setTab("completed")}
-              >
-                Completed History ({completedTasks.length})
+              <button className={`nav-tab-btn ${tab === "in_progress" ? "is-active" : ""}`} onClick={() => setTab("in_progress")}>
+                In Progress ({inProgressTasks.length})
+              </button>
+              <button className={`nav-tab-btn ${tab === "completed" ? "is-active" : ""}`} onClick={() => setTab("completed")}>
+                Completed ({completedTasks.length})
               </button>
             </div>
 
-            <div className="tasks-display-area">
-              {(tab === "pending" ? pendingTasks : completedTasks).map((task) => (
-                <div key={task.id} className={`task-card-item ${task.status}`}>
-                  <div className="task-content">
-                    <h4>{task.title}</h4>
-                    <p>{task.description}</p>
+            <div className="task-cards-display-grid">
+              {(tab === "pending" ? pendingTasks : tab === "in_progress" ? inProgressTasks : completedTasks).map((task) => {
+                const isOverdue = new Date() > new Date(task.dueDate) && task.status !== "completed";
+
+                return (
+                  <div key={task.id} className={`task-item-card status-${task.status}`}>
+                    <div className="task-card-header">
+                      <h4 className="task-card-title">{task.title}</h4>
+                      <span className={`status-pill pill-${task.status}`}>{task.status}</span>
+                    </div>
                     
-                    {task.status === "pending" ? (
-                      <div className="submission-form">
-                        <input
-                          type="text"
-                          placeholder="Link to Proof (Drive/Image)"
-                          value={taskInputs[task.id]?.proof || ""}
-                          onChange={(e) =>
-                            setTaskInputs({
+                    <p className="task-card-desc">{task.description}</p>
+
+                    <div className="task-card-meta">
+                      <p className={`deadline-text ${isOverdue ? "text-danger" : "text-success"}`}>
+                        📅 Deadline: {task.dueDate}
+                      </p>
+                      <div className="progress-container-main">
+                        <div className="progress-label-row">
+                          <span>Progress</span>
+                          <span>{task.progress}%</span>
+                        </div>
+                        <div className="progress-track-bg">
+                          <div className="progress-fill-bar" style={{ width: `${task.progress}%` }}></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="task-card-actions">
+                      {task.status !== "completed" && (
+                        <button className="btn-update-progress" onClick={() => setSelectedTask(task)}>
+                          Update Progress
+                        </button>
+                      )}
+
+                      {task.status === "pending" && (
+                        <div className="submission-fields-group">
+                          <input
+                            className="task-form-input"
+                            placeholder="🔗 Proof Link"
+                            onChange={(e) => setTaskInputs({
                               ...taskInputs,
                               [task.id]: { ...taskInputs[task.id], proof: e.target.value }
-                            })
-                          }
-                        />
-                        <input
-                          type="text"
-                          placeholder="GitHub Repository Link"
-                          value={taskInputs[task.id]?.github || ""}
-                          onChange={(e) =>
-                            setTaskInputs({
+                            })}
+                          />
+                          <input
+                            className="task-form-input"
+                            placeholder="🐙 GitHub Link"
+                            onChange={(e) => setTaskInputs({
                               ...taskInputs,
                               [task.id]: { ...taskInputs[task.id], github: e.target.value }
-                            })
-                          }
-                        />
-                        <button className="complete-btn" onClick={() => markComplete(task)}>
-                          SUBMIT WORK
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="completed-info">
-                        <p>🎯 <strong>Status:</strong> Completed</p>
-                        <p>🔗 <a href={task.proof_link} target="_blank" rel="noreferrer">View Proof</a></p>
-                        <p>💻 <a href={task.github_link} target="_blank" rel="noreferrer">GitHub Link</a></p>
-                      </div>
-                    )}
+                            })}
+                          />
+                          <button className="btn-submit-task" onClick={() => markComplete(task)}>
+                            Submit Work
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <button className="del-task-btn" onClick={() => deleteTask(task.id)}>
-                    🗑️
-                  </button>
-                </div>
-              ))}
-              
-              {(tab === "pending" ? pendingTasks : completedTasks).length === 0 && (
-                <div className="empty-state">No tasks found in this category.</div>
-              )}
+                );
+              })}
             </div>
-          </div>
+          </section>
 
         </div>
-      </div>
+      </main>
+
+      {/* MODAL OVERLAY */}
+      {selectedTask && (
+        <ProgressUpdateModal
+          task={selectedTask}
+          close={() => setSelectedTask(null)}
+          refresh={fetchTasks}
+        />
+      )}
+
     </div>
   );
 }

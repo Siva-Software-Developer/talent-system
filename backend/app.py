@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from database import users, notifications, tasks_db 
+from database import users, notifications, tasks_db, db # db added for help collections
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
@@ -8,6 +8,7 @@ import re
 import random
 import time
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -44,15 +45,22 @@ def is_valid_email(email):
     pattern = r"[^@]+@[^@]+\.[^@]+"
     return re.match(pattern, email) is not None
 
+def check_overdue(task):
+    try:
+        if task.get("dueDate"):
+            due_time = time.mktime(time.strptime(task["dueDate"], "%Y-%m-%d"))
+            return time.time() > due_time and task.get("status") != "completed"
+    except:
+        return False
+    return False
+
 otp_store = {}
 
 def send_otp(email, otp):
     try:
-        msg = Message(
-            subject="Your OTP Code - Talent OS",
-            recipients=[email],
-            body=f"Your OTP for verification is: {otp}"
-        )
+        msg = Message("Your OTP Code - Talent OS",
+                      recipients=[email],
+                      body=f"Your OTP for verification is: {otp}")
         mail.send(msg)
         return True
     except Exception as e:
@@ -61,11 +69,9 @@ def send_otp(email, otp):
 
 def send_task_notification(email, title):
     try:
-        msg = Message(
-            subject="New Task Assigned",
-            recipients=[email],
-            body=f"New task '{title}' assigned to you."
-        )
+        msg = Message("New Task Assigned",
+                      recipients=[email],
+                      body=f"New task '{title}' assigned to you.")
         mail.send(msg)
     except Exception as e:
         print("NOTIF ERROR:", e)
@@ -201,81 +207,187 @@ def reset_password():
     return jsonify({"message": "Password reset successful"}), 200
 
 
-# ================= TASK =================
+# ================= TASK MANAGEMENT =================
 
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    all_tasks = list(tasks_db.find({}, {"_id": 0}))
-    return jsonify(all_tasks), 200
+    tasks = list(tasks_db.find({}, {"_id": 0}))
+    for t in tasks:
+        t["isOverdue"] = check_overdue(t)
+    return jsonify(tasks), 200
+
+
+@app.route('/tasks/filter', methods=['GET'])
+def filter_tasks():
+    try:
+        status = request.args.get("status")
+        assigned_to = request.args.get("assigned_to")
+
+        query = {}
+        if status:
+            query["status"] = status
+        if assigned_to:
+            query["assigned_to"] = assigned_to
+
+        tasks = list(tasks_db.find(query, {"_id": 0}))
+        for t in tasks:
+            t["isOverdue"] = check_overdue(t)
+
+        return jsonify(tasks), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/tasks/user/<email>', methods=['GET'])
+def get_tasks_by_user(email):
+    tasks = list(tasks_db.find({"assigned_to": email}, {"_id": 0}))
+    for t in tasks:
+        t["isOverdue"] = check_overdue(t)
+    return jsonify(tasks), 200
 
 
 @app.route('/admin/assign-task', methods=['POST'])
 def admin_assign_task():
-    title = request.form.get("title")
-    description = request.form.get("description")
-    due_date = request.form.get("dueDate")
-    assigned_by = request.form.get("assigned_by")
-    assigned_emails = request.form.getlist("assigned_to")
+    try:
+        title = request.form.get("title")
+        description = request.form.get("description")
+        due_date = request.form.get("dueDate")
+        assigned_by = request.form.get("assigned_by")
+        assigned_emails = request.form.getlist("assigned_to")
 
-    pdf_filename = None
-    if 'task_file' in request.files:
-        file = request.files['task_file']
-        if file.filename != '':
-            pdf_filename = secure_filename(f"{int(time.time())}_{file.filename}")
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename))
+        pdf_filename = None
+        if 'task_file' in request.files:
+            file = request.files['task_file']
+            if file.filename:
+                pdf_filename = secure_filename(f"{int(time.time())}_{file.filename}")
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename))
 
-    group_id = int(time.time())
+        group_id = int(time.time())
 
-    for email in assigned_emails:
-        task_id = int(time.time() * 1000) + random.randint(1, 999)
+        for email in assigned_emails:
+            task_id = int(time.time()*1000)+random.randint(1,999)
 
-        new_task = {
-            "id": task_id,
-            "group_id": group_id,
-            "title": title,
-            "description": description,
-            "status": "pending",
-            "dueDate": due_date,
-            "assigned_to": email,
-            "assigned_by": assigned_by,
-            "pdf_url": pdf_filename,
-            "created_at": time.strftime('%Y-%m-%d %H:%M:%S'),
-            "completed_at": None,
-            "proof_link": None,
-            "github_link": None
-        }
+            tasks_db.insert_one({
+                "id": task_id,
+                "group_id": group_id,
+                "title": title,
+                "description": description,
+                "status": "pending",
+                "progress": 0,
+                "daily_updates": [],
+                "dueDate": due_date,
+                "assigned_to": email,
+                "assigned_by": assigned_by,
+                "pdf_url": pdf_filename,
+                "created_at": time.strftime('%Y-%m-%d %H:%M:%S'),
+                "proof_link": None,
+                "github_link": None
+            })
 
-        tasks_db.insert_one(new_task)
+            notifications.insert_one({
+                "user_email": email,
+                "message": f"New Task: {title}",
+                "task_id": task_id,
+                "read": False
+            })
 
-        notifications.insert_one({
-            "user_email": email,
-            "message": f"New Task: {title}",
-            "task_id": task_id,
-            "read": False
-        })
+            send_task_notification(email, title)
 
-        send_task_notification(email, title)
+        return jsonify({"message": "Task assigned"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    return jsonify({"message": f"Task assigned to {len(assigned_emails)} employees"}), 201
+
+@app.route('/update-progress', methods=['POST'])
+def update_progress():
+    try:
+        data = request.get_json()
+        task_id = int(data.get("taskId"))
+        progress = int(data.get("progress"))
+        update_text = data.get("update")
+
+        status = "pending" if progress == 0 else "completed" if progress == 100 else "in_progress"
+
+        tasks_db.update_one(
+            {"id": task_id},
+            {
+                "$set": {"progress": progress, "status": status},
+                "$push": {
+                    "daily_updates": {
+                        "date": time.strftime('%Y-%m-%d %H:%M:%S'),
+                        "update": update_text,
+                        "progress": progress
+                    }
+                }
+            }
+        )
+        return jsonify({"message": "Progress updated"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/admin/dashboard', methods=['GET'])
+def admin_dashboard():
+    tasks = list(tasks_db.find({}, {"_id": 0}))
+    stats = {"total": len(tasks), "completed":0,"pending":0,"in_progress":0,"blocked":0}
+    employee_data = {}
+
+    for t in tasks:
+        stats[t.get("status","pending")] += 1
+        emp = t.get("assigned_to")
+        employee_data.setdefault(emp, []).append(t)
+
+    return jsonify({"stats": stats, "employee_tasks": employee_data}), 200
+
+
+@app.route('/admin/analytics', methods=['GET'])
+def analytics():
+    tasks = list(tasks_db.find({}, {"_id": 0}))
+    total = len(tasks)
+    completed = len([t for t in tasks if t["status"]=="completed"])
+    avg = sum(t.get("progress",0) for t in tasks)/total if total else 0
+
+    return jsonify({
+        "total_tasks": total,
+        "completion_rate": (completed/total*100 if total else 0),
+        "average_progress": avg
+    }), 200
 
 
 @app.route('/employee/complete-task', methods=['POST'])
 def complete_task():
     data = request.get_json()
-
-    result = tasks_db.update_one(
+    tasks_db.update_one(
         {"id": data.get("id")},
         {"$set": {
             "status": "completed",
+            "progress": 100,
             "proof_link": data.get("proof_link"),
-            "github_link": data.get("github_link")
+            "github_link": data.get("github_link"),
+            "completed_at": time.strftime('%Y-%m-%d %H:%M:%S')
         }}
     )
+    return jsonify({"message": "Completed"}), 200
 
-    if result.modified_count:
-        return jsonify({"message": "Completed"}), 200
 
-    return jsonify({"message": "Task not found"}), 404
+@app.route('/delete-task/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    tasks_db.delete_one({"id": task_id})
+    return jsonify({"message": "Deleted"}), 200
+
+
+@app.route('/update-task/<int:task_id>', methods=['PUT'])
+def update_task(task_id):
+    tasks_db.update_one(
+        {"id": task_id},
+        {"$set": {
+            "title": request.form.get("title"),
+            "description": request.form.get("description"),
+            "dueDate": request.form.get("dueDate")
+        }}
+    )
+    return jsonify({"message": "Updated"}), 200
 
 
 @app.route('/uploads/pdfs/<filename>')
@@ -285,24 +397,117 @@ def download_pdf(filename):
 
 @app.route("/users", methods=["GET"])
 def get_users():
-    user_list = list(users.find({}, {"_id": 0, "password": 0}))
-    return jsonify(user_list), 200
-# ================= DELETE TASK =================
+    return jsonify(list(users.find({}, {"_id": 0, "password": 0}))), 200
 
-@app.route('/delete-task/<int:task_id>', methods=['DELETE'])
-def delete_task(task_id):
+# ================= 🟢 ATTENDANCE (SOD / EOD) =================
+
+@app.route('/sod', methods=['POST'])
+def submit_sod():
     try:
-        result = tasks_db.delete_one({"id": task_id})
+        data = request.json
+        db.sod.insert_one(data)
+        return jsonify({"message": "SOD saved"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-        if result.deleted_count == 1:
-            return jsonify({"message": "Task deleted successfully"}), 200
-        else:
-            return jsonify({"error": "Task not found"}), 404
 
+@app.route('/eod', methods=['POST'])
+def submit_eod():
+    try:
+        data = request.json
+        db.eod.insert_one(data)
+        return jsonify({"message": "EOD saved"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/sod', methods=['GET'])
+def get_sod():
+    try:
+        data = list(db.sod.find({}, {"_id": 0}))
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/eod', methods=['GET'])
+def get_eod():
+    try:
+        data = list(db.eod.find({}, {"_id": 0}))
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ================= 📢 ALL CHAT =================
+
+@app.route('/messages', methods=['POST'])
+def send_message():
+    try:
+        data = request.json
+        db.messages.insert_one(data)
+        return jsonify({"message": "Message sent"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/messages', methods=['GET'])
+def get_messages():
+    try:
+        messages = list(db.messages.find({}, {"_id": 0}))
+        return jsonify(messages), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ================= 💡 HELP & SUPPORT (NEW) =================
+
+@app.route('/help/raise-ticket', methods=['POST'])
+def raise_ticket():
+    try:
+        data = request.get_json()
+        ticket_id = int(time.time() * 1000)
+        
+        ticket_obj = {
+            "ticket_id": ticket_id,
+            "employee_name": data.get("name"),
+            "employee_email": data.get("email"),
+            "message": data.get("message"),
+            "status": "open",
+            "priority": "medium",
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        db.help_tickets.insert_one(ticket_obj)
+        
+        # Optionally notify Admin via Email
+        return jsonify({"message": "Support ticket raised successfully!", "ticket_id": ticket_id}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/help/tickets', methods=['GET'])
+def get_tickets():
+    try:
+        # For Admin to see all tickets
+        tickets = list(db.help_tickets.find({}, {"_id": 0}))
+        return jsonify(tickets), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/help/tickets/update', methods=['POST'])
+def update_ticket_status():
+    try:
+        data = request.get_json()
+        db.help_tickets.update_one(
+            {"ticket_id": data.get("ticket_id")},
+            {"$set": {"status": data.get("status")}}
+        )
+        return jsonify({"message": "Ticket status updated"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 # ================= RUN =================
-
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
