@@ -15,10 +15,14 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ================= STORAGE CONFIG =================
 UPLOAD_FOLDER = 'uploads/task_pdfs'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+PROFILE_FOLDER = 'uploads/profiles' # 🆕 Added profile picture folder
+
+for folder in [UPLOAD_FOLDER, PROFILE_FOLDER]:
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['PROFILE_FOLDER'] = PROFILE_FOLDER # 🆕 Save profile pictures here
 
 # ================= MAIL CONFIG =================
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -30,6 +34,22 @@ app.config['MAIL_PASSWORD'] = 'bbkdtalmklbxhpav'
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
 mail = Mail(app)
+
+# ================= 🆕 FILE UPLOAD UTILS (INTEGRATED) =================
+
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_file(file, folder):
+    """Helper to handle secure saving of files"""
+    if file and allowed_file(file.filename):
+        filename = secure_filename(f"{int(time.time())}_{file.filename}")
+        file.save(os.path.join(folder, filename))
+        return filename
+    return None
 
 # ================= UTILS =================
 
@@ -124,6 +144,8 @@ def register_verify():
         "password": generate_password_hash(password),
         "role": data.get("role", "employee"),
         "job": data.get("job"),
+        "profile_pic": None, # 🆕 Added profile field
+        "dob": None,         # 🆕 Added DOB field
         "is_verified": True
     })
 
@@ -147,7 +169,9 @@ def login():
         "user": {
             "name": user["name"],
             "email": user["email"],
-            "role": user["role"]
+            "role": user["role"],
+            "profile_pic": user.get("profile_pic"), # 🆕 Return profile image
+            "dob": user.get("dob")                   # 🆕 Return DOB
         }
     }), 200
 
@@ -207,6 +231,32 @@ def reset_password():
     return jsonify({"message": "Password reset successful"}), 200
 
 
+# 🆕 ================= PHASE 1: USER PROFILE UPDATE =================
+
+@app.route('/api/user/profile/update', methods=['POST'])
+def update_profile():
+    try:
+        email = request.form.get("email")
+        name = request.form.get("name")
+        dob = request.form.get("dob")
+        
+        update_data = {}
+        if name: update_data["name"] = name
+        if dob: update_data["dob"] = dob
+
+        if 'profile_pic' in request.files:
+            file = request.files['profile_pic']
+            # Using integrated helper
+            filename = save_uploaded_file(file, app.config['PROFILE_FOLDER'])
+            if filename:
+                update_data["profile_pic"] = filename
+
+        users.update_one({"email": email}, {"$set": update_data})
+        return jsonify({"message": "Profile updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ================= TASK MANAGEMENT =================
 
 @app.route('/tasks', methods=['GET'])
@@ -259,9 +309,8 @@ def admin_assign_task():
         pdf_filename = None
         if 'task_file' in request.files:
             file = request.files['task_file']
-            if file.filename:
-                pdf_filename = secure_filename(f"{int(time.time())}_{file.filename}")
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename))
+            # Using integrated helper
+            pdf_filename = save_uploaded_file(file, app.config['UPLOAD_FOLDER'])
 
         group_id = int(time.time())
 
@@ -282,7 +331,8 @@ def admin_assign_task():
                 "pdf_url": pdf_filename,
                 "created_at": time.strftime('%Y-%m-%d %H:%M:%S'),
                 "proof_link": None,
-                "github_link": None
+                "github_link": None,
+                "blocker": None # 🆕 Ensure blocker field exists
             })
 
             notifications.insert_one({
@@ -306,22 +356,27 @@ def update_progress():
         task_id = int(data.get("taskId"))
         progress = int(data.get("progress"))
         update_text = data.get("update")
+        blocker_msg = data.get("blocker") # 🆕 Added support for blocker reports
 
         status = "pending" if progress == 0 else "completed" if progress == 100 else "in_progress"
+        if blocker_msg:
+            status = "blocked"
 
-        tasks_db.update_one(
-            {"id": task_id},
-            {
-                "$set": {"progress": progress, "status": status},
-                "$push": {
-                    "daily_updates": {
-                        "date": time.strftime('%Y-%m-%d %H:%M:%S'),
-                        "update": update_text,
-                        "progress": progress
-                    }
+        update_payload = {
+            "$set": {"progress": progress, "status": status},
+            "$push": {
+                "daily_updates": {
+                    "date": time.strftime('%Y-%m-%d %H:%M:%S'),
+                    "update": update_text,
+                    "progress": progress
                 }
             }
-        )
+        }
+
+        if blocker_msg:
+            update_payload["$set"]["blocker"] = blocker_msg
+
+        tasks_db.update_one({"id": task_id}, update_payload)
         return jsonify({"message": "Progress updated"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -394,10 +449,15 @@ def update_task(task_id):
 def download_pdf(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+@app.route('/uploads/profiles/<filename>')
+def view_profile_pic(filename):
+    return send_from_directory(app.config['PROFILE_FOLDER'], filename)
+
 
 @app.route("/users", methods=["GET"])
 def get_users():
     return jsonify(list(users.find({}, {"_id": 0, "password": 0}))), 200
+
 
 # ================= 🟢 ATTENDANCE (SOD / EOD) =================
 
@@ -438,15 +498,40 @@ def get_eod():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# 🆕 ================= PHASE 2: ATTENDANCE FILTERING (ADMIN) =================
 
-# ================= 📢 ALL CHAT =================
+@app.route('/api/admin/attendance', methods=['GET'])
+def admin_attendance_filter():
+    try:
+        email = request.args.get("email")
+        date = request.args.get("date")
+        
+        query = {}
+        if email: query["email"] = email
+        if date: query["date"] = date
+
+        sod_records = list(db.sod.find(query, {"_id": 0}))
+        eod_records = list(db.eod.find(query, {"_id": 0}))
+
+        return jsonify({"sod": sod_records, "eod": eod_records}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ================= 📢 ALL CHAT (UPDATED WITH REPLIES) =================
 
 @app.route('/messages', methods=['POST'])
 def send_message():
     try:
         data = request.json
+        if "message_id" not in data:
+            data["message_id"] = int(time.time() * 1000)
+        
+        if "reactions" not in data:
+            data["reactions"] = {}
+
         db.messages.insert_one(data)
-        return jsonify({"message": "Message sent"}), 201
+        return jsonify({"message": "Message sent", "message_id": data["message_id"]}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -454,13 +539,30 @@ def send_message():
 @app.route('/messages', methods=['GET'])
 def get_messages():
     try:
-        messages = list(db.messages.find({}, {"_id": 0}))
+        messages = list(db.messages.find({}, {"_id": 0}).sort("timestamp", 1))
         return jsonify(messages), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-# ================= 💡 HELP & SUPPORT (NEW) =================
+@app.route('/messages/react', methods=['POST'])
+def react_to_message():
+    try:
+        data = request.json
+        message_id = data.get("message_id")
+        email = data.get("email").replace(".", "_") # MongoDB keys cannot contain dots
+        emoji = data.get("emoji")
+
+        db.messages.update_one(
+            {"message_id": message_id},
+            {"$set": {f"reactions.{email}": emoji}}
+        )
+        return jsonify({"status": "success", "message": "Reaction updated"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ================= 💡 HELP & SUPPORT =================
 
 @app.route('/help/raise-ticket', methods=['POST'])
 def raise_ticket():
@@ -480,7 +582,6 @@ def raise_ticket():
         
         db.help_tickets.insert_one(ticket_obj)
         
-        # Optionally notify Admin via Email
         return jsonify({"message": "Support ticket raised successfully!", "ticket_id": ticket_id}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -489,7 +590,6 @@ def raise_ticket():
 @app.route('/help/tickets', methods=['GET'])
 def get_tickets():
     try:
-        # For Admin to see all tickets
         tickets = list(db.help_tickets.find({}, {"_id": 0}))
         return jsonify(tickets), 200
     except Exception as e:
@@ -507,6 +607,24 @@ def update_ticket_status():
         return jsonify({"message": "Ticket status updated"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# 🆕 ================= PHASE 3: GLOBAL SETTINGS (ADMIN) =================
+
+@app.route('/api/admin/settings', methods=['GET', 'POST'])
+def admin_settings():
+    try:
+        if request.method == 'POST':
+            data = request.json
+            # Using an upsert to keep global configs in one document
+            db.settings.update_one({"type": "global_config"}, {"$set": data}, upsert=True)
+            return jsonify({"message": "Settings updated"}), 200
+
+        settings = db.settings.find_one({"type": "global_config"}, {"_id": 0})
+        return jsonify(settings or {}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ================= RUN =================
 if __name__ == "__main__":

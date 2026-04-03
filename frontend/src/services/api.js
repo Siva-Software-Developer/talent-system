@@ -1,13 +1,44 @@
 import axios from "axios";
 
+/* ==========================================
+   🚀 API CONFIGURATION
+   ========================================== */
 const API = axios.create({
-  baseURL: "http://localhost:5000"
+  baseURL: "http://localhost:5000",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// ==========================================
-// 🔥 TASK MANAGEMENT APIs
-// ==========================================
-export const getAllTasks = () => API.get("/tasks");
+// 🛡️ GLOBAL ERROR HANDLING (Interceptor)
+// This catches server errors automatically so you don't have to try/catch every single line
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (!error.response) {
+      console.error("Server is down, machi! 🛠️ Check your backend.");
+    }
+    return Promise.reject(error);
+  }
+);
+
+/* ==========================================
+   🔐 AUTHENTICATION APIs
+   ========================================== */
+export const loginUser = (credentials) => 
+  API.post("/login", credentials);
+
+export const registerUser = (userData) => 
+  API.post("/register-verify", userData);
+
+export const sendRegisterOTP = (email) => 
+  API.post("/register-send-otp", { email });
+
+/* ==========================================
+   🔥 TASK MANAGEMENT APIs (Mission Control)
+   ========================================== */
+export const getAllTasks = () => 
+  API.get("/tasks");
 
 export const getUserTasks = (email) =>
   API.get(`/tasks/user/${email}`);
@@ -18,7 +49,14 @@ export const assignTask = (formData) =>
 export const updateProgress = (data) =>
   API.post("/update-progress", data);
 
-export const getDashboard = () =>
+// For Employee Task Submission (Links, Files, etc.)
+export const completeTask = (data) => 
+  API.post("/employee/complete-task", data);
+
+/* ==========================================
+   📊 ANALYTICS & DASHBOARD
+   ========================================== */
+export const getDashboardStats = () =>
   API.get("/admin/dashboard");
 
 export const getAnalytics = () =>
@@ -27,67 +65,41 @@ export const getAnalytics = () =>
 export const filterTasks = (params) =>
   API.get("/tasks/filter", { params });
 
-// New: Employee task completion with links
-export const completeTask = (data) => 
-  API.post("/employee/complete-task", data);
-
-
-// ==========================================
-// 🟢 ATTENDANCE APIs (SOD & EOD)
-// ==========================================
+/* ==========================================
+   🟢 ATTENDANCE APIs (SOD & EOD)
+   ========================================== */
 export const submitSOD = (data) =>
   API.post("/sod", data);
 
 export const submitEOD = (data) =>
   API.post("/eod", data);
 
-export const getSOD = () =>
+export const getSODHistory = () =>
   API.get("/sod");
 
-export const getEOD = () =>
+export const getEODHistory = () =>
   API.get("/eod");
 
-
-// ==========================================
-// 📢 CHAT & COMMUNICATION APIs
-// ==========================================
-export const sendMessage = (data) =>
-  API.post("/messages", data);
-
-export const getMessages = () =>
+/* = ::::::::::::::::::::::::::::::::::::::::
+   📢 CHAT & ANNOUNCEMENTS
+   :::::::::::::::::::::::::::::::::::::::: */
+export const fetchMessages = () => 
   API.get("/messages");
 
+export const sendMessage = (messageData) => 
+  API.post("/messages", messageData);
 
-// ==========================================
-// 💡 HELP & SUPPORT APIs (NEWLY ADDED)
-// ==========================================
-
-/**
- * @route   POST /help/raise-ticket
- * @desc    Employee raises a doubt or issue to Admin
- */
+/* ==========================================
+   💡 HELP & SUPPORT (TICKET SYSTEM)
+   ========================================== */
 export const raiseSupportTicket = (ticketData) => 
   API.post("/help/raise-ticket", ticketData);
 
-/**
- * @route   GET /help/tickets
- * @desc    Admin fetches all raised tickets (Optional for Admin Dashboard)
- */
 export const getAllSupportTickets = () => 
   API.get("/help/tickets");
 
-
-// ==========================================
-// 🔐 AUTHENTICATION APIs (FOR REFERENCE)
-// ==========================================
-export const loginUser = (credentials) => 
-  API.post("/login", credentials);
-
-export const registerUser = (userData) => 
-  API.post("/register-verify", userData);
-
-export const sendRegisterOTP = (email) => 
-  API.post("/register-send-otp", { email });
-
+// Useful for Admin to resolve tickets
+export const updateTicketStatus = (ticketId, status) => 
+  API.put(`/help/tickets/${ticketId}`, { status });
 
 export default API;

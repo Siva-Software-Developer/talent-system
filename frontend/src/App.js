@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
 // 📂 AUTH COMPONENTS
@@ -10,15 +10,19 @@ import Forgot from "./Forgot";
 import Dashboard from "./components/Dashboard";
 import AdminDashboard from "./components/AdminDashboard";
 
+// 📂 ICONS
+import { Moon, Sun, Palette, Rocket, Users, ShieldCheck } from "lucide-react";
+
 function App() {
   const [page, setPage] = useState("home");
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState("");
+  const [user, setUser] = useState(null);
 
   // 🛠️ THEME & SESSION INITIALIZATION
   useEffect(() => {
-    // Apply Theme (Dark/Light)
+    // Apply Global Theme
     document.body.className = theme;
 
     // Apply Global Primary Color
@@ -26,9 +30,10 @@ function App() {
     applyColor(savedColor);
 
     // 🔄 SESSION CHECK (Auto-Login)
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
-      setRole(user.role);
+    const savedUser = JSON.parse(localStorage.getItem("user"));
+    if (savedUser) {
+      setUser(savedUser);
+      setRole(savedUser.role);
       setIsLoggedIn(true);
       setPage("dashboard");
     }
@@ -54,29 +59,34 @@ function App() {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     setRole("");
-    setPage("login");
+    setUser(null);
+    setPage("home");
   };
 
   // 🔄 LOGIN SUCCESS HANDLER
-  const handleLoginSuccess = (userRole) => {
-    setRole(userRole);
+  const handleLoginSuccess = (userData) => {
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+    setRole(userData.role);
     setIsLoggedIn(true);
     setPage("dashboard");
   };
 
   return (
-    <div className={`app-root-container ${theme} ${(page === "dashboard" && isLoggedIn) ? "layout-dashboard" : "layout-auth"}`}>
+    <div className={`app-root-container ${theme} ${(isLoggedIn && page === "dashboard") ? "layout-dashboard" : "layout-auth"}`}>
       
-      {/* 🎨 FLOATING GLOBAL CONTROLS (Glassmorphism Style) */}
+      {/* 🎨 FLOATING GLOBAL CONTROLS */}
       <div className="global-controls-glass">
         <button className="ctrl-theme-btn" onClick={toggleTheme} title="Toggle Mode">
-          {theme === "dark" ? "🌙" : "☀️"}
+          {theme === "dark" ? <Sun size={18} color="#fbbf24" /> : <Moon size={18} color="#1e293b" />}
         </button>
         
         <div className="ctrl-color-picker-wrapper">
+          <Palette size={18} className="palette-icon" />
           <input
             type="color"
             className="ctrl-color-input"
+            defaultValue={localStorage.getItem("themeColor") || "#6366f1"}
             onChange={(e) => applyColor(e.target.value)}
             title="Customize Theme Color"
           />
@@ -87,24 +97,39 @@ function App() {
       {isLoggedIn && page === "dashboard" ? (
         <div className="dashboard-view-wrapper animate-fade-in">
           {role === "admin" ? (
-            <AdminDashboard setPage={(p) => p === "login" ? handleLogout() : setPage(p)} />
+            <AdminDashboard 
+              user={user} 
+              onLogout={handleLogout} 
+              setPage={(p) => p === "login" ? handleLogout() : setPage(p)} 
+            />
           ) : (
-            <Dashboard setPage={(p) => p === "login" ? handleLogout() : setPage(p)} />
+            <Dashboard 
+              user={user} 
+              onLogout={handleLogout} 
+              setPage={(p) => p === "login" ? handleLogout() : setPage(p)} 
+            />
           )}
         </div>
       ) : (
         /* 🔐 AUTH SCREENS (Home, Login, Register, Forgot) */
         <div className="auth-screen-overlay">
-          <div className="auth-card-glass animate-fade-in">
+          <div className="auth-container-centered">
             
             {/* 🏠 HOME HERO */}
             {page === "home" && (
-              <div className="home-hero-content">
-                <h1 className="brand-logo-text">🚀 Talent OS</h1>
+              <div className="home-hero-content animate-slide-up">
+                <div className="hero-logo-box">
+                  <Rocket size={48} className="hero-icon-rocket" />
+                </div>
+                <h1 className="brand-logo-text">Talent OS</h1>
                 <p className="brand-tagline">Streamlining professional workflows with AI-driven intelligence.</p>
                 <div className="home-action-btns">
-                  <button className="btn-primary-glow" onClick={() => setPage("login")}>Get Started</button>
-                  <button className="btn-secondary-outline" onClick={() => setPage("register")}>Join Team</button>
+                  <button className="btn-primary-glow" onClick={() => setPage("login")}>
+                    <ShieldCheck size={20} /> Access Portal
+                  </button>
+                  <button className="btn-secondary-outline" onClick={() => setPage("register")}>
+                    <Users size={20} /> Join Team
+                  </button>
                 </div>
               </div>
             )}
@@ -114,7 +139,7 @@ function App() {
               <Login setPage={(p) => {
                 if (p === "dashboard") {
                   const user = JSON.parse(localStorage.getItem("user"));
-                  handleLoginSuccess(user?.role || "employee");
+                  handleLoginSuccess(user);
                 } else {
                   setPage(p);
                 }
@@ -131,10 +156,10 @@ function App() {
         </div>
       )}
 
-      {/* 📱 FOOTER CREDITS (Optional) */}
-      {page !== "dashboard" && (
+      {/* 📱 FOOTER CREDITS */}
+      {(!isLoggedIn || page !== "dashboard") && (
         <footer className="global-footer">
-          <p>© 2026 Talent OS • Built for Efficiency</p>
+          <p>© 2026 <span>Talent OS</span> • Built for Efficiency</p>
         </footer>
       )}
     </div>
