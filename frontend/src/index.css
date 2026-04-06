@@ -1,37 +1,44 @@
-/* 🪐 TALENT OS - MASTER GLOBAL STYLES (index.css)
-   Optimized for Performance, Visual Depth, and High Contrast
-*/
+
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* 🎨 Master Theme Palette */
-  --primary: #00d2ff; 
-  --primary-glow: rgba(0, 210, 255, 0.3);
-  --secondary: #92fe9d;
-  --accent: #7000ff;
-  --bg-dark: #030508; 
+  /* 🎨 REFINED LIGHT THEME (Soft Pearl) */
+  --bg-main: #f1f5f9;          /* Slate 100 - Not pure white */
+  --bg-card: #ffffff;
+  --text-main: #0f172a;        /* Deep Navy/Slate - Not pure black */
+  --text-muted: #64748b;
+  --border-subtle: #e2e8f0;
   
-  /* 🚥 Status Colors (Standardized) */
-  --status-pending: #ef4444;
-  --status-progress: #f59e0b;
-  --status-complete: #10b981;
-  --status-blocked: #7c3aed;
+  /* 🎨 ACCENT COLORS */
+  --primary: #1e293b;          /* Slate 800 - Classy dark slate */
+  --primary-hover: #334155;
+  --accent-glow: rgba(30, 41, 59, 0.1);
+  
+  /* 🚥 NEUTRAL STATUS COLORS */
+  --status-pending: #64748b;
+  --status-progress: #475569;
+  --status-complete: #1e293b;
+  --status-blocked: #94a3b8;
 
-  /* ⚪ Text Palette */
-  --text-main: #f8fafc;
-  --text-dim: #94a3b8;
-  
-  /* 🧊 Glassmorphism Core */
-  --glass-bg: rgba(15, 23, 42, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: blur(16px) saturate(180%);
-  
-  /* 🏎️ Smoothness Variables */
-  --bezier: cubic-bezier(0.19, 1, 0.22, 1);
-  --transition: 0.4s var(--bezier);
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  /* 🏎️ SMOOTHNESS & SHADOWS */
+  --bezier: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 0.25s var(--bezier);
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+}
+
+/* 🌙 DARK THEME REFINEMENT (Charcoal, not Pitch Black) */
+.dark {
+  --bg-main: #0f172a;          /* Rich Navy/Charcoal */
+  --bg-card: #1e293b;          /* Soft Slate Card */
+  --text-main: #f8fafc;        /* Off-white text */
+  --text-muted: #94a3b8;
+  --border-subtle: #334155;
+  --primary: #38bdf8;          /* Soft Blue for buttons in Dark mode */
+  --primary-hover: #7dd3fc;
+  --accent-glow: rgba(56, 189, 248, 0.15);
 }
 
 /* 🛠️ RESET & PERFORMANCE SETUP */
@@ -41,96 +48,62 @@
   box-sizing: border-box;
   font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   width: 100%;
   min-height: 100vh;
-  background-color: var(--bg-dark);
+  background-color: var(--bg-main);
   color: var(--text-main);
   overflow-x: hidden;
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 
-  /* 🌈 DYNAMIC MESH BACKGROUND - FIXED FOR BETTER PERFORMANCE */
-  background: 
-    radial-gradient(circle at 0% 0%, rgba(112, 0, 255, 0.15) 0%, transparent 35%),
-    radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.15) 0%, transparent 35%),
-    #030508;
+  /* 📏 PROFESSIONAL DOT GRID - Now more subtle */
+  background-image: radial-gradient(var(--border-subtle) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
   background-attachment: fixed;
-}
-
-/* 🌫️ THE PREMIUM GRAIN OVERLAY */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  opacity: 0.04; 
-  pointer-events: none;
-  z-index: 9999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
 /* 💠 SELECTION & SCROLLBAR */
 ::selection {
   background: var(--primary);
-  color: #000;
+  color: #fff;
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
-  background-clip: content-box;
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { 
+  background: var(--text-muted); 
+  border-radius: 10px; 
+  opacity: 0.5;
 }
 
 /* --- GLOBAL UTILITY CLASSES --- */
 
-/* 🧊 Master Glass Card */
-.premium-glass {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
+/* 🏢 Professional Card */
+.dtms-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-card);
   transition: var(--transition);
 }
 
-.premium-glass:hover {
-  border-color: rgba(0, 210, 255, 0.3);
+.dtms-card:hover {
+  border-color: var(--primary);
   transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-/* 🖋️ Typography Gradients */
-.text-gradient {
-  background: linear-gradient(135deg, #ffffff 30%, var(--primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 800;
-}
-
-/* 🔘 Universal Button */
+/* 🔘 Corporate Button */
 .btn-premium {
-  padding: 12px 24px;
-  border-radius: 12px;
+  padding: 14px 28px;
+  border-radius: var(--radius-sm);
   font-weight: 700;
   border: none;
   background: var(--primary);
-  color: #030508;
+  color: var(--bg-card); /* Button text depends on theme card color */
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -140,65 +113,46 @@ body::after {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 0.85rem;
+  box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 .btn-premium:hover {
+  background: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--primary-glow);
-  filter: brightness(1.1);
+  box-shadow: 0 8px 20px var(--accent-glow);
 }
 
-.btn-premium:active {
-  transform: scale(0.96);
-}
-
-/* 🎹 Input Styling */
+/* 🎹 Modern Input Styling */
 .premium-input {
   width: 100%;
   padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  color: #ffffff;
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
   outline: none;
   transition: var(--transition);
 }
 
 .premium-input:focus {
   border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 20px rgba(0, 210, 255, 0.15);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
 /* 🚀 Animations */
 .animate-fade-in {
-  animation: fadeIn 0.6s var(--bezier) forwards;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.5s var(--bezier) forwards;
+  animation: fadeIn 0.5s var(--bezier) forwards;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 /* 📱 MOBILE RESPONSIVENESS */
 @media (max-width: 768px) {
-  body {
-    padding: 10px;
-  }
-  .premium-glass {
-    padding: 15px;
-  }
-  .btn-premium {
-    width: 100%;
-    padding: 16px;
-  }
+  body { background-size: 20px 20px; }
+  .dtms-card { padding: 24px; }
+  .btn-premium { width: 100%; padding: 16px; }
 }

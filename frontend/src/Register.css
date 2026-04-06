@@ -1,168 +1,239 @@
-/* =========================================
-   REGISTER PREMIUM GLASSMORPHISM
-   ========================================= */
 
-.register-glass-wrapper {
+
+/* 🌍 WRAPPER SETUP */
+.dtms-auth-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   padding: 40px 20px;
-  background: radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.1), transparent),
-              radial-gradient(circle at top left, rgba(56, 189, 248, 0.1), transparent);
+  /* Subtle background pattern */
+  background-color: var(--dtms-bg);
+  background-image: radial-gradient(var(--dtms-dot) 1px, transparent 1px);
+  background-size: 30px 30px;
+  transition: background 0.3s ease;
 }
 
-.register-container {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 32px;
+/* 🧊 REFINED CARD (Frost/Charcoal Effect) */
+.dtms-register-card {
+  background: var(--dtms-card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--dtms-border);
+  border-radius: 20px;
   padding: 40px;
   width: 100%;
-  max-width: 550px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-}
-
-.register-header {
+  max-width: 520px;
+  box-shadow: 0 20px 40px var(--dtms-shadow);
   text-align: center;
-  margin-bottom: 30px;
 }
 
-.register-logo-circle {
+/* 🏢 BRANDING SECTION */
+.dtms-header-section {
+  margin-bottom: 25px;
+}
+
+.dtms-logo-box {
   width: 60px;
   height: 60px;
-  background: rgba(129, 140, 248, 0.1);
-  border-radius: 50%;
+  background: var(--dtms-accent);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 15px;
+  box-shadow: 0 8px 20px var(--dtms-accent-glow);
+  color: white;
 }
 
-.register-title-gradient {
-  font-size: 1.8rem;
+.dtms-main-title {
+  font-size: 1.5rem;
   font-weight: 800;
-  background: linear-gradient(to right, #818cf8, #c084fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--dtms-text-head);
+  letter-spacing: -0.5px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
 }
 
-.register-subtitle {
-  color: #94a3b8;
+.dtms-tagline {
+  color: var(--dtms-text-dim);
   font-size: 0.85rem;
+  font-weight: 500;
 }
 
-.register-form-grid {
+.dtms-divider {
+  border: 0;
+  border-top: 1px solid var(--dtms-border);
+  margin: 20px 0;
+}
+
+/* 📋 FORM SCROLLING */
+.dtms-form-scroll-container {
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 12px;
+  text-align: left;
+}
+
+.dtms-form-scroll-container::-webkit-scrollbar {
+  width: 4px;
+}
+.dtms-form-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--dtms-border-bold);
+  border-radius: 10px;
+}
+
+.dtms-form-grid {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-/* --- BADGES --- */
-.strength-tracker-modern {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 5px 0;
+/* 📋 INPUT STYLES */
+.dtms-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--dtms-text-head);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  display: block;
 }
 
-.badge-v, .badge-i {
-  font-size: 0.65rem;
-  padding: 4px 10px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: 0.3s;
-}
-
-.badge-v { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
-.badge-i { background: rgba(255, 255, 255, 0.05); color: #475569; border: 1px solid rgba(255, 255, 255, 0.05); }
-
-/* --- ROW STYLES --- */
-.input-group-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.select-wrapper {
+.dtms-input-relative {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.select-icon {
+.dtms-input-icon {
   position: absolute;
-  left: 15px;
-  color: #475569;
-  pointer-events: none;
+  left: 14px;
+  color: var(--dtms-text-dim);
 }
 
-.select-styled {
-  padding-left: 40px !important;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 15px center;
+.dtms-input-field {
+  width: 100%;
+  background: var(--dtms-input-bg);
+  border: 1px solid var(--dtms-border);
+  border-radius: 10px;
+  padding: 14px 14px 14px 44px;
+  color: var(--dtms-text-head);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- OTP SECTION --- */
-.otp-container {
+.dtms-input-field:focus {
+  border-color: var(--dtms-accent);
+  background: var(--dtms-card-bg);
+  box-shadow: 0 0 0 4px var(--dtms-accent-glow);
+}
+
+.dtms-input-row {
   display: flex;
-  gap: 10px;
+  gap: 15px;
 }
 
-.otp-field {
-  flex: 1;
-  text-align: center;
-  letter-spacing: 4px;
-  font-weight: 700;
+/* 🔐 PASSWORD STRENGTH */
+.dtms-strength-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
 }
 
-.btn-send-otp-inline {
-  background: rgba(129, 140, 248, 0.1);
-  color: #818cf8;
-  border: 1px solid rgba(129, 140, 248, 0.3);
-  border-radius: 12px;
-  padding: 0 20px;
-  font-size: 0.8rem;
+.dtms-badge-invalid {
+  font-size: 10px;
   font-weight: 600;
+  color: var(--dtms-text-dim);
+  background: var(--dtms-input-bg);
+  border: 1px solid var(--dtms-border);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.dtms-badge-valid {
+  font-size: 10px;
+  font-weight: 700;
+  color: #10b981; /* Success Green */
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* 🛡️ OTP SECTION */
+.dtms-otp-btn {
+  padding: 0 15px;
+  background: var(--dtms-accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: 0.3s;
 }
 
-.btn-send-otp-inline:hover {
-  background: rgba(129, 140, 248, 0.2);
+.dtms-otp-btn:hover {
+  filter: brightness(1.2);
 }
 
-/* --- ACTION BUTTON --- */
-.register-btn-full {
-  background: linear-gradient(135deg, #818cf8, #6366f1);
-  margin-top: 25px;
+/* 🔘 PRIMARY BUTTON */
+.dtms-primary-btn {
+  width: 100%;
+  background: var(--dtms-accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
   padding: 18px;
-}
-
-.register-footer {
-  margin-top: 25px;
-  text-align: center;
-}
-
-.login-link-text {
-  color: #94a3b8;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.highlight-text-glow {
-  color: #818cf8;
   font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+  margin: 25px 0 15px;
+  letter-spacing: 1px;
+  box-shadow: 0 10px 20px var(--dtms-accent-glow);
 }
 
-/* Custom Date Icon */
-.date-input::-webkit-calendar-picker-indicator {
-  filter: invert(0.6);
-  cursor: pointer;
+.dtms-primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px var(--dtms-accent-glow);
+}
+
+/* 🎨 THEME VARIABLES - ADD THESE TO YOUR index.css :root */
+:root {
+  /* Soft White Theme */
+  --dtms-bg: #f3f4f6;
+  --dtms-dot: #d1d5db;
+  --dtms-card-bg: rgba(255, 255, 255, 0.9);
+  --dtms-border: #e5e7eb;
+  --dtms-border-bold: #cbd5e1;
+  --dtms-input-bg: #ffffff;
+  --dtms-text-head: #1f2937;
+  --dtms-text-dim: #6b7280;
+  --dtms-shadow: rgba(0, 0, 0, 0.05);
+  --dtms-accent: #0f172a; /* Deep Navy/Black button */
+  --dtms-accent-glow: rgba(15, 23, 42, 0.1);
+}
+
+.dark {
+  /* Refined Charcoal Theme */
+  --dtms-bg: #0f172a; 
+  --dtms-dot: #1e293b;
+  --dtms-card-bg: rgba(30, 41, 59, 0.7);
+  --dtms-border: #334155;
+  --dtms-border-bold: #475569;
+  --dtms-input-bg: #0f172a;
+  --dtms-text-head: #f1f5f9;
+  --dtms-text-dim: #94a3b8;
+  --dtms-shadow: rgba(0, 0, 0, 0.3);
+  --dtms-accent: #38bdf8; /* Soft Blue accent for Dark mode */
+  --dtms-accent-glow: rgba(56, 189, 248, 0.2);
+}
+
+/* 🔄 ANIMATIONS */
+@keyframes dtms-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

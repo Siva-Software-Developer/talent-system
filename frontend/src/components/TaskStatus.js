@@ -17,7 +17,7 @@ function TaskStatus() {
   const userStr = localStorage.getItem("user");
   const user = userStr ? JSON.parse(userStr) : null;
 
-  // 1. FETCH TASKS
+  // Fetch Tasks Logic
   const fetchMyTasks = async () => {
     try {
       const response = await fetch(`${API}/tasks`);
@@ -35,24 +35,17 @@ function TaskStatus() {
     if (user?.email) fetchMyTasks();
   }, [user?.email]);
 
-  // 2. SUBMIT COMPLETION
   const handleSubmitTask = async (taskId) => {
     if (!proofLink || !githubLink) {
       alert("Machi, Proof link and GitHub link renduமே mukkiyam!");
       return;
     }
-
     try {
       const response = await fetch(`${API}/employee/complete-task`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: taskId,
-          proof_link: proofLink,
-          github_link: githubLink,
-        }),
+        body: JSON.stringify({ id: taskId, proof_link: proofLink, github_link: githubLink }),
       });
-
       const result = await response.json();
       alert(result.message);
       setSubmitting(null);
@@ -64,24 +57,17 @@ function TaskStatus() {
     }
   };
 
-  // 3. REPORT BLOCKER
   const handleReportBlocker = async (taskId) => {
     if (!blockerText) {
       alert("Machi, enna issue-nu sonna thaana admin-ku puriyum!");
       return;
     }
-
     try {
-      const response = await fetch(`${API}/employee/report-blocker`, {
+      await fetch(`${API}/employee/report-blocker`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: taskId,
-          blocker: blockerText,
-        }),
+        body: JSON.stringify({ id: taskId, blocker: blockerText }),
       });
-
-      const result = await response.json();
       alert("Admin-ku inform panniyaachu machi! 😎");
       setBlockerReporting(null);
       setBlockerText("");
@@ -92,111 +78,97 @@ function TaskStatus() {
   };
 
   if (loading) return (
-    <div className="status-loader-container">
-      <div className="status-spinner"></div>
-      <p className="status-loader-text">Mission loading, machi... 🚀</p>
+    <div className="dtms-loader-wrapper">
+      <div className="dtms-spinner"></div>
+      <p>Mission loading, machi... 🚀</p>
     </div>
   );
 
   return (
-    <div className="task-status-root">
+    <div className="dtms-status-container animate-fade-in">
       
-      {/* HEADER AREA */}
-      <header className="status-header-section">
-        <div className="header-text-group">
-          <h2 className="status-glitch-title" data-text="My Mission Control">My Mission Control 🚀</h2>
-          <p className="status-welcome-sub">Current Assignments for <span className="highlight-name">{user?.name || "Employee"}</span></p>
+      {/* HEADER SECTION */}
+      <header className="dtms-status-header">
+        <div className="dtms-header-info">
+          <h2 className="dtms-title-bold">Mission Control</h2>
+          <p className="dtms-subtitle">Current Assignments for <strong>{user?.name || "Employee"}</strong></p>
+        </div>
+        <div className="dtms-status-stats">
+          <div className="dtms-stat-pill">Total: {tasks.length}</div>
         </div>
       </header>
 
-      {/* TASKS LIST */}
-      <div className="mission-tasks-grid">
+      {/* MISSION GRID */}
+      <div className="dtms-mission-grid">
         {tasks.length > 0 ? (
           tasks.map((t) => (
-            <div key={t.id} className={`mission-task-card status-${t.status} ${t.blocker ? 'is-blocked' : ''}`}>
+            <div key={t.id} className={`dtms-mission-card status-${t.status} ${t.blocker ? 'dtms-blocked-border' : ''}`}>
               
               {/* TOP STRIP */}
-              <div className="mission-card-top">
-                <div className="mission-badge-group">
-                  <span className={`mission-pill pill-${t.status}`}>{t.status}</span>
-                  {t.blocker && <span className="mission-pill pill-blocker">⚠️ Blocked</span>}
+              <div className="dtms-card-top">
+                <div className="dtms-badge-row">
+                  <span className={`dtms-status-pill pill-${t.status}`}>{t.status}</span>
+                  {t.blocker && <span className="dtms-status-pill pill-blocker">⚠️ BLOCKED</span>}
                 </div>
                 {t.pdf_url && (
-                  <a href={`${API}/uploads/pdfs/${t.pdf_url}`} target="_blank" rel="noreferrer" className="mission-asset-link">
-                    📄 View Assets
+                  <a href={`${API}/uploads/pdfs/${t.pdf_url}`} target="_blank" rel="noreferrer" className="dtms-asset-link">
+                    📄 Assets
                   </a>
                 )}
               </div>
 
-              {/* TASK CONTENT */}
-              <div className="mission-card-body">
-                <h3 className="mission-task-title">{t.title}</h3>
-                <p className="mission-task-desc">{t.description}</p>
+              {/* CARD CONTENT */}
+              <div className="dtms-card-body">
+                <h3 className="dtms-task-name">{t.title}</h3>
+                <p className="dtms-task-desc">{t.description}</p>
 
                 {t.blocker && (
-                  <div className="mission-blocker-alert">
-                    <span className="blocker-icon">🚫</span>
-                    <p><strong>Blocker:</strong> {t.blocker}</p>
+                  <div className="dtms-blocker-alert">
+                    <strong>Issue:</strong> {t.blocker}
                   </div>
                 )}
               </div>
               
-              {/* META INFO */}
-              <div className="mission-card-meta">
-                <div className="meta-item">
-                  <span className="meta-icon">🗓️</span>
-                  <span>Due: <strong>{t.dueDate}</strong></span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-icon">👨‍💻</span>
-                  <span>Boss: <strong>{t.assigned_by}</strong></span>
-                </div>
+              {/* META ROW */}
+              <div className="dtms-card-meta">
+                <span>🗓️ Due: <strong>{t.dueDate}</strong></span>
+                <span>👨‍💻 Boss: <strong>{t.assigned_by}</strong></span>
               </div>
 
-              {/* ACTION FOOTER */}
-              <footer className="mission-card-footer">
+              {/* FOOTER ACTIONS */}
+              <footer className="dtms-card-footer">
                 {t.status === "pending" ? (
-                  <div className="mission-action-wrapper">
-                    
-                    {/* SUBMISSION FORM */}
+                  <div className="dtms-action-area">
                     {submitting === t.id ? (
-                      <div className="mission-form-overlay animate-slide-up">
-                        <input className="mission-input" type="text" placeholder="🔗 Live Demo (Netlify/Vercel)" value={proofLink} onChange={(e) => setProofLink(e.target.value)} />
-                        <input className="mission-input" type="text" placeholder="🐙 GitHub Repo URL" value={githubLink} onChange={(e) => setGithubLink(e.target.value)} />
-                        <div className="mission-btn-group">
-                          <button className="btn-confirm-submit" onClick={() => handleSubmitTask(t.id)}>Submit Work</button>
-                          <button className="btn-cancel-action" onClick={() => setSubmitting(null)}>Back</button>
+                      <div className="dtms-form-pop animate-slide-up">
+                        <input className="dtms-mini-input" type="text" placeholder="Live Demo URL" value={proofLink} onChange={(e) => setProofLink(e.target.value)} />
+                        <input className="dtms-mini-input" type="text" placeholder="GitHub URL" value={githubLink} onChange={(e) => setGithubLink(e.target.value)} />
+                        <div className="dtms-flex-row">
+                          <button className="dtms-btn-submit" onClick={() => handleSubmitTask(t.id)}>Submit</button>
+                          <button className="dtms-btn-back" onClick={() => setSubmitting(null)}>Back</button>
                         </div>
                       </div>
-                    ) 
-                    /* BLOCKER FORM */
-                    : blockerReporting === t.id ? (
-                      <div className="mission-form-overlay animate-slide-up">
-                        <textarea className="mission-textarea" placeholder="Enna issue machi? Describe the blocker..." value={blockerText} onChange={(e) => setBlockerText(e.target.value)} />
-                        <div className="mission-btn-group">
-                          <button className="btn-confirm-blocker" onClick={() => handleReportBlocker(t.id)}>Report Issue</button>
-                          <button className="btn-cancel-action" onClick={() => setBlockerReporting(null)}>Cancel</button>
+                    ) : blockerReporting === t.id ? (
+                      <div className="dtms-form-pop animate-slide-up">
+                        <textarea className="dtms-mini-textarea" placeholder="Describe issue..." value={blockerText} onChange={(e) => setBlockerText(e.target.value)} />
+                        <div className="dtms-flex-row">
+                          <button className="dtms-btn-blocker" onClick={() => handleReportBlocker(t.id)}>Send</button>
+                          <button className="dtms-btn-back" onClick={() => setBlockerReporting(null)}>Back</button>
                         </div>
                       </div>
-                    ) 
-                    /* DEFAULT BUTTONS */
-                    : (
-                      <div className="mission-primary-actions">
-                        <button className="btn-trigger-complete" onClick={() => setSubmitting(t.id)}>🚀 Mark Completed</button>
-                        <button className="btn-trigger-blocker" onClick={() => setBlockerReporting(t.id)}>⚠️ Report Blocker</button>
+                    ) : (
+                      <div className="dtms-default-btns">
+                        <button className="dtms-btn-complete" onClick={() => setSubmitting(t.id)}>🚀 Complete</button>
+                        <button className="dtms-btn-report" onClick={() => setBlockerReporting(t.id)}>⚠️ Blocker</button>
                       </div>
                     )}
                   </div>
                 ) : (
-                  /* COMPLETED STATE */
-                  <div className="mission-completed-view">
-                    <div className="success-banner">
-                      <span className="check-icon">✅</span>
-                      <span>Mission Accomplished on {t.completed_at}</span>
-                    </div>
-                    <div className="mission-link-row">
-                      <a href={t.proof_link} target="_blank" rel="noreferrer" className="mission-ext-link">Live Link</a>
-                      <a href={t.github_link} target="_blank" rel="noreferrer" className="mission-ext-link">Source Code</a>
+                  <div className="dtms-done-banner">
+                    <div className="dtms-done-text">✅ Accomplished on {t.completed_at}</div>
+                    <div className="dtms-done-links">
+                      <a href={t.proof_link} target="_blank" rel="noreferrer">Live</a>
+                      <a href={t.github_link} target="_blank" rel="noreferrer">Code</a>
                     </div>
                   </div>
                 )}
@@ -204,8 +176,8 @@ function TaskStatus() {
             </div>
           ))
         ) : (
-          <div className="mission-empty-state">
-            <div className="empty-icon">🏖️</div>
+          <div className="dtms-empty-state">
+            <div className="dtms-empty-icon">🏖️</div>
             <p>No tasks assigned yet. Chill pannu machi! 😎</p>
           </div>
         )}

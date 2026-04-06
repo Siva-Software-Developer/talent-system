@@ -11,27 +11,21 @@ import Dashboard from "./components/Dashboard";
 import AdminDashboard from "./components/AdminDashboard";
 
 // 📂 ICONS
-import { Moon, Sun, Palette, Rocket, Users, ShieldCheck } from "lucide-react";
+import { Moon, Sun, LayoutDashboard, UserPlus, ShieldCheck, Briefcase } from "lucide-react";
 
 function App() {
   const [page, setPage] = useState("home");
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+  const [theme, setTheme] = useState(localStorage.getItem("dtms-theme") || "light");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState("");
   const [user, setUser] = useState(null);
 
-  // 🛠️ THEME & SESSION INITIALIZATION
+  // 🛠️ SYSTEM INITIALIZATION
   useEffect(() => {
-    // Apply Global Theme
-    document.body.className = theme;
+    document.body.className = `dtms-theme-${theme}`;
 
-    // Apply Global Primary Color
-    const savedColor = localStorage.getItem("themeColor") || "#6366f1";
-    applyColor(savedColor);
-
-    // 🔄 SESSION CHECK (Auto-Login)
-    const savedUser = JSON.parse(localStorage.getItem("user"));
-    if (savedUser) {
+    const savedUser = JSON.parse(localStorage.getItem("dtms_user"));
+    if (savedUser && savedUser.role) {
       setUser(savedUser);
       setRole(savedUser.role);
       setIsLoggedIn(true);
@@ -39,33 +33,31 @@ function App() {
     }
   }, [theme]);
 
-  // 🌓 TOGGLE THEME LOGIC
+  // 🌓 THEME TOGGLE
   const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
+    const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
+    localStorage.setItem("dtms-theme", newTheme);
   };
 
-  // 🎨 DYNAMIC COLOR THEMING
-  const applyColor = (color) => {
-    document.documentElement.style.setProperty("--primary", color);
-    // Dynamic Glow Calculation (Adding opacity)
-    document.documentElement.style.setProperty("--primary-glow", `${color}4d`);
-    localStorage.setItem("themeColor", color);
-  };
-
-  // 🚪 LOGOUT LOGIC
+  // 🚪 LOGOUT
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("dtms_user");
     setIsLoggedIn(false);
     setRole("");
     setUser(null);
     setPage("home");
   };
 
-  // 🔄 LOGIN SUCCESS HANDLER
+  // 🔄 LOGIN SUCCESS (SAFE VERSION)
   const handleLoginSuccess = (userData) => {
-    localStorage.setItem("user", JSON.stringify(userData));
+    if (!userData || !userData.role) {
+      console.error("Invalid user data:", userData);
+      alert("Login failed machi 😢");
+      return;
+    }
+
+    localStorage.setItem("dtms_user", JSON.stringify(userData));
     setUser(userData);
     setRole(userData.role);
     setIsLoggedIn(true);
@@ -73,29 +65,18 @@ function App() {
   };
 
   return (
-    <div className={`app-root-container ${theme} ${(isLoggedIn && page === "dashboard") ? "layout-dashboard" : "layout-auth"}`}>
+    <div className={`dtms-app-root ${theme}`}>
       
-      {/* 🎨 FLOATING GLOBAL CONTROLS */}
-      <div className="global-controls-glass">
-        <button className="ctrl-theme-btn" onClick={toggleTheme} title="Toggle Mode">
-          {theme === "dark" ? <Sun size={18} color="#fbbf24" /> : <Moon size={18} color="#1e293b" />}
+      {/* 🌓 THEME TOGGLE */}
+      <div className="dtms-system-controls">
+        <button className="dtms-theme-toggle" onClick={toggleTheme} title="Switch System Theme">
+          {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
         </button>
-        
-        <div className="ctrl-color-picker-wrapper">
-          <Palette size={18} className="palette-icon" />
-          <input
-            type="color"
-            className="ctrl-color-input"
-            defaultValue={localStorage.getItem("themeColor") || "#6366f1"}
-            onChange={(e) => applyColor(e.target.value)}
-            title="Customize Theme Color"
-          />
-        </div>
       </div>
 
-      {/* ✅ MAIN ROUTING LOGIC */}
+      {/* ✅ DASHBOARD */}
       {isLoggedIn && page === "dashboard" ? (
-        <div className="dashboard-view-wrapper animate-fade-in">
+        <div className="dtms-dashboard-view animate-fade-in">
           {role === "admin" ? (
             <AdminDashboard 
               user={user} 
@@ -111,55 +92,62 @@ function App() {
           )}
         </div>
       ) : (
-        /* 🔐 AUTH SCREENS (Home, Login, Register, Forgot) */
-        <div className="auth-screen-overlay">
-          <div className="auth-container-centered">
+        <div className="dtms-auth-layer">
+          <div className="dtms-auth-centered">
             
-            {/* 🏠 HOME HERO */}
+            {/* 🏠 HOME */}
             {page === "home" && (
-              <div className="home-hero-content animate-slide-up">
-                <div className="hero-logo-box">
-                  <Rocket size={48} className="hero-icon-rocket" />
+              <div className="dtms-hero-content animate-fade-in">
+                <div className="dtms-hero-icon-box">
+                  <Briefcase size={48} strokeWidth={1.5} />
                 </div>
-                <h1 className="brand-logo-text">Talent OS</h1>
-                <p className="brand-tagline">Streamlining professional workflows with AI-driven intelligence.</p>
-                <div className="home-action-btns">
-                  <button className="btn-primary-glow" onClick={() => setPage("login")}>
-                    <ShieldCheck size={20} /> Access Portal
+                <h1 className="dtms-hero-title">Digital Talent Management System</h1>
+                <p className="dtms-hero-subtitle">
+                  Enterprise-grade infrastructure for modern workforce optimization and talent tracking.
+                </p>
+                
+                <div className="dtms-hero-actions">
+                  <button className="dtms-btn-primary" onClick={() => setPage("login")}>
+                    <ShieldCheck size={18} /> SYSTEM ACCESS
                   </button>
-                  <button className="btn-secondary-outline" onClick={() => setPage("register")}>
-                    <Users size={20} /> Join Team
+                  <button className="dtms-btn-outline" onClick={() => setPage("register")}>
+                    <UserPlus size={18} /> EMPLOYEE ONBOARDING
                   </button>
                 </div>
               </div>
             )}
 
-            {/* 🔑 LOGIN PAGE */}
+            {/* 🔑 LOGIN */}
             {page === "login" && (
               <Login setPage={(p) => {
                 if (p === "dashboard") {
-                  const user = JSON.parse(localStorage.getItem("user"));
-                  handleLoginSuccess(user);
+                  const userData = JSON.parse(localStorage.getItem("dtms_user"));
+
+                  if (userData) {
+                    handleLoginSuccess(userData);
+                  } else {
+                    alert("Login failed machi 😢");
+                  }
                 } else {
                   setPage(p);
                 }
               }} />
             )}
 
-            {/* 📝 REGISTER PAGE */}
+            {/* 📝 REGISTER */}
             {page === "register" && <Register setPage={setPage} />}
 
-            {/* 🛠️ FORGOT PASSWORD */}
+            {/* 🛠️ FORGOT */}
             {page === "forgot" && <Forgot setPage={setPage} />}
             
           </div>
         </div>
       )}
 
-      {/* 📱 FOOTER CREDITS */}
+      {/* 📱 FOOTER */}
       {(!isLoggedIn || page !== "dashboard") && (
-        <footer className="global-footer">
-          <p>© 2026 <span>Talent OS</span> • Built for Efficiency</p>
+        <footer className="dtms-global-footer">
+          <p>© 2026 <strong>DTMS</strong> Infrastructure • Secure Talent Ecosystem</p>
         </footer>
       )}
     </div>

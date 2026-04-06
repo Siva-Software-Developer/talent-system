@@ -10,7 +10,8 @@ import {
   Lock,
   Send,
   ClipboardList,
-  X
+  X,
+  Target
 } from "lucide-react";
 import "./AttendanceForm.css";
 
@@ -20,7 +21,6 @@ function AttendanceForm({ onClose }) {
   const [percentage, setPercentage] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // States for Filters & Data
   const [logs, setLogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -30,17 +30,13 @@ function AttendanceForm({ onClose }) {
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    fetchLogs(); // Initial fetch
+    fetchLogs();
     return () => clearInterval(timer);
   }, []);
 
   const fetchLogs = async () => {
     try {
-      // Inga unga API call
-      // const res = await getAttendanceLogs();
-      // setLogs(res.data);
-      
-      // Mock data for UI testing
+      // Mock data for UI - API integrate pannum pothu uncomment panniko machi
       setLogs([
         { name: "MS DHONI", employeeId: "007", date: "2026-04-01", type: "SOD", time: "09:59 AM" },
         { name: "MS DHONI", employeeId: "007", date: "2026-04-01", type: "EOD", time: "06:01 PM", workDone: "Project UI completed", percentage: "100" },
@@ -50,193 +46,157 @@ function AttendanceForm({ onClose }) {
 
   const getMinutes = () => currentTime.getHours() * 60 + currentTime.getMinutes();
   
-  // Time checking logic (SOD: 9AM-10AM range, EOD: 6PM-7PM range)
+  // SOD: 9AM-7PM (Testing-kaga expand panniruken machi, real time-ku change panniko)
   const isSODTime = () => { const m = getMinutes(); return m >= 540 && m <= 1140; }; 
   const isEODTime = () => { const m = getMinutes(); return m >= 1075 && m <= 1300; };
 
   const today = currentTime.toLocaleDateString('en-CA'); 
   const timeDisplay = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-  // Filter Logic
   const filteredLogs = logs.filter(log => {
     const matchesName = log.name.toLowerCase().includes(searchTerm.toLowerCase()) || log.employeeId.includes(searchTerm);
     const matchesDate = (!startDate || log.date >= startDate) && (!endDate || log.date <= endDate);
     return matchesName && matchesDate;
   });
 
-  // Summary Logic
   const totalLogins = filteredLogs.filter(l => l.type === "SOD").length;
   const totalLogouts = filteredLogs.filter(l => l.type === "EOD").length;
 
   const handleSODSubmit = async () => {
     if (!employeeId.trim()) return alert("ID podu machi!");
-    const data = { name: user?.name, employeeId, date: today, time: timeDisplay, type: "SOD" };
-    try { await submitSOD(data); alert("SOD Success ✅"); fetchLogs(); } catch (err) { alert("Error ❌"); }
+    try { 
+        await submitSOD({ name: user?.name, employeeId, date: today, time: timeDisplay, type: "SOD" }); 
+        alert("SOD Success ✅"); fetchLogs(); 
+    } catch (err) { alert("Error ❌"); }
   };
 
   const handleEODSubmit = async () => {
     if (!workDone.trim() || !percentage) return alert("Ellathayum fill pannu machi!");
-    const data = { name: user?.name, employeeId, workDone, percentage, date: today, time: timeDisplay, type: "EOD" };
-    try { await submitEOD(data); alert("EOD Success ✅"); fetchLogs(); } catch (err) { alert("Error ❌"); }
+    try { 
+        await submitEOD({ name: user?.name, employeeId, workDone, percentage, date: today, time: timeDisplay, type: "EOD" }); 
+        alert("EOD Success ✅"); fetchLogs(); 
+    } catch (err) { alert("Error ❌"); }
   };
 
   return (
-    <div className="attendance-modal-overlay">
-      <div className="attendance-card-wrapper">
+    <div className="af-overlay">
+      <div className="af-wrapper animate-slide-up">
         
-        {/* --- MODAL HEADER --- */}
-        <header className="attendance-modal-header">
-          <div className="header-brand">
-            <Activity className="brand-icon" />
-            <h2 className="header-title">Log Attendance</h2>
+        {/* --- HEADER --- */}
+        <header className="af-header">
+          <div className="af-brand">
+            <div className="af-logo-icon"><Activity size={20} /></div>
+            <div>
+                <h2 className="af-title">Attendance Hub</h2>
+                <p className="af-subtitle">Log your shift activity</p>
+            </div>
           </div>
-          <button className="close-modal-btn" onClick={onClose}>
-            <X size={20} />
-          </button>
+          <button className="af-close-btn" onClick={onClose}><X size={20} /></button>
         </header>
 
-        <div className="attendance-layout-grid">
+        <div className="af-grid">
           
-          {/* --- LEFT SECTION: STATS & ACTION --- */}
-          <section className="attendance-action-panel">
-            <div className="dashboard-sub-header">
-               <h3 className="sub-header-title">
-                  <Activity size={18} /> Attendance Dashboard
-               </h3>
-               <div className="live-clock-display">
-                  <Clock size={14} /> <span>Live Time: <strong>{timeDisplay}</strong></span>
-               </div>
+          {/* --- LEFT: ACTIONS --- */}
+          <section className="af-action-side">
+            <div className="af-time-banner">
+              <Clock size={16} className="af-pulse" />
+              <span>Current Time: <strong>{timeDisplay}</strong></span>
             </div>
 
-            <div className="stats-container-row">
-              <div className="mini-stat-card sod-accent">
-                <div className="stat-icon-circle"><UserCheck size={20} /></div>
-                <div className="stat-info">
-                  <span className="stat-label">SOD COUNT</span>
-                  <span className="stat-value">{totalLogins}</span>
+            <div className="af-stat-row">
+              <div className="af-mini-card af-sod-bg">
+                <UserCheck size={18} />
+                <div className="af-stat-info">
+                  <span className="af-label">SOD</span>
+                  <span className="af-val">{totalLogins}</span>
                 </div>
               </div>
-              <div className="mini-stat-card eod-accent">
-                <div className="stat-icon-circle"><UserMinus size={20} /></div>
-                <div className="stat-info">
-                  <span className="stat-label">EOD COUNT</span>
-                  <span className="stat-value">{totalLogouts}</span>
+              <div className="af-mini-card af-eod-bg">
+                <UserMinus size={18} />
+                <div className="af-stat-info">
+                  <span className="af-label">EOD</span>
+                  <span className="af-val">{totalLogouts}</span>
                 </div>
               </div>
             </div>
 
-            <div className="dynamic-form-box">
-              <div className="search-filter-wrapper">
-                 <div className="search-input-group">
-                    <Search className="search-icon" size={16} />
-                    <input 
-                      type="text" 
-                      placeholder="Search Name or Employee ID..." 
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                 </div>
-                 <div className="date-picker-group">
-                    <input type="date" onChange={(e) => setStartDate(e.target.value)} />
-                    <span className="to-divider">to</span>
-                    <input type="date" onChange={(e) => setEndDate(e.target.value)} />
-                 </div>
+            <div className="af-form-section">
+              <div className="af-search-box">
+                <Search size={16} />
+                <input 
+                    type="text" 
+                    placeholder="Search by ID/Name..." 
+                    onChange={(e) => setSearchTerm(e.target.value)} 
+                />
               </div>
 
               {isSODTime() ? (
-                <div className="attendance-status-card sod-mode">
-                  <div className="card-header-row">
-                    <span className="status-emoji">🌅</span>
-                    <h4>Start of Day</h4>
+                <div className="af-mode-card af-sod-card">
+                  <div className="af-mode-head">🌅 Start of Day</div>
+                  <div className="af-input-stack">
+                    <input 
+                        type="text" 
+                        placeholder="Your Employee ID" 
+                        value={employeeId} 
+                        onChange={(e) => setEmployeeId(e.target.value)} 
+                    />
+                    <button className="af-btn af-sod-btn" onClick={handleSODSubmit}>
+                        <Send size={16} /> Mark Login
+                    </button>
                   </div>
-                  <p className="status-instruction">Mark your attendance for today</p>
-                  <input 
-                    type="text" 
-                    className="form-control-dark" 
-                    placeholder="Enter Employee ID" 
-                    value={employeeId} 
-                    onChange={(e) => setEmployeeId(e.target.value)} 
-                  />
-                  <button className="submit-btn sod-btn" onClick={handleSODSubmit}>
-                    <Send size={16} /> Submit SOD
-                  </button>
                 </div>
               ) : isEODTime() ? (
-                <div className="attendance-status-card eod-mode">
-                  <div className="card-header-row">
-                    <span className="status-emoji">🌙</span>
-                    <h4>End of Day</h4>
+                <div className="af-mode-card af-eod-card">
+                  <div className="af-mode-head">🌙 End of Day</div>
+                  <div className="af-input-stack">
+                    <input type="text" placeholder="Employee ID" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} />
+                    <textarea placeholder="Work achievements today..." onChange={(e) => setWorkDone(e.target.value)} />
+                    <div className="af-pct-input">
+                        <Target size={16} />
+                        <input type="number" placeholder="Progress %" onChange={(e) => setPercentage(e.target.value)} />
+                    </div>
+                    <button className="af-btn af-eod-btn" onClick={handleEODSubmit}>
+                        <Send size={16} /> Complete Shift
+                    </button>
                   </div>
-                  <p className="status-instruction">Report your daily progress</p>
-                  <div className="eod-inputs-stack">
-                    <input 
-                      type="text" 
-                      className="form-control-dark" 
-                      placeholder="Employee ID" 
-                      value={employeeId} 
-                      onChange={(e) => setEmployeeId(e.target.value)} 
-                    />
-                    <textarea 
-                      className="form-control-dark" 
-                      placeholder="What did you achieve today?" 
-                      onChange={(e) => setWorkDone(e.target.value)} 
-                    />
-                    <input 
-                      type="number" 
-                      className="form-control-dark" 
-                      placeholder="Overall Progress %" 
-                      onChange={(e) => setPercentage(e.target.value)} 
-                    />
-                  </div>
-                  <button className="submit-btn eod-btn" onClick={handleEODSubmit}>
-                    <Send size={16} /> Submit EOD
-                  </button>
                 </div>
               ) : (
-                <div className="attendance-status-card locked-mode">
-                  <Lock className="lock-icon-big" size={40} />
-                  <h4>Forms Locked</h4>
-                  <p>Entries are allowed only during shift hours machi!</p>
+                <div className="af-mode-card af-lock-card">
+                  <Lock size={32} />
+                  <h4>Portal Locked</h4>
+                  <p>Attendance can only be marked during shift hours machi!</p>
                 </div>
               )}
             </div>
           </section>
 
-          {/* --- RIGHT SECTION: ACTIVITY TIMELINE --- */}
-          <section className="attendance-timeline-panel">
-            <div className="timeline-header-row">
-               <ClipboardList size={20} />
-               <h3 className="timeline-title">Activity Timeline</h3>
+          {/* --- RIGHT: TIMELINE --- */}
+          <section className="af-timeline-side">
+            <div className="af-timeline-head">
+               <ClipboardList size={18} /> <h3>Activity Log</h3>
             </div>
             
-            <div className="timeline-scroll-area">
-              {filteredLogs.length > 0 ? filteredLogs.map((log, index) => (
-                <div key={index} className={`timeline-card-item ${log.type.toLowerCase()}`}>
-                  <div className="timeline-marker"></div>
-                  <div className="timeline-body">
-                    <div className="timeline-user-meta">
-                      <span className="user-name">{log.name}</span>
-                      <span className="user-id">#{log.employeeId}</span>
-                    </div>
-                    <div className="timeline-time-meta">
-                      <span className="type-badge">{log.type}</span>
-                      <span className="time-text">{log.time}</span>
-                      <span className="date-text">{log.date}</span>
-                    </div>
-                    {log.workDone && (
-                      <div className="timeline-task-details">
-                        <p className="task-desc"><strong>Tasks:</strong> {log.workDone}</p>
-                        <div className="progress-mini-bar">
-                          <div className="progress-fill" style={{width: `${log.percentage}%`}}></div>
-                          <span className="progress-pct">{log.percentage}%</span>
-                        </div>
-                      </div>
-                    )}
+            <div className="af-timeline-list scrollbar-style">
+              {filteredLogs.length > 0 ? filteredLogs.map((log, idx) => (
+                <div key={idx} className={`af-log-item status-${log.type.toLowerCase()}`}>
+                  <div className="af-log-meta">
+                    <span className="af-log-name">{log.name}</span>
+                    <span className={`af-badge ${log.type.toLowerCase()}`}>{log.type}</span>
                   </div>
+                  <div className="af-log-time">
+                    <Clock size={12} /> {log.time} • {log.date}
+                  </div>
+                  {log.workDone && (
+                    <div className="af-log-task">
+                      <p><strong>Work:</strong> {log.workDone}</p>
+                      <div className="af-progress-bg">
+                        <div className="af-progress-fill" style={{width: `${log.percentage}%`}}></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )) : (
-                <div className="empty-timeline-msg">
-                  <p>No records found machi! 🔎</p>
-                </div>
+                <div className="af-empty">No logs found! 🔎</div>
               )}
             </div>
           </section>

@@ -13,7 +13,8 @@ import {
   ExternalLink,
   ChevronRight, 
   LayoutDashboard, 
-  Loader2 
+  Loader2,
+  X
 } from "lucide-react";
 
 import { getAllTasks, completeTask } from "../services/api";
@@ -27,7 +28,6 @@ import "./Dashboard.css";
 
 function Dashboard({ setPage }) {
 
-  // ================= STATE =================
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
@@ -44,9 +44,10 @@ function Dashboard({ setPage }) {
   // ================= FETCH =================
   const fetchTasks = useCallback(async (currentUser) => {
     if (!currentUser) return;
+
     try {
       const res = await getAllTasks();
-      const data = res.data;
+      const data = res.data || [];
 
       const myTasks = data.filter((t) => t.assigned_to === currentUser.email);
 
@@ -66,16 +67,22 @@ function Dashboard({ setPage }) {
     }
   }, [prevTaskCount]);
 
+  // ================= INIT =================
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
+    const storedUser = JSON.parse(localStorage.getItem("dtms_user")); // ✅ FIX
+
+    if (storedUser && storedUser.email) {
       setUser(storedUser);
       fetchTasks(storedUser);
     } else {
       setPage("login");
     }
 
-    const interval = setInterval(() => fetchTasks(storedUser), 10000);
+    const interval = setInterval(() => {
+      const currentUser = JSON.parse(localStorage.getItem("dtms_user"));
+      if (currentUser) fetchTasks(currentUser);
+    }, 10000);
+
     return () => clearInterval(interval);
 
   }, [fetchTasks, setPage]);
@@ -111,232 +118,143 @@ function Dashboard({ setPage }) {
     }
   };
 
-  // ================= FILTER =================
+  const handleLogout = () => {
+    localStorage.removeItem("dtms_user"); // ✅ FIX
+    setPage("login");
+  };
+
+  // ================= DATA =================
   const pending = tasks.filter(t => t.status === "pending");
   const progress = tasks.filter(t => t.status === "in_progress");
   const done = tasks.filter(t => t.status === "completed");
 
   const chartData = [
-    { name: "Pending", value: pending.length, color: "#ef4444" },
+    { name: "Pending", value: pending.length, color: "#f43f5e" },
     { name: "Progress", value: progress.length, color: "#f59e0b" },
     { name: "Done", value: done.length, color: "#10b981" }
   ];
 
-  // ================= LOADING =================
   if (loading) {
     return (
-      <div className="loading-screen-full">
-        <Loader2 className="loading-spinner animate-spin" size={50} />
-        <p className="loading-text">Initializing Mission Control...</p>
+      <div className="db-loader-screen">
+        <Loader2 className="db-spinner" size={48} />
+        <p className="db-loader-text">Launching Dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-root">
+    <div className="db-container">
 
-      {/* ===== HEADER ===== */}
-      <header className="dashboard-header glass-effect">
-        <div className="header-brand">
-          <div className="brand-logo">
-            <LayoutDashboard size={24} className="icon-primary" />
+      {/* HEADER */}
+      <header className="db-header">
+        <div className="db-header-left">
+          <div className="db-logo-box">
+            <LayoutDashboard size={22} />
           </div>
-          <h2 className="header-title">Welcome, <span className="user-highlight">{user?.name}</span></h2>
+          <h2 className="db-welcome">
+            Hello, <span className="db-user-name">{user?.name}</span> 👋
+          </h2>
         </div>
 
-        <div className="header-nav">
-          <button className="nav-btn" onClick={() => setIsChatOpen(true)}>
-            <MessageSquare size={18} /> <span>Chat</span>
+        <div className="db-header-right">
+          <button className="db-nav-pill" onClick={() => setIsChatOpen(true)}>
+            <MessageSquare size={18} /> <span>Announcements</span>
           </button>
 
-          <button className="nav-btn" onClick={() => setIsAttendanceOpen(true)}>
+          <button className="db-nav-pill" onClick={() => setIsAttendanceOpen(true)}>
             <Calendar size={18} /> <span>Attendance</span>
           </button>
 
-          <button className="nav-icon-btn help-trigger" onClick={() => setIsHelpOpen(true)}>
+          <div className="db-divider"></div>
+
+          <button className="db-icon-circle" onClick={() => setIsHelpOpen(true)}>
             <HelpCircle size={18} />
           </button>
 
-          <button className="nav-icon-btn logout-trigger" title="Logout" onClick={() => { localStorage.clear(); setPage("login"); }}>
+          <button className="db-icon-circle db-logout" onClick={handleLogout}>
             <LogOut size={18} />
           </button>
         </div>
       </header>
 
-      {/* ===== NOTIFICATION ===== */}
+      {/* NOTIFICATION */}
       {notifications.length > 0 && (
-        <div className="notification-toast slide-in">
-          <Bell size={18} className="bell-animate" /> 
-          <span className="notification-msg">{notifications[0]}</span>
+        <div className="db-toast slide-in-right">
+          <Bell size={18} />
+          <span>{notifications[0]}</span>
         </div>
       )}
 
-      {/* ===== MAIN CONTENT ===== */}
-      <main className="dashboard-main">
+      {/* CONTENT */}
+      <main className="db-content">
 
-        {/* QUICK STATS SECTION */}
-        <section className="stats-container">
-          <div className="stat-card stat-pending">
-            <div className="stat-icon-wrapper"><Clock size={20} /></div>
-            <div className="stat-content">
-               <span className="stat-value">{pending.length}</span>
-               <span className="stat-label">Pending</span>
-            </div>
-          </div>
-          
-          <div className="stat-card stat-progress">
-            <div className="stat-icon-wrapper"><Loader2 size={20} /></div>
-            <div className="stat-content">
-               <span className="stat-value">{progress.length}</span>
-               <span className="stat-label">In Progress</span>
+        {/* STAT CARDS */}
+        <div className="db-stat-grid">
+          <div className="db-stat-card db-stat-pending">
+            <Clock size={20} />
+            <div>
+              <h3>{pending.length}</h3>
+              <p>Pending Tasks</p>
             </div>
           </div>
 
-          <div className="stat-card stat-done">
-            <div className="stat-icon-wrapper"><CheckCircle size={20} /></div>
-            <div className="stat-content">
-               <span className="stat-value">{done.length}</span>
-               <span className="stat-label">Completed</span>
+          <div className="db-stat-card db-stat-progress">
+            <Loader2 size={20} />
+            <div>
+              <h3>{progress.length}</h3>
+              <p>In Progress</p>
             </div>
           </div>
-        </section>
 
-        <div className="dashboard-grid">
-            {/* ANALYTICS CARD */}
-            <section className="chart-section glass-effect">
-                <h3 className="section-subtitle">Performance Overview</h3>
-                <div className="chart-wrapper">
-                    <ResponsiveContainer width="100%" height={280}>
-                    <PieChart>
-                        <Pie data={chartData} dataKey="value" innerRadius={60} outerRadius={80} paddingAngle={8}>
-                        {chartData.map((e, i) => (
-                            <Cell key={i} fill={e.color} stroke="none" />
-                        ))}
-                        </Pie>
-                        <Tooltip contentStyle={{ borderRadius: '10px', background: '#1e293b', border: 'none', color: '#fff' }} />
-                        <Legend iconType="circle" />
-                    </PieChart>
-                    </ResponsiveContainer>
-                </div>
-            </section>
-
-            {/* TASK MANAGEMENT SECTION */}
-            <section className="tasks-section glass-effect">
-                <div className="tasks-header">
-                    <h3 className="section-subtitle">Task Management</h3>
-                    <div className="task-tabs">
-                        {["pending", "in_progress", "completed"].map(t => (
-                            <button 
-                                key={t} 
-                                className={`tab-btn ${tab === t ? "tab-active" : ""}`}
-                                onClick={() => setTab(t)}
-                            >
-                                {t.replace('_', ' ')}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="tasks-scroll-area">
-                    {(tab === "pending" ? pending : tab === "in_progress" ? progress : done).length > 0 ? (
-                        (tab === "pending" ? pending : tab === "in_progress" ? progress : done).map(task => (
-                            <div key={task.id} className={`task-card task-border-${task.status}`}>
-                                <div className="task-info">
-                                    <h4 className="task-title">{task.title}</h4>
-                                    <p className="task-desc">{task.description || "No description provided."}</p>
-                                </div>
-
-                                {/* Conditional Render for Submission (Pending Only) */}
-                                {tab === "pending" && (
-                                    <div className="task-submission-form">
-                                        <div className="input-field">
-                                            <ExternalLink size={14} className="input-icon" />
-                                            <input 
-                                                type="text" 
-                                                placeholder="Deployment/Proof URL"
-                                                className="dashboard-input"
-                                                onChange={(e) => handleInputChange(task.id, "proof", e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="input-field">
-                                            <GitBranch size={14} className="input-icon" />
-                                            <input 
-                                                type="text" 
-                                                placeholder="GitHub Repository Link"
-                                                className="dashboard-input"
-                                                onChange={(e) => handleInputChange(task.id, "github", e.target.value)}
-                                            />
-                                        </div>
-
-                                        <button className="btn-submit-task" onClick={() => handleMarkComplete(task)}>
-                                            Submit Work
-                                        </button>
-                                    </div>
-                                )}
-
-                                {/* Conditional Render for Progress Update */}
-                                {tab === "in_progress" && (
-                                    <button className="btn-update-task" onClick={() => setSelectedTask(task)}>
-                                        Update Progress <ChevronRight size={14} />
-                                    </button>
-                                )}
-                            </div>
-                        ))
-                    ) : (
-                        <div className="empty-tasks">
-                            <p>No tasks in this category. 🏖️</p>
-                        </div>
-                    )}
-                </div>
-            </section>
+          <div className="db-stat-card db-stat-done">
+            <CheckCircle size={20} />
+            <div>
+              <h3>{done.length}</h3>
+              <p>Completed</p>
+            </div>
+          </div>
         </div>
+
+        {/* ANALYTICS */}
+        <div className="db-chart-box">
+          <h3>Visual Status</h3>
+          <ResponsiveContainer width="100%" height={260}>
+            <PieChart>
+              <Pie data={chartData} dataKey="value" innerRadius={65} outerRadius={85}>
+                {chartData.map((e, i) => (
+                  <Cell key={i} fill={e.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* TASK LIST */}
+        <div className="db-task-box">
+          <h3>My Tasks</h3>
+
+          {tasks.length > 0 ? (
+            tasks.map(task => (
+              <div key={task.id} className="db-task-card">
+                <h4>{task.title}</h4>
+                <p>{task.description}</p>
+              </div>
+            ))
+          ) : (
+            <p>No tasks found machi 😄</p>
+          )}
+        </div>
+
       </main>
 
-      {/* ===== MODAL OVERLAYS ===== */}
-      {isChatOpen && (
-        <div className="modal-overlay" onClick={() => setIsChatOpen(false)}>
-          <div className="modal-container chat-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-                <h3>Team Announcements</h3>
-                <button className="close-modal" onClick={() => setIsChatOpen(false)}>×</button>
-            </div>
-            <AllChat />
-          </div>
-        </div>
-      )}
-
-      {isAttendanceOpen && (
-        <div className="modal-overlay" onClick={() => setIsAttendanceOpen(false)}>
-          <div className="modal-container attendance-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-                <h3>Log Attendance</h3>
-                <button className="close-modal" onClick={() => setIsAttendanceOpen(false)}>×</button>
-            </div>
-            <AttendanceForm />
-          </div>
-        </div>
-      )}
-
-      {isHelpOpen && (
-        <div className="modal-overlay" onClick={() => setIsHelpOpen(false)}>
-          <div className="modal-container help-modal" onClick={e => e.stopPropagation()}>
-             <div className="modal-header">
-                <h3>Support & Help</h3>
-                <button className="close-modal" onClick={() => setIsHelpOpen(false)}>×</button>
-            </div>
-            <HelpSupport user={user} />
-          </div>
-        </div>
-      )}
-
-      {selectedTask && (
-        <ProgressUpdateModal
-          task={selectedTask}
-          close={() => setSelectedTask(null)}
-          refresh={() => fetchTasks(user)}
-        />
-      )}
+      {/* MODALS */}
+      {isChatOpen && <AllChat />}
+      {isAttendanceOpen && <AttendanceForm />}
+      {isHelpOpen && <HelpSupport user={user} />}
+      {selectedTask && <ProgressUpdateModal task={selectedTask} />}
 
     </div>
   );

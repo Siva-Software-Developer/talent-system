@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./AllChat.css";
-
-/* ✅ FIXED API IMPORTS (Using 'as' to match your existing code) */
 import { sendMessage, fetchMessages as getMessages } from "../services/api";
-
 import axios from "axios";
-/* ✅ UPDATED ALLCHAT ICON IMPORTS */
-import { Send, X, Reply, Smile, MessageSquare } from "lucide-react";
+import { Send, X, Reply, Smile, MessageSquare, ShieldCheck, User } from "lucide-react";
 
 const API_BASE = "http://localhost:5000";
 
@@ -19,20 +15,16 @@ function AllChat() {
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
-  // 📜 Auto-scroll to bottom whenever messages update
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // 🔄 Fetch messages
   const fetchMessagesData = async () => {
     try {
       const res = await getMessages();
-      const data = res?.data || [];
-      // We keep them in chronological order for chat feel
-      setMessages(data); 
+      setMessages(res?.data || []); 
     } catch (err) {
-      console.error("Fetch messages error:", err);
+      console.error("Fetch error:", err);
     }
   };
 
@@ -46,12 +38,8 @@ function AllChat() {
     scrollToBottom();
   }, [messages]);
 
-  // 📤 Send message
   const handleSend = async () => {
-    if (!message.trim()) {
-      alert("Machi, message illama eppidi send pannuva? Type something!");
-      return;
-    }
+    if (!message.trim()) return;
 
     const data = {
       message_id: `msg_${Date.now()}`, 
@@ -65,7 +53,7 @@ function AllChat() {
       parent_id: replyTo ? replyTo.message_id : null,
       reply_to_text: replyTo ? replyTo.text : null,
       reply_to_user: replyTo ? replyTo.sender : null,
-      reactions: {} // Initialize empty reactions
+      reactions: {} 
     };
 
     try {
@@ -74,12 +62,10 @@ function AllChat() {
       setReplyTo(null);
       fetchMessagesData();
     } catch (err) {
-      console.error("Send error:", err);
       alert("Error sending message ❌");
     }
   };
 
-  // 🔥 Handle Reaction
   const handleReact = async (msgId, emoji) => {
     try {
       await axios.post(`${API_BASE}/messages/react`, {
@@ -95,89 +81,78 @@ function AllChat() {
   };
 
   return (
-    <div className="allchat-root-container animate-fade-in">
-      <div className="allchat-header-section">
-        <div className="header-left">
-          <MessageSquare className="header-icon" size={20} />
-          <h2 className="allchat-main-title">Team Chat & Updates</h2>
+    <div className="ac-root animate-fade-in">
+      {/* --- Header Section --- */}
+      <header className="ac-header">
+        <div className="ac-header-left">
+          <div className="ac-logo-bg"><MessageSquare size={18} /></div>
+          <div>
+            <h2 className="ac-main-title">Team Workspace</h2>
+            <p className="ac-subtitle">Connect with your team</p>
+          </div>
         </div>
-        <span className="live-indicator">
-          <span className="live-dot"></span> LIVE
-        </span>
-      </div>
+        <div className="ac-live-pill">
+          <span className="ac-dot"></span> LIVE CHAT
+        </div>
+      </header>
 
-      {/* 📨 Messages Display */}
-      <div className="allchat-messages-display-area">
+      {/* --- Messages Area --- */}
+      <div className="ac-chat-viewport">
         {messages.length === 0 ? (
-          <div className="no-messages-placeholder">
-            <p className="no-msg-text">No announcements yet, machi... 🏖️</p>
+          <div className="ac-empty-state">
+            <div className="ac-empty-icon">🏖️</div>
+            <p>No messages yet, machi!</p>
           </div>
         ) : (
           messages.map((msg, index) => (
             <div 
               key={msg.message_id || index} 
-              className={`chat-bubble-wrapper ${msg?.sender_email === user?.email ? 'my-message' : ''}`}
+              className={`ac-bubble-row ${msg?.sender_email === user?.email ? 'ac-mine' : 'ac-theirs'}`}
             >
-              <div 
-                className={`chat-bubble-card ${msg?.role === 'admin' ? 'admin-msg-style' : 'user-msg-style'}`}
-              >
-                {/* 🔥 Reply Preview inside Chat Bubble */}
+              <div className="ac-bubble-card">
+                {/* Reply Preview */}
                 {msg.reply_to_text && (
-                  <div className="reply-preview-box">
-                    <small className="reply-user">@{msg.reply_to_user}</small>
-                    <p className="reply-text-truncate">{msg.reply_to_text}</p>
+                  <div className="ac-reply-thread">
+                    <span className="ac-reply-user">@{msg.reply_to_user}</span>
+                    <p className="ac-reply-snippet">{msg.reply_to_text}</p>
                   </div>
                 )}
 
-                <div className="chat-bubble-meta">
-                  <span className="chat-sender-name">{msg?.sender}</span>
-                  <span className={`chat-role-badge badge-${msg?.role}`}>{msg?.role}</span>
+                <div className="ac-bubble-meta">
+                  <span className="ac-sender-name">{msg?.sender}</span>
+                  {msg?.role === 'admin' ? <ShieldCheck size={12} className="ac-admin-icon" /> : <User size={12} />}
                 </div>
 
-                <div className="chat-bubble-content">
-                  <p className="chat-main-text">{msg?.text}</p>
+                <div className="ac-bubble-body">
+                  <p className="ac-text">{msg?.text}</p>
                 </div>
 
-                {/* 🔥 Reactions Row */}
+                {/* Reactions */}
                 {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                  <div className="reactions-display">
+                  <div className="ac-reactions-row">
                     {Object.entries(msg.reactions).map(([email, emoji], i) => (
-                      <span key={i} className="mini-emoji-pill" title={email}>
-                        {emoji}
-                      </span>
+                      <span key={i} className="ac-mini-emoji" title={email}>{emoji}</span>
                     ))}
                   </div>
                 )}
 
-                <div className="chat-bubble-footer">
-                  <span className="chat-timestamp">{msg?.time}</span>
-                  <div className="bubble-actions">
-                    <button 
-                      className="bubble-action-btn"
-                      onClick={() => setShowEmojiPicker(showEmojiPicker === index ? null : index)}
-                    >
+                <div className="ac-bubble-footer">
+                  <span className="ac-time">{msg?.time}</span>
+                  <div className="ac-bubble-actions">
+                    <button onClick={() => setShowEmojiPicker(showEmojiPicker === index ? null : index)}>
                       <Smile size={14} />
                     </button>
-                    <button 
-                      className="bubble-action-btn" 
-                      onClick={() => setReplyTo(msg)}
-                    >
+                    <button onClick={() => setReplyTo(msg)}>
                       <Reply size={14} /> Reply
                     </button>
                   </div>
                 </div>
 
-                {/* 🔥 Emoji Picker Floating UI */}
+                {/* Emoji Picker */}
                 {showEmojiPicker === index && (
-                  <div className="emoji-floating-bar scale-in">
+                  <div className="ac-emoji-picker-float">
                     {["👍", "❤️", "😂", "🔥", "🙏"].map((emoji) => (
-                      <span 
-                        key={emoji} 
-                        className="emoji-item"
-                        onClick={() => handleReact(msg.message_id, emoji)}
-                      >
-                        {emoji}
-                      </span>
+                      <span key={emoji} onClick={() => handleReact(msg.message_id, emoji)}>{emoji}</span>
                     ))}
                   </div>
                 )}
@@ -188,35 +163,31 @@ function AllChat() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ✍️ Input Section */}
-      <div className="allchat-input-control-panel">
-        {/* 🔥 Active Reply Preview Bar */}
+      {/* --- Input Section --- */}
+      <footer className="ac-input-section">
         {replyTo && (
-          <div className="active-reply-bar slide-up">
-            <div className="reply-info">
-              <Reply size={14} />
-              <span>Replying to <b>{replyTo.sender}</b></span>
+          <div className="ac-active-reply">
+            <div className="ac-reply-label">
+              <Reply size={14} /> <span>Replying to <b>{replyTo.sender}</b></span>
             </div>
-            <button className="cancel-reply-btn" onClick={() => setReplyTo(null)}>
-              <X size={14} />
-            </button>
+            <button onClick={() => setReplyTo(null)}><X size={14} /></button>
           </div>
         )}
 
-        <div className="input-wrapper-inner">
+        <div className="ac-input-bar">
           <input
             type="text"
-            className="chat-text-input-field"
-            placeholder={replyTo ? `Reply to ${replyTo.sender}...` : "Type a message, machi..."}
+            className="ac-text-field"
+            placeholder={replyTo ? "Type a reply..." : "Type a message, machi..."}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           />
-          <button className="chat-send-action-btn" onClick={handleSend}>
+          <button className="ac-send-btn" onClick={handleSend}>
             <Send size={18} />
           </button>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

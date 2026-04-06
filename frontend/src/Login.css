@@ -1,166 +1,203 @@
-/* =========================================
-   LOGIN PREMIUM GLASSMORPHISM
-   ========================================= */
 
-.login-glass-wrapper {
+/* 🌍 WRAPPER SETUP */
+.dtms-auth-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   padding: 20px;
-  background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent),
-              radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.1), transparent);
+  /* Soft background transition */
+  background-color: var(--dtms-bg);
+  background-image: radial-gradient(var(--dtms-dot) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+  transition: background 0.4s ease;
 }
 
-.login-container {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 28px;
-  padding: 40px;
+/* 🧊 REFINED CARD (Depth & Softness) */
+.dtms-login-card {
+  background: var(--dtms-card-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--dtms-border);
+  border-radius: 16px;
+  padding: 48px 40px;
   width: 100%;
-  max-width: 420px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  max-width: 440px;
+  /* Double shadow for realistic elevation */
+  box-shadow: 0 10px 25px -5px var(--dtms-shadow), 
+              0 8px 10px -6px var(--dtms-shadow);
   text-align: center;
+  transition: transform 0.3s ease, background 0.3s ease;
 }
 
-.login-logo-circle {
-  width: 70px;
-  height: 70px;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 50%;
+/* 🏢 BRANDING SECTION */
+.dtms-header-section {
+  margin-bottom: 32px;
+}
+
+.dtms-logo-box {
+  width: 64px;
+  height: 64px;
+  background: var(--dtms-accent);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+  color: #ffffff;
+  box-shadow: 0 10px 15px -3px var(--dtms-accent-glow);
 }
 
-.login-title-gradient {
-  font-size: 2rem;
+.dtms-main-title {
+  font-size: 1.6rem;
   font-weight: 800;
-  background: linear-gradient(to right, #f1f5f9, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--dtms-text-head);
+  letter-spacing: -0.8px;
   margin-bottom: 8px;
+  line-height: 1.2;
 }
 
-.login-subtitle {
-  color: #94a3b8;
+.dtms-tagline {
+  color: var(--dtms-text-dim);
   font-size: 0.9rem;
-  margin-bottom: 35px;
+  font-weight: 500;
 }
 
-/* --- INPUTS --- */
-.input-wrapper {
+/* 📋 FORM INPUTS */
+.dtms-input-group {
   text-align: left;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
-.input-label {
+.dtms-label {
   display: block;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 700;
+  color: var(--dtms-text-head);
   text-transform: uppercase;
-  margin-bottom: 8px;
-  margin-left: 4px;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
 }
 
-.input-icon-container {
+.dtms-input-relative {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.input-inner-icon {
+.dtms-input-icon {
   position: absolute;
-  left: 15px;
-  color: #475569;
-  transition: color 0.3s;
-}
-
-.premium-input.with-icon {
-  width: 100%;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 14px 15px 14px 45px;
-  color: white;
-  font-size: 0.95rem;
-  outline: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.premium-input:focus {
-  border-color: #38bdf8;
-  background: rgba(56, 189, 248, 0.05);
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
-}
-
-.premium-input:focus + .input-inner-icon,
-.input-icon-container:focus-within .input-inner-icon {
-  color: #38bdf8;
-}
-
-/* --- BUTTON --- */
-.btn-premium {
-  width: 100%;
-  background: #38bdf8;
-  color: #0f172a;
-  border: none;
-  border-radius: 12px;
-  padding: 16px;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-  margin-top: 10px;
-}
-
-.btn-premium:hover {
-  background: #7dd3fc;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
-}
-
-.btn-premium.loading {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* --- FOOTER --- */
-.login-footer-nav {
-  margin-top: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  font-size: 0.85rem;
-}
-
-.nav-link {
-  color: #94a3b8;
-  cursor: pointer;
+  left: 16px;
+  color: var(--dtms-text-dim);
   transition: color 0.2s;
 }
 
-.nav-link:hover { color: #f1f5f9; }
-
-.nav-link.highlight { color: #38bdf8; }
-
-.text-glow {
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+.dtms-input-field {
+  width: 100%;
+  background: var(--dtms-input-bg);
+  border: 1.5px solid var(--dtms-border);
+  border-radius: 10px;
+  padding: 14px 16px 14px 46px;
+  color: var(--dtms-text-head);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.nav-divider {
-  width: 1px;
-  height: 14px;
-  background: rgba(255, 255, 255, 0.1);
+.dtms-input-field:focus {
+  border-color: var(--dtms-accent);
+  background: var(--dtms-card-bg);
+  box-shadow: 0 0 0 4px var(--dtms-accent-glow);
+}
+
+.dtms-input-field:focus + .dtms-input-icon {
+  color: var(--dtms-accent);
+}
+
+/* 🔘 PRIMARY BUTTON (Slate to Navy Effect) */
+.dtms-primary-btn {
+  width: 100%;
+  background: var(--dtms-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 16px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+  box-shadow: 0 10px 15px -3px var(--dtms-accent-glow);
+}
+
+.dtms-primary-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px -5px var(--dtms-accent-glow);
+}
+
+/* 🔗 SYSTEM NAVIGATION */
+.dtms-footer-links {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.dtms-link {
+  color: var(--dtms-text-dim);
+  cursor: pointer;
+  transition: color 0.2s;
+  font-weight: 600;
+}
+
+.dtms-link:hover {
+  color: var(--dtms-accent);
+  text-decoration: none;
+}
+
+.dtms-pipe {
+  color: var(--dtms-border);
+}
+
+/* 🎨 THEME COLORS (Replace variables in your global/root) */
+:root {
+  /* Premium Off-White Theme */
+  --dtms-bg: #f1f5f9; /* Slate 100 */
+  --dtms-dot: #cbd5e1; /* Slate 300 */
+  --dtms-card-bg: #ffffff;
+  --dtms-border: #e2e8f0; /* Slate 200 */
+  --dtms-input-bg: #f8fafc;
+  --dtms-text-head: #0f172a; /* Slate 900 */
+  --dtms-text-dim: #64748b; /* Slate 500 */
+  --dtms-shadow: rgba(15, 23, 42, 0.08);
+  --dtms-accent: #1e293b; /* Solid Navy/Slate for button */
+  --dtms-accent-glow: rgba(30, 41, 59, 0.15);
+}
+
+.dark {
+  /* Professional Charcoal Theme */
+  --dtms-bg: #0f172a; /* Navy Dark 900 */
+  --dtms-dot: #1e293b; 
+  --dtms-card-bg: rgba(30, 41, 59, 0.8); /* Translucent Slate */
+  --dtms-border: #334155; /* Slate 700 */
+  --dtms-input-bg: #0f172a;
+  --dtms-text-head: #f8fafc;
+  --dtms-text-dim: #94a3b8;
+  --dtms-shadow: rgba(0, 0, 0, 0.3);
+  --dtms-accent: #38bdf8; /* Blue sky accent for readability in dark */
+  --dtms-accent-glow: rgba(56, 189, 248, 0.25);
+}
+
+.dtms-system-footer {
+  margin-top: 40px;
+  font-size: 0.7rem;
+  color: var(--dtms-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
 }

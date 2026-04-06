@@ -16,7 +16,7 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (!error.response) {
-      console.error("Server is down, machi! 🛠️ Check your backend.");
+      console.error("Server is down! 🛠️ Check your backend.");
     }
     return Promise.reject(error);
   }

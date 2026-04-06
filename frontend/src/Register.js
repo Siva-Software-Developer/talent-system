@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Register.css";
-import { UserPlus, ShieldCheck, Mail, Briefcase, Calendar, Key, CheckCircle2 } from "lucide-react";
+import { UserPlus, ShieldCheck, Mail, Briefcase, Calendar, Key, CheckCircle2, User } from "lucide-react";
 
 const API = "http://localhost:5000";
 
@@ -36,7 +36,7 @@ function Register({ setPage }) {
   };
 
   const sendOtp = async () => {
-    if (!form.email) return alert("Email podu machi! 📧");
+    if (!form.email) return alert("Please enter your email 📧");
     setOtpLoading(true);
     try {
       let res = await fetch(`${API}/register-send-otp`, {
@@ -47,7 +47,7 @@ function Register({ setPage }) {
       let data = await res.json();
       alert(data.message);
     } catch (err) {
-      alert("OTP Send failed da machi!");
+      alert("OTP Send failed!");
     } finally {
       setOtpLoading(false);
     }
@@ -55,11 +55,11 @@ function Register({ setPage }) {
 
   const register = async () => {
     if (!Object.values(valid).every(Boolean)) {
-      alert("Password innum strong-ah illa machi! 🔐 Check the badges.");
+      alert("Password does not strong! 🔐 Check the badges.");
       return;
     }
     if (!form.role || !form.job || !form.otp || !form.name) {
-      alert("Ellaa details-um fill pannu machi! 📝");
+      alert("Please fill all the details! 📝");
       return;
     }
 
@@ -74,103 +74,166 @@ function Register({ setPage }) {
       alert(data.message);
       if (res.status === 201) setPage("login");
     } catch (err) {
-      alert("Registration error machi!");
+      alert("Registration error!");
     }
   };
 
   return (
-    <div className="register-glass-wrapper animate-fade-in">
-      <div className="register-container">
-        <div className="register-header">
-          <div className="register-logo-circle">
-            <UserPlus size={32} color="#818cf8" />
+    <div className="dtms-auth-wrapper dtms-register-page">
+      <div className="dtms-register-card">
+        
+        {/* 🏢 BRANDING & HEADER */}
+        <div className="dtms-header-section">
+          <div className="dtms-logo-box">
+            <UserPlus size={36} strokeWidth={1.5} color="#fff" />
           </div>
-          <h2 className="register-title-gradient">Join Us 🚀</h2>
-          <p className="register-subtitle">Initialize your professional trajectory</p>
+          <h1 className="dtms-main-title">Digital Talent Management System</h1>
+          <p className="dtms-tagline">Create your professional account</p>
         </div>
 
-        <div className="register-form-scrollable">
-          <div className="register-form-grid">
-            {/* Input Groups with Icons */}
-            <div className="input-icon-container">
-              <Mail className="input-inner-icon" size={16} />
-              <input className="premium-input with-icon" name="name" placeholder="Full Name" onChange={handleChange}/>
+        <hr className="dtms-divider" />
+
+        {/* 📋 SCROLLABLE FORM */}
+        <div className="dtms-form-scroll-container">
+          <div className="dtms-form-grid">
+            
+            {/* Full Name */}
+            <div className="dtms-input-group">
+              <label className="dtms-label">Full Name</label>
+              <div className="dtms-input-relative">
+                <User className="dtms-input-icon" size={16} />
+                <input 
+                  className="dtms-input-field" 
+                  name="name" 
+                  placeholder="Enter your full name" 
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <div className="input-icon-container">
-              <Mail className="input-inner-icon" size={16} />
-              <input className="premium-input with-icon" name="email" placeholder="Email Address" onChange={handleChange}/>
+            {/* Email Address */}
+            <div className="dtms-input-group">
+              <label className="dtms-label">Corporate Email</label>
+              <div className="dtms-input-relative">
+                <Mail className="dtms-input-icon" size={16} />
+                <input 
+                  className="dtms-input-field" 
+                  name="email" 
+                  placeholder="name@company.com" 
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <div className="input-icon-container">
-              <Calendar className="input-inner-icon" size={16} />
-              <input className="premium-input with-icon date-input" type="date" name="dob" onChange={handleChange}/>
+            {/* Date of Birth */}
+            <div className="dtms-input-group">
+              <label className="dtms-label">Date of Birth</label>
+              <div className="dtms-input-relative">
+                <Calendar className="dtms-input-icon" size={16} />
+                <input 
+                  className="dtms-input-field dtms-date-picker" 
+                  type="date" 
+                  name="dob" 
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <div className="input-icon-container">
-              <Key className="input-inner-icon" size={16} />
-              <input className="premium-input with-icon" type="password" name="password" placeholder="Secure Password" onChange={handleChange}/>
+            {/* Password */}
+            <div className="dtms-input-group">
+              <label className="dtms-label">Secure Password</label>
+              <div className="dtms-input-relative">
+                <Key className="dtms-input-icon" size={16} />
+                <input 
+                  className="dtms-input-field" 
+                  type="password" 
+                  name="password" 
+                  placeholder="Create a strong password" 
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
             {/* Password Strength Badges */}
-            <div className="strength-tracker-modern">
+            <div className="dtms-strength-badges">
               {Object.entries(valid).map(([key, isV]) => (
-                <span key={key} className={isV ? "badge-v" : "badge-i"}>
-                  {isV && <CheckCircle2 size={10} />} {key === 'length' ? '8+ Chars' : key.charAt(0).toUpperCase() + key.slice(1)}
+                <span key={key} className={isV ? "dtms-badge-valid" : "dtms-badge-invalid"}>
+                  {isV && <CheckCircle2 size={10} style={{ marginRight: '4px' }} />} 
+                  {key === 'length' ? '8+ Chars' : key.charAt(0).toUpperCase() + key.slice(1)}
                 </span>
               ))}
             </div>
 
             {/* Role & Job Selection */}
-            <div className="input-group-row">
-              <div className="select-wrapper">
-                <ShieldCheck className="select-icon" size={16} />
-                <select className="premium-input select-styled" name="role" onChange={handleChange}>
-                  <option value="">Select Role</option>
-                  <option value="admin">Admin</option>
-                  <option value="employee">Employee</option>
-                </select>
+            <div className="dtms-input-row">
+              <div className="dtms-input-group dtms-flex-1">
+                <label className="dtms-label">System Role</label>
+                <div className="dtms-input-relative">
+                  <ShieldCheck className="dtms-input-icon" size={16} />
+                  <select className="dtms-input-field dtms-select-field" name="role" onChange={handleChange}>
+                    <option value="">Select Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="employee">Employee</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="select-wrapper">
-                <Briefcase className="select-icon" size={16} />
-                <select className="premium-input select-styled" name="job" onChange={handleChange}>
-                  <option value="">Job Role</option>
-                  <optgroup label="Development">
-                    <option>Frontend Developer</option>
-                    <option>Backend Developer</option>
-                    <option>Full Stack Developer</option>
-                  </optgroup>
-                  <optgroup label="Management">
-                    <option>Project Manager</option>
-                    <option>Team Lead</option>
-                  </optgroup>
-                </select>
+              <div className="dtms-input-group dtms-flex-1">
+                <label className="dtms-label">Job Title</label>
+                <div className="dtms-input-relative">
+                  <Briefcase className="dtms-input-icon" size={16} />
+                  <select className="dtms-input-field dtms-select-field" name="job" onChange={handleChange}>
+                    <option value="">Job Role</option>
+                    <optgroup label="Development">
+                      <option>Frontend Developer</option>
+                      <option>Backend Developer</option>
+                      <option>Full Stack Developer</option>
+                    </optgroup>
+                    <optgroup label="Management">
+                      <option>Project Manager</option>
+                      <option>Team Lead</option>
+                    </optgroup>
+                  </select>
+                </div>
               </div>
             </div>
 
             {/* OTP Section */}
-            <div className="otp-container">
-              <input className="premium-input otp-field" name="otp" placeholder="Verification OTP" onChange={handleChange}/>
-              <button 
-                className={`btn-send-otp-inline ${otpLoading ? 'spinning' : ''}`} 
-                onClick={sendOtp}
-                disabled={otpLoading}
-              >
-                {otpLoading ? "..." : "Get OTP"}
-              </button>
+            <div className="dtms-input-group">
+              <label className="dtms-label">Security Verification</label>
+              <div className="dtms-otp-layout">
+                <input 
+                  className="dtms-input-field dtms-otp-input" 
+                  name="otp" 
+                  placeholder="Enter OTP" 
+                  onChange={handleChange}
+                />
+                <button 
+                  className={`dtms-otp-btn ${otpLoading ? 'dtms-spinning' : ''}`} 
+                  onClick={sendOtp}
+                  disabled={otpLoading}
+                >
+                  {otpLoading ? "..." : "Get OTP"}
+                </button>
+              </div>
             </div>
           </div>
 
-          <button className="btn-premium register-btn-full" onClick={register}>
-            Complete Registration ✨
+          {/* Complete Registration Button */}
+          <button className="dtms-primary-btn dtms-register-btn" onClick={register}>
+            COMPLETE REGISTRATION
           </button>
         </div>
 
-        <div className="register-footer">
-          <p className="login-link-text" onClick={()=>setPage("login")}>
-            Already have an account? <span className="highlight-text-glow">Login</span>
+        {/* 🔗 FOOTER NAVIGATION */}
+        <div className="dtms-footer-links">
+          <p className="dtms-link" onClick={() => setPage("login")}>
+            Already have an account? <span className="dtms-link-bold">Sign In</span>
           </p>
+        </div>
+
+        <div className="dtms-system-footer">
+          <p>© 2026 DTMS Infrastructure. All rights reserved.</p>
         </div>
       </div>
     </div>

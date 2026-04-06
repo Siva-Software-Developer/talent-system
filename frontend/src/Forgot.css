@@ -1,191 +1,212 @@
-/* =========================================
-   TALENT OS - RECOVERY SYSTEM (Forgot.css)
-   ========================================= */
 
-/* Container Setup */
-.recovery-container {
+.dtms-forgot-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  /* Soft transition for theme switching */
+  background-color: var(--dtms-bg);
+  background-image: radial-gradient(var(--dtms-dot) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+  transition: background 0.4s ease;
+}
+
+.dtms-forgot-card {
+  background: var(--dtms-card-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--dtms-border);
+  border-radius: 16px;
+  padding: 45px 40px;
+  width: 100%;
+  max-width: 450px;
+  /* Natural depth shadow */
+  box-shadow: 0 10px 25px -5px var(--dtms-shadow), 0 8px 10px -6px var(--dtms-shadow);
+  text-align: center;
+  animation: dtms-fade-up 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 🏢 BRANDING SECTION */
+.dtms-header-section {
+  margin-bottom: 25px;
+}
+
+.dtms-logo-box {
+  width: 64px;
+  height: 64px;
+  background: var(--dtms-accent);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: #ffffff;
+  box-shadow: 0 10px 15px -3px var(--dtms-accent-glow);
+}
+
+.dtms-main-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--dtms-text-head);
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.dtms-tagline {
+  color: var(--dtms-text-dim);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.dtms-divider {
+  border: 0;
+  border-top: 1px solid var(--dtms-border);
+  margin: 25px 0;
+}
+
+/* 📋 FORM ELEMENTS */
+.dtms-form-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
   text-align: left;
 }
 
-/* Header Text Styles */
-.recovery-header {
-  margin-bottom: 5px;
-}
-
-.recovery-title-gradient {
-  font-size: 1.8rem;
-  font-weight: 800;
-  background: linear-gradient(to right, #fff, var(--primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.dtms-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--dtms-text-head);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   margin-bottom: 8px;
 }
 
-.recovery-subtitle {
-  color: #94a3b8;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-/* Input Sections */
-.recovery-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* Integrated Email + OTP Button */
-.input-group-glass {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.recovery-input {
+.dtms-input-field {
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 14px 16px;
-  border-radius: 12px;
-  color: #fff;
+  background: var(--dtms-input-bg);
+  border: 1.5px solid var(--dtms-border);
+  border-radius: 10px;
+  padding: 14px 14px 14px 44px;
+  color: var(--dtms-text-head);
   font-size: 0.95rem;
   outline: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.recovery-input:focus {
-  border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 15px var(--primary-glow);
+.dtms-input-field:focus {
+  border-color: var(--dtms-accent);
+  background: var(--dtms-card-bg);
+  box-shadow: 0 0 0 4px var(--dtms-accent-glow);
 }
 
-.btn-send-otp {
-  position: absolute;
-  right: 8px;
-  background: var(--primary);
-  color: white;
+/* 🛡️ OTP LAYOUT */
+.dtms-otp-btn {
+  background: var(--dtms-accent);
+  color: #ffffff;
   border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  border-radius: 10px;
   font-weight: 700;
+  font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-send-otp:hover {
-  transform: scale(1.05);
-  filter: brightness(1.2);
-}
-
-/* Middle Divider Styling */
-.recovery-divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 10px 0;
-}
-
-.recovery-divider::before,
-.recovery-divider::after {
-  content: "";
-  flex: 1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.recovery-divider span {
+  transition: 0.3s;
   padding: 0 15px;
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #475569;
-  letter-spacing: 2px;
-  text-transform: uppercase;
 }
 
-/* Reset Button Premium */
-.btn-reset-password {
-  background: linear-gradient(135deg, var(--primary), #818cf8);
-  color: white;
-  border: none;
-  padding: 16px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 5px;
-  box-shadow: 0 10px 20px -5px var(--primary-glow);
-  transition: all 0.3s ease;
+.dtms-otp-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 
-.btn-reset-password:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 30px -5px var(--primary);
+.dtms-otp-btn:disabled {
+  background: var(--dtms-border);
+  color: var(--dtms-text-dim);
+  cursor: not-allowed;
 }
 
-.btn-reset-password:active {
-  transform: translateY(0);
-}
-
-/* Footer Link Styles */
-.recovery-footer {
-  margin-top: 10px;
+/* 🎯 OTP INPUT SPECIFIC */
+.dtms-otp-field {
   text-align: center;
+  letter-spacing: 6px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--dtms-accent);
 }
 
-.back-to-login {
-  color: #94a3b8;
+/* 🔘 ACTION BUTTON */
+.dtms-primary-btn {
+  width: 100%;
+  background: var(--dtms-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 16px;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
+  letter-spacing: 1px;
+  margin-top: 10px;
+  transition: 0.3s;
+  box-shadow: 0 8px 15px var(--dtms-accent-glow);
 }
 
-.back-to-login:hover {
-  color: var(--primary);
+.dtms-primary-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px var(--dtms-accent-glow);
 }
 
-.back-to-login .arrow {
-  transition: transform 0.3s ease;
+/* 🔗 FOOTER NAVIGATION */
+.dtms-link {
+  color: var(--dtms-text-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
-.back-to-login:hover .arrow {
-  transform: translateX(-5px);
+.dtms-link:hover {
+  color: var(--dtms-accent);
 }
 
-/* Entry Animation */
-.animate-fade-in {
-  animation: recoveryEntry 0.5s ease-out forwards;
+/* 🎨 REFINED THEME VARIABLES (Place this in your :root) */
+:root {
+  /* Soft Pearl Theme */
+  --dtms-bg: #f1f5f9;
+  --dtms-dot: #cbd5e1;
+  --dtms-card-bg: #ffffff;
+  --dtms-border: #e2e8f0;
+  --dtms-input-bg: #f8fafc;
+  --dtms-text-head: #0f172a;
+  --dtms-text-dim: #64748b;
+  --dtms-shadow: rgba(15, 23, 42, 0.08);
+  --dtms-accent: #1e293b; /* Refined Slate/Charcoal */
+  --dtms-accent-glow: rgba(30, 41, 59, 0.15);
 }
 
-@keyframes recoveryEntry {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.dark {
+  /* Rich Charcoal Theme */
+  --dtms-bg: #0f172a;
+  --dtms-dot: #1e293b;
+  --dtms-card-bg: rgba(30, 41, 59, 0.85);
+  --dtms-border: #334155;
+  --dtms-input-bg: #0f172a;
+  --dtms-text-head: #f8fafc;
+  --dtms-text-dim: #94a3b8;
+  --dtms-shadow: rgba(0, 0, 0, 0.3);
+  --dtms-accent: #38bdf8; /* Blue sky accent for Dark Mode visibility */
+  --dtms-accent-glow: rgba(56, 189, 248, 0.25);
 }
 
-/* Light Mode Overrides */
-body.light .recovery-input {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #1e293b;
+.dtms-system-footer {
+  margin-top: 35px;
+  font-size: 0.7rem;
+  color: var(--dtms-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
 }
 
-body.light .recovery-subtitle, 
-body.light .back-to-login {
-  color: #64748b;
-}
-
-body.light .recovery-divider span {
-  color: #94a3b8;
+@keyframes dtms-fade-up {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }

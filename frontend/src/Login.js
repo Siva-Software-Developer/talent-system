@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Login.css";
-import { LogIn, Lock, Mail, ArrowRight } from "lucide-react";
+import { Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 
 const API = "http://localhost:5000";
 
@@ -11,99 +11,128 @@ function Login({ setPage }) {
 
   const login = async () => {
     if (!email || !password) {
-      alert("Machi, email and password renduமே mukkiyam! 🛑");
+      alert("Both email and password important!!!");
       return;
     }
 
     setLoading(true);
+
     try {
-      let res = await fetch(`${API}/login`, {
+      // 🔥 clear old session (IMPORTANT FIX)
+      localStorage.removeItem("dtms_user");
+
+      const res = await fetch(`${API}/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ email, password })
       });
 
-      let data = await res.json();
+      const data = await res.json();
 
-      if (res.status === 200) {
+      console.log("LOGIN RESPONSE:", data); // debug
+
+      if (res.status === 200 && data && data.user && data.user.role) {
         alert("Welcome back, machi! 🚀");
-        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // ✅ store correct format
+        localStorage.setItem("dtms_user", JSON.stringify(data.user));
+
+        // ✅ trigger App.js flow
         setPage("dashboard");
+
       } else {
         alert(data.message || "Invalid credentials, machi!");
       }
+
     } catch (error) {
-      console.log(error);
-      alert("Server error, backend check pannu machi! 🛠️");
+      console.error("LOGIN ERROR:", error);
+      alert("Server error, check your backend 🛠️");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-glass-wrapper animate-fade-in">
-      <div className="login-container">
-        {/* 🚀 HEADER SECTION */}
-        <div className="login-header">
-          <div className="login-logo-circle">
-            <LogIn size={32} color="#38bdf8" />
+    <div className="dtms-auth-wrapper mono-theme">
+      <div className="dtms-login-card">
+
+        {/* 🏢 HEADER */}
+        <div className="dtms-header-section">
+          <div className="dtms-logo-box">
+            <ShieldCheck size={40} strokeWidth={1.5} color="#000" />
           </div>
-          <h2 className="login-title-gradient">Welcome Back</h2>
-          <p className="login-subtitle">Secure access to your Mission Control</p>
+          <h1 className="dtms-main-title">Digital Talent Management System</h1>
+          <p className="dtms-tagline">Professional Portal Access</p>
         </div>
 
-        {/* 📋 FORM SECTION */}
-        <div className="login-form">
-          <div className="input-wrapper">
-            <label className="input-label">Email Address</label>
-            <div className="input-icon-container">
-              <Mail className="input-inner-icon" size={18} />
+        <hr className="dtms-divider" />
+
+        {/* 📋 FORM */}
+        <div className="dtms-form-container">
+
+          <div className="dtms-input-group">
+            <label className="dtms-label">Corporate Email</label>
+            <div className="dtms-input-relative">
+              <Mail className="dtms-input-icon" size={18} />
               <input
                 type="email"
-                className="premium-input with-icon"
-                placeholder="email@talent-os.com"
+                className="dtms-input-field"
+                placeholder="name@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="input-wrapper">
-            <label className="input-label">Password</label>
-            <div className="input-icon-container">
-              <Lock className="input-inner-icon" size={18} />
+          <div className="dtms-input-group">
+            <label className="dtms-label">Secure Password</label>
+            <div className="dtms-input-relative">
+              <Lock className="dtms-input-icon" size={18} />
               <input
                 type="password"
-                className="premium-input with-icon"
+                className="dtms-input-field"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && login()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") login();
+                }}
               />
             </div>
           </div>
 
-          {/* 🔘 ACTION BUTTON */}
-          <button 
-            className={`btn-premium login-btn-full ${loading ? 'loading' : ''}`} 
+          {/* 🔘 BUTTON */}
+          <button
+            className={`dtms-primary-btn ${loading ? "dtms-btn-loading" : ""}`}
             onClick={login}
             disabled={loading}
           >
-            {loading ? "Authenticating..." : "Authenticate & Enter"} 
-            {!loading && <ArrowRight size={18} style={{marginLeft: '10px'}} />}
+            {loading ? "VERIFYING..." : "SIGN IN TO SYSTEM"}
+            {!loading && <ArrowRight size={18} className="dtms-btn-arrow" />}
           </button>
+
         </div>
 
-        {/* 🔁 SECONDARY NAVIGATION */}
-        <div className="login-footer-nav">
-          <p className="nav-link" onClick={() => setPage("forgot")}>
-            Forgot Password?
-          </p>
-          <span className="nav-divider"></span>
-          <p className="nav-link highlight" onClick={() => setPage("register")}>
-            New here? <span className="text-glow">Create Account</span>
-          </p>
+        {/* 🔗 LINKS */}
+        <div className="dtms-footer-links">
+          <span className="dtms-link" onClick={() => setPage("forgot")}>
+            Forgot Credentials?
+          </span>
+          <span className="dtms-pipe">|</span>
+          <span
+            className="dtms-link dtms-link-bold"
+            onClick={() => setPage("register")}
+          >
+            Register New Account
+          </span>
         </div>
+
+        <div className="dtms-system-footer">
+          <p>© 2026 DTMS Infrastructure. All rights reserved.</p>
+        </div>
+
       </div>
     </div>
   );

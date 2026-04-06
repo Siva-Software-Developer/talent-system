@@ -53,40 +53,65 @@ function HelpSupport({ user }) {
   };
 
   return (
-    <div className="help-support-card animate-slide-in">
-      <div className="help-card-header">
-        <h3 className="help-card-title">💡 Knowledge Base</h3>
-        <span className="help-status-online">Live Support</span>
-      </div>
-
-      <div className="faq-container">
-        {faqs.map((faq, index) => (
-          <div key={index} className="faq-item">
-            <p className="faq-question">❓ {faq.q}</p>
-            <p className="faq-answer">{faq.a}</p>
+    <div className="hs-root-container">
+      <div className="hs-card animate-fade-up">
+        
+        {/* HEADER SECTION */}
+        <div className="hs-card-header">
+          <div className="hs-title-group">
+            <h3 className="hs-main-title">💡 Knowledge Base</h3>
+            <p className="hs-subtitle">Find quick answers or reach out to us.</p>
           </div>
-        ))}
-      </div>
+          <span className="hs-status-pill">Live Support</span>
+        </div>
 
-      <div className="support-ticket-form">
-        <label className="support-label">Direct Support / Raise Ticket</label>
-        <textarea
-          className="support-textarea"
-          placeholder="Describe your issue or doubt here, machi..."
-          value={ticket}
-          onChange={(e) => setTicket(e.target.value)}
-        ></textarea>
-        <button 
-          className="btn-send-ticket" 
-          onClick={handleRaiseTicket}
-          disabled={loading}
-        >
-          {loading ? "Sending..." : "Send to Admin 🚀"}
-        </button>
-      </div>
+        {/* FAQ SECTION */}
+        <div className="hs-faq-list">
+          {faqs.map((faq, index) => (
+            <div key={index} className="hs-faq-item">
+              <div className="hs-faq-q">
+                <span className="hs-q-icon">❓</span>
+                <p>{faq.q}</p>
+              </div>
+              <p className="hs-faq-a">{faq.a}</p>
+            </div>
+          ))}
+        </div>
 
-      <div className="help-footer-note">
-        <p>Average response time: &lt; 30 mins</p>
+        {/* TICKET FORM SECTION */}
+        <div className="hs-ticket-section">
+          <div className="hs-form-label-row">
+            <label className="hs-form-label">Direct Support / Raise Ticket</label>
+            <span className="hs-char-count">{ticket.length} chars</span>
+          </div>
+          
+          <textarea
+            className="hs-textarea"
+            placeholder="Describe your issue or doubt here, machi..."
+            value={ticket}
+            onChange={(e) => setTicket(e.target.value)}
+            rows="4"
+          ></textarea>
+
+          <button 
+            className="hs-btn-submit" 
+            onClick={handleRaiseTicket}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="hs-loader"></div>
+            ) : (
+              <>Send to Admin <span className="hs-btn-icon">🚀</span></>
+            )}
+          </button>
+        </div>
+
+        {/* FOOTER NOTE */}
+        <div className="hs-card-footer">
+          <p className="hs-footer-text">
+             Average response time: <strong>&lt; 30 mins</strong>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -96,139 +96,158 @@ def send_task_notification(email, title):
     except Exception as e:
         print("NOTIF ERROR:", e)
 
-# ================= AUTH =================
+# ================= AUTH (FIXED SUCCESS FLAGS) =================
 
 @app.route("/register-send-otp", methods=["POST"])
 def register_send_otp():
-    data = request.get_json()
-    email = data.get("email")
+    try:
+        data = request.get_json()
+        email = data.get("email")
 
-    if not email or not is_valid_email(email):
-        return jsonify({"message": "Invalid email"}), 400
+        if not email or not is_valid_email(email):
+            return jsonify({"success": False, "message": "Invalid email"}), 400
 
-    if users.find_one({"email": email}):
-        return jsonify({"message": "Email already exists"}), 400
+        if users.find_one({"email": email}):
+            return jsonify({"success": False, "message": "Email already exists"}), 400
 
-    otp = str(random.randint(1000, 9999))
-    otp_store[email] = {"otp": otp, "time": time.time()}
+        otp = str(random.randint(1000, 9999))
+        otp_store[email] = {"otp": otp, "time": time.time()}
 
-    if send_otp(email, otp):
-        return jsonify({"message": "OTP sent"}), 200
-    return jsonify({"message": "OTP failed"}), 500
+        if send_otp(email, otp):
+            return jsonify({"success": True, "message": "OTP sent"}), 200
+        return jsonify({"success": False, "message": "OTP failed"}), 500
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @app.route("/register-verify", methods=["POST"])
 def register_verify():
-    data = request.get_json()
-    email = data.get("email")
-    user_otp = data.get("otp")
-    password = data.get("password")
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        user_otp = data.get("otp")
+        password = data.get("password")
 
-    stored = otp_store.get(email)
-    if not stored:
-        return jsonify({"message": "No OTP"}), 400
+        stored = otp_store.get(email)
+        if not stored:
+            return jsonify({"success": False, "message": "No OTP found"}), 400
 
-    if time.time() - stored["time"] > 300:
+        if time.time() - stored["time"] > 300:
+            del otp_store[email]
+            return jsonify({"success": False, "message": "OTP expired"}), 400
+
+        if stored["otp"] != user_otp:
+            return jsonify({"success": False, "message": "Wrong OTP"}), 400
+
+        if not is_strong_password(password):
+            return jsonify({"success": False, "message": "Weak password"}), 400
+
+        users.insert_one({
+            "name": data.get("name"),
+            "email": email,
+            "password": generate_password_hash(password),
+            "role": data.get("role", "employee"),
+            "job": data.get("job"),
+            "profile_pic": None,
+            "dob": None,
+            "is_verified": True
+        })
+
         del otp_store[email]
-        return jsonify({"message": "OTP expired"}), 400
-
-    if stored["otp"] != user_otp:
-        return jsonify({"message": "Wrong OTP"}), 400
-
-    if not is_strong_password(password):
-        return jsonify({"message": "Weak password"}), 400
-
-    users.insert_one({
-        "name": data.get("name"),
-        "email": email,
-        "password": generate_password_hash(password),
-        "role": data.get("role", "employee"),
-        "job": data.get("job"),
-        "profile_pic": None, # 🆕 Added profile field
-        "dob": None,         # 🆕 Added DOB field
-        "is_verified": True
-    })
-
-    del otp_store[email]
-    return jsonify({"message": "Registered"}), 201
+        return jsonify({"success": True, "message": "Registered successfully"}), 201
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @app.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
-    user = users.find_one({"email": data.get("email")})
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
 
-    if not user:
-        return jsonify({"message": "No user"}), 404
+        user = users.find_one({"email": email})
 
-    if not check_password_hash(user["password"], data.get("password")):
-        return jsonify({"message": "Wrong password"}), 401
+        if not user:
+            return jsonify({"success": False, "message": "No user found"}), 404
 
-    return jsonify({
-        "message": "Login success",
-        "user": {
-            "name": user["name"],
-            "email": user["email"],
-            "role": user["role"],
-            "profile_pic": user.get("profile_pic"), # 🆕 Return profile image
-            "dob": user.get("dob")                   # 🆕 Return DOB
-        }
-    }), 200
+        if not check_password_hash(user["password"], password):
+            return jsonify({"success": False, "message": "Wrong password"}), 401
+
+        return jsonify({
+            "success": True, 
+            "message": "Login success",
+            "user": {
+                "name": user["name"],
+                "email": user["email"],
+                "role": user["role"],
+                "profile_pic": user.get("profile_pic"),
+                "dob": user.get("dob")
+            }
+        }), 200
+    except Exception as e:
+        print(f"LOGIN ERROR: {str(e)}")
+        return jsonify({"success": False, "message": "Server error", "error": str(e)}), 500
 
 
-# ================= FORGOT PASSWORD =================
+# ================= FORGOT PASSWORD (FIXED DUPLICATE & ADDED SUCCESS) =================
 
 @app.route("/forgot-send-otp", methods=["POST"])
 def forgot_send_otp():
-    data = request.get_json()
-    email = data.get("email")
+    try:
+        data = request.get_json()
+        email = data.get("email")
 
-    if not email or not is_valid_email(email):
-        return jsonify({"message": "Invalid email"}), 400
+        if not email or not is_valid_email(email):
+            return jsonify({"success": False, "message": "Invalid email"}), 400
 
-    user = users.find_one({"email": email})
-    if not user:
-        return jsonify({"message": "User not found"}), 404
+        user = users.find_one({"email": email})
+        if not user:
+            return jsonify({"success": False, "message": "User not found"}), 404
 
-    otp = str(random.randint(1000, 9999))
-    otp_store[email] = {"otp": otp, "time": time.time()}
+        otp = str(random.randint(1000, 9999))
+        otp_store[email] = {"otp": otp, "time": time.time()}
 
-    if send_otp(email, otp):
-        return jsonify({"message": "OTP sent successfully"}), 200
+        if send_otp(email, otp):
+            return jsonify({"success": True, "message": "OTP sent successfully"}), 200
 
-    return jsonify({"message": "Failed to send OTP"}), 500
+        return jsonify({"success": False, "message": "Failed to send OTP"}), 500
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @app.route("/reset-password", methods=["POST"])
 def reset_password():
-    data = request.get_json()
-    email = data.get("email")
-    user_otp = data.get("otp")
-    new_password = data.get("password")
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        user_otp = data.get("otp")
+        new_password = data.get("password")
 
-    stored = otp_store.get(email)
+        stored = otp_store.get(email)
 
-    if not stored:
-        return jsonify({"message": "No OTP found"}), 400
+        if not stored:
+            return jsonify({"success": False, "message": "No OTP found"}), 400
 
-    if time.time() - stored["time"] > 300:
+        if time.time() - stored["time"] > 300:
+            del otp_store[email]
+            return jsonify({"success": False, "message": "OTP expired"}), 400
+
+        if stored["otp"] != user_otp:
+            return jsonify({"success": False, "message": "Invalid OTP"}), 400
+
+        if not is_strong_password(new_password):
+            return jsonify({"success": False, "message": "Weak password"}), 400
+
+        users.update_one(
+            {"email": email},
+            {"$set": {"password": generate_password_hash(new_password)}}
+        )
+
         del otp_store[email]
-        return jsonify({"message": "OTP expired"}), 400
-
-    if stored["otp"] != user_otp:
-        return jsonify({"message": "Invalid OTP"}), 400
-
-    if not is_strong_password(new_password):
-        return jsonify({"message": "Weak password"}), 400
-
-    users.update_one(
-        {"email": email},
-        {"$set": {"password": generate_password_hash(new_password)}}
-    )
-
-    del otp_store[email]
-
-    return jsonify({"message": "Password reset successful"}), 200
+        return jsonify({"success": True, "message": "Password reset successful"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 # 🆕 ================= PHASE 1: USER PROFILE UPDATE =================
@@ -246,15 +265,14 @@ def update_profile():
 
         if 'profile_pic' in request.files:
             file = request.files['profile_pic']
-            # Using integrated helper
             filename = save_uploaded_file(file, app.config['PROFILE_FOLDER'])
             if filename:
                 update_data["profile_pic"] = filename
 
         users.update_one({"email": email}, {"$set": update_data})
-        return jsonify({"message": "Profile updated successfully"}), 200
+        return jsonify({"success": True, "message": "Profile updated successfully"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # ================= TASK MANAGEMENT =================
@@ -284,7 +302,6 @@ def filter_tasks():
             t["isOverdue"] = check_overdue(t)
 
         return jsonify(tasks), 200
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -309,7 +326,6 @@ def admin_assign_task():
         pdf_filename = None
         if 'task_file' in request.files:
             file = request.files['task_file']
-            # Using integrated helper
             pdf_filename = save_uploaded_file(file, app.config['UPLOAD_FOLDER'])
 
         group_id = int(time.time())
@@ -332,7 +348,7 @@ def admin_assign_task():
                 "created_at": time.strftime('%Y-%m-%d %H:%M:%S'),
                 "proof_link": None,
                 "github_link": None,
-                "blocker": None # 🆕 Ensure blocker field exists
+                "blocker": None 
             })
 
             notifications.insert_one({
@@ -344,9 +360,9 @@ def admin_assign_task():
 
             send_task_notification(email, title)
 
-        return jsonify({"message": "Task assigned"}), 201
+        return jsonify({"success": True, "message": "Task assigned"}), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/update-progress', methods=['POST'])
@@ -356,7 +372,7 @@ def update_progress():
         task_id = int(data.get("taskId"))
         progress = int(data.get("progress"))
         update_text = data.get("update")
-        blocker_msg = data.get("blocker") # 🆕 Added support for blocker reports
+        blocker_msg = data.get("blocker") 
 
         status = "pending" if progress == 0 else "completed" if progress == 100 else "in_progress"
         if blocker_msg:
@@ -377,9 +393,9 @@ def update_progress():
             update_payload["$set"]["blocker"] = blocker_msg
 
         tasks_db.update_one({"id": task_id}, update_payload)
-        return jsonify({"message": "Progress updated"}), 200
+        return jsonify({"success": True, "message": "Progress updated"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/admin/dashboard', methods=['GET'])
@@ -389,7 +405,9 @@ def admin_dashboard():
     employee_data = {}
 
     for t in tasks:
-        stats[t.get("status","pending")] += 1
+        st = t.get("status","pending")
+        if st in stats:
+            stats[st] += 1
         emp = t.get("assigned_to")
         employee_data.setdefault(emp, []).append(t)
 
@@ -423,13 +441,13 @@ def complete_task():
             "completed_at": time.strftime('%Y-%m-%d %H:%M:%S')
         }}
     )
-    return jsonify({"message": "Completed"}), 200
+    return jsonify({"success": True, "message": "Completed"}), 200
 
 
 @app.route('/delete-task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     tasks_db.delete_one({"id": task_id})
-    return jsonify({"message": "Deleted"}), 200
+    return jsonify({"success": True, "message": "Deleted"}), 200
 
 
 @app.route('/update-task/<int:task_id>', methods=['PUT'])
@@ -442,7 +460,7 @@ def update_task(task_id):
             "dueDate": request.form.get("dueDate")
         }}
     )
-    return jsonify({"message": "Updated"}), 200
+    return jsonify({"success": True, "message": "Updated"}), 200
 
 
 @app.route('/uploads/pdfs/<filename>')
@@ -466,9 +484,9 @@ def submit_sod():
     try:
         data = request.json
         db.sod.insert_one(data)
-        return jsonify({"message": "SOD saved"}), 201
+        return jsonify({"success": True, "message": "SOD saved"}), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/eod', methods=['POST'])
@@ -476,9 +494,9 @@ def submit_eod():
     try:
         data = request.json
         db.eod.insert_one(data)
-        return jsonify({"message": "EOD saved"}), 201
+        return jsonify({"success": True, "message": "EOD saved"}), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/sod', methods=['GET'])
@@ -531,9 +549,9 @@ def send_message():
             data["reactions"] = {}
 
         db.messages.insert_one(data)
-        return jsonify({"message": "Message sent", "message_id": data["message_id"]}), 201
+        return jsonify({"success": True, "message": "Message sent", "message_id": data["message_id"]}), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/messages', methods=['GET'])
@@ -550,16 +568,16 @@ def react_to_message():
     try:
         data = request.json
         message_id = data.get("message_id")
-        email = data.get("email").replace(".", "_") # MongoDB keys cannot contain dots
+        email = data.get("email").replace(".", "_") 
         emoji = data.get("emoji")
 
         db.messages.update_one(
             {"message_id": message_id},
             {"$set": {f"reactions.{email}": emoji}}
         )
-        return jsonify({"status": "success", "message": "Reaction updated"}), 200
+        return jsonify({"success": True, "message": "Reaction updated"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # ================= 💡 HELP & SUPPORT =================
@@ -581,10 +599,9 @@ def raise_ticket():
         }
         
         db.help_tickets.insert_one(ticket_obj)
-        
-        return jsonify({"message": "Support ticket raised successfully!", "ticket_id": ticket_id}), 201
+        return jsonify({"success": True, "message": "Support ticket raised successfully!", "ticket_id": ticket_id}), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/help/tickets', methods=['GET'])
@@ -604,9 +621,9 @@ def update_ticket_status():
             {"ticket_id": data.get("ticket_id")},
             {"$set": {"status": data.get("status")}}
         )
-        return jsonify({"message": "Ticket status updated"}), 200
+        return jsonify({"success": True, "message": "Ticket status updated"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # 🆕 ================= PHASE 3: GLOBAL SETTINGS (ADMIN) =================
@@ -616,14 +633,13 @@ def admin_settings():
     try:
         if request.method == 'POST':
             data = request.json
-            # Using an upsert to keep global configs in one document
             db.settings.update_one({"type": "global_config"}, {"$set": data}, upsert=True)
-            return jsonify({"message": "Settings updated"}), 200
+            return jsonify({"success": True, "message": "Settings updated"}), 200
 
         settings = db.settings.find_one({"type": "global_config"}, {"_id": 0})
         return jsonify(settings or {}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # ================= RUN =================

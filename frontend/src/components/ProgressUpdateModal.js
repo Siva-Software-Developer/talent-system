@@ -26,10 +26,8 @@ function ProgressUpdateModal({ task, close, refresh }) {
       });
 
       alert("Progress Updated Successfully ✅");
-
       refresh(); // reload tasks in Dashboard
       close();   // close modal
-
     } catch (err) {
       console.error("Update error:", err);
       alert("Error updating progress ❌");
@@ -40,27 +38,36 @@ function ProgressUpdateModal({ task, close, refresh }) {
   if (!task) return null;
 
   return (
-    <div className="modal-glass-overlay">
-
-      <div className="modal-content-wrapper">
+    <div className="dtms-modal-overlay animate-fade-in">
+      <div className="dtms-modal-card animate-slide-up">
         
-        <div className="modal-header-section">
-          <h3 className="modal-main-title">📊 Update Task Progress</h3>
-          <p className="modal-task-name">Task: <strong>{task.title}</strong></p>
-        </div>
+        {/* MODAL HEADER */}
+        <header className="dtms-modal-header">
+          <div className="dtms-modal-icon">📊</div>
+          <div className="dtms-modal-info">
+            <h3 className="dtms-modal-title">Update Mission Progress</h3>
+            <p className="dtms-modal-subtitle">Task: <strong>{task.title}</strong></p>
+          </div>
+          <button className="dtms-close-x" onClick={close}>&times;</button>
+        </header>
 
-        <div className="modal-body-form">
-          {/* Progress Input Group */}
-          <div className="modal-input-group">
-            <label className="modal-field-label">Completion Percentage (%)</label>
-            <div className="modal-progress-input-wrapper">
+        {/* MODAL BODY */}
+        <div className="dtms-modal-body">
+          
+          {/* Progress Slider Group */}
+          <div className="dtms-form-group">
+            <div className="dtms-label-row">
+              <label className="dtms-input-label">Completion Status</label>
+              <span className="dtms-percentage-badge">{progress}%</span>
+            </div>
+            <div className="dtms-slider-container">
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={progress}
                 onChange={(e) => setProgress(Number(e.target.value))}
-                className="modal-range-slider"
+                className="dtms-range-slider"
               />
               <input
                 type="number"
@@ -68,36 +75,33 @@ function ProgressUpdateModal({ task, close, refresh }) {
                 min="0"
                 max="100"
                 onChange={(e) => setProgress(Number(e.target.value))}
-                className="modal-number-box"
+                className="dtms-number-input"
               />
             </div>
           </div>
 
-          {/* Update Text Group */}
-          <div className="modal-input-group">
-            <label className="modal-field-label">Status Update / Remarks</label>
+          {/* Remarks Group */}
+          <div className="dtms-form-group">
+            <label className="dtms-input-label">Status Update / Remarks</label>
             <textarea
               placeholder="Tell us what's happening with this task da machi..."
               value={updateText}
               onChange={(e) => setUpdateText(e.target.value)}
-              className="modal-status-textarea"
+              className="dtms-modal-textarea"
               rows="4"
             />
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="modal-footer-actions">
-          <button className="modal-btn-cancel" onClick={close}>
-            Cancel
+        {/* FOOTER ACTIONS */}
+        <footer className="dtms-modal-footer">
+          <button className="dtms-btn-secondary" onClick={close}>Cancel</button>
+          <button className="dtms-btn-primary-modal" onClick={handleSubmit}>
+            Sync Progress
           </button>
-          <button className="modal-btn-submit" onClick={handleSubmit}>
-            Update Progress
-          </button>
-        </div>
+        </footer>
 
       </div>
-
     </div>
   );
 }

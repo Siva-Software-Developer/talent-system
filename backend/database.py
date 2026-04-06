@@ -2,140 +2,94 @@ from pymongo import MongoClient
 from datetime import datetime
 import time
 
-# =================================================================
-# 🔗 DATABASE CONNECTION & INITIALIZATION
-# =================================================================
+# ============================================================
+# 🔗 DATABASE CONNECTION
+# ============================================================
+
 client = MongoClient("mongodb://localhost:27017/")
 db = client["talent_db"]
 
-# 📂 COLLECTIONS
+# ============================================================
+# 📂 COLLECTIONS (IMPORTANT - SAME NAME USED IN app.py)
+# ============================================================
+
 users = db["users"]
 tasks_db = db["tasks"]
 notifications = db["notifications"]
-sod_db = db["sod"]
-eod_db = db["eod"]
-messages_db = db["messages"]
-help_tickets = db["help_tickets"]
-settings_db = db["settings"]
 
-# =================================================================
-# 👤 USER MANAGEMENT (ENHANCED WITH PROFILE SETTINGS)
-# =================================================================
+# ✅ IMPORTANT FIX (used in app.py directly)
+sod = db["sod"]
+eod = db["eod"]
+messages = db["messages"]
+help_tickets = db["help_tickets"]
+settings = db["settings"]
+
+# ============================================================
+# 👤 USER MANAGEMENT
+# ============================================================
 
 def create_user(name, email, password, role="employee", job=None):
-    """Creates a new user with extended profile schema."""
-    user_data = {
+    return users.insert_one({
         "name": name,
         "email": email,
         "password": password,
         "role": role,
         "job": job,
-
-        # 🔥 NEW PROFILE FIELDS
         "profile_pic": None,
         "dob": None,
         "phone": None,
         "address": None,
-
         "is_verified": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now()
-    }
-    return users.insert_one(user_data)
+    })
 
 
-def get_user_by_email(email):
+def get_user(email):
     return users.find_one({"email": email})
 
 
-def get_user_profile(email):
-    """Returns user profile (for Profile Settings Page)."""
-    return users.find_one(
-        {"email": email},
-        {"_id": 0, "password": 0}  # Hide sensitive data
-    )
+def update_user(email, data):
+    data["updated_at"] = datetime.now()
+    return users.update_one({"email": email}, {"$set": data})
 
+# ============================================================
+# 🧠 TASK MANAGEMENT
+# ============================================================
 
-def update_user_profile(email, update_data):
-    """Updates profile details like Name, DOB, Profile Pic."""
-    update_data["updated_at"] = datetime.now()
-
-    return users.update_one(
-        {"email": email},
-        {"$set": update_data}
-    )
-
-# =================================================================
-# 🧠 TASK MANAGEMENT (NO BREAKING CHANGES)
-# =================================================================
-
-def create_advanced_task(task_data):
-    defaults = {
-        "status": "pending",
-        "progress": 0,
-        "daily_updates": [],
-        "blocker": None,
-        "blocker_reported_at": None,
-        "created_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        "completed_at": None,
-        "proof_link": None,
-        "github_link": None
-    }
-
-    for key, value in defaults.items():
-        task_data.setdefault(key, value)
+def create_task(task_data):
+    task_data.setdefault("status", "pending")
+    task_data.setdefault("progress", 0)
+    task_data.setdefault("daily_updates", [])
+    task_data.setdefault("blocker", None)
+    task_data.setdefault("created_at", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
     return tasks_db.insert_one(task_data)
 
 
-def update_task_progress(task_id, progress, update_text):
-    task = tasks_db.find_one({"id": task_id})
-    if not task:
-        return False
-
-    if task.get("blocker"):
-        status = "blocked"
-    elif progress == 0:
-        status = "pending"
-    elif progress < 100:
-        status = "in_progress"
-    else:
-        status = "completed"
-
-    update_payload = {
-        "$set": {
-            "progress": progress,
-            "status": status
-        },
-        "$push": {
-            "daily_updates": {
-                "date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                "update": update_text,
-                "progress": progress
-            }
-        }
-    }
-
-    if progress == 100:
-        update_payload["$set"]["completed_at"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    return tasks_db.update_one({"id": task_id}, update_payload)
+def update_task(task_id, update_data):
+    return tasks_db.update_one({"id": task_id}, {"$set": update_data})
 
 
-def report_blocker(task_id, blocker_msg):
+def update_progress(task_id, progress, text):
+    status = "pending" if progress == 0 else "completed" if progress == 100 else "in_progress"
+
     return tasks_db.update_one(
         {"id": task_id},
         {
-            "$set": {
-                "blocker": blocker_msg,
-                "blocker_reported_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                "status": "blocked"
+            "$set": {"progress": progress, "status": status},
+            "$push": {
+                "daily_updates": {
+                    "date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "update": text,
+                    "progress": progress
+                }
             }
         }
     )
 
 
-def update_task_completion(task_id, proof_link, github_link):
+def complete_task(task_id, proof_link=None, github_link=None):
     return tasks_db.update_one(
         {"id": task_id},
         {
@@ -159,142 +113,105 @@ def is_overdue(task):
         return False
     return False
 
+# ============================================================
+# 📊 ATTENDANCE (SOD / EOD)
+# ============================================================
 
-def get_filtered_tasks(status=None, assigned_to=None):
-    query = {}
-    if status:
-        query["status"] = status
-    if assigned_to:
-        query["assigned_to"] = assigned_to
+def log_sod(data):
+    return sod.insert_one(data)
 
-    tasks = list(tasks_db.find(query, {"_id": 0}))
-    for t in tasks:
-        t["isOverdue"] = is_overdue(t)
-    return tasks
 
-# =================================================================
-# 📊 ADMIN ATTENDANCE (NEW FEATURE - PHASE 2 READY)
-# =================================================================
+def log_eod(data):
+    return eod.insert_one(data)
 
-def get_attendance_records(email=None, start_date=None, end_date=None):
-    """Admin attendance filter API support."""
 
-    query = {}
+def get_sod():
+    return list(sod.find({}, {"_id": 0}))
 
-    if email:
-        query["email"] = email
 
-    if start_date and end_date:
-        query["timestamp"] = {
-            "$gte": datetime.strptime(start_date, "%Y-%m-%d"),
-            "$lte": datetime.strptime(end_date, "%Y-%m-%d")
-        }
+def get_eod():
+    return list(eod.find({}, {"_id": 0}))
 
-    sod_records = list(sod_db.find(query, {"_id": 0}))
-    eod_records = list(eod_db.find(query, {"_id": 0}))
-
-    return {
-        "sod": sod_records,
-        "eod": eod_records
-    }
-
-# =================================================================
+# ============================================================
 # 💬 CHAT SYSTEM
-# =================================================================
+# ============================================================
 
-def save_message(sender_email, sender_name, text, parent_id=None, reply_to_text=None):
-    return messages_db.insert_one({
-        "message_id": int(time.time() * 1000),
-        "sender_email": sender_email,
-        "sender_name": sender_name,
-        "text": text,
-        "parent_id": parent_id,
-        "reply_to_text": reply_to_text,
-        "reactions": {},
-        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    })
+def save_message(data):
+    data["message_id"] = int(time.time() * 1000)
+    data["timestamp"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    data.setdefault("reactions", {})
+
+    return messages.insert_one(data)
 
 
-def add_message_reaction(message_id, user_email, emoji):
-    safe_email = user_email.replace(".", "_")
-    return messages_db.update_one(
+def get_messages():
+    return list(messages.find({}, {"_id": 0}).sort("timestamp", 1))
+
+
+def react_message(message_id, email, emoji):
+    safe_email = email.replace(".", "_")
+
+    return messages.update_one(
         {"message_id": message_id},
         {"$set": {f"reactions.{safe_email}": emoji}}
     )
 
-
-def get_all_messages():
-    return list(messages_db.find({}, {"_id": 0}).sort("message_id", 1))
-
-# =================================================================
+# ============================================================
 # 🔔 NOTIFICATIONS
-# =================================================================
+# ============================================================
 
-def create_notification(user_email, message, task_id=None):
+def create_notification(email, message, task_id=None):
     return notifications.insert_one({
-        "user_email": user_email,
+        "user_email": email,
         "message": message,
         "task_id": task_id,
-        "created_at": datetime.now(),
-        "read": False
+        "read": False,
+        "created_at": datetime.now()
     })
 
 
-def get_notifications(user_email):
-    return list(notifications.find({"user_email": user_email}).sort("created_at", -1))
+def get_notifications(email):
+    return list(notifications.find({"user_email": email}))
 
-# =================================================================
-# 🛠️ ATTENDANCE + SUPPORT
-# =================================================================
+# ============================================================
+# 🛠️ HELP & SUPPORT
+# ============================================================
 
-def log_sod(email, name, mood, tasks_planned):
-    return sod_db.insert_one({
-        "email": email,
-        "name": name,
-        "mood": mood,
-        "tasks_planned": tasks_planned,
-        "timestamp": datetime.now()
-    })
+def raise_ticket(data):
+    data["ticket_id"] = int(time.time() * 1000)
+    data["status"] = "open"
+    data["created_at"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    return help_tickets.insert_one(data)
 
 
-def log_eod(email, name, tasks_completed, blockers_faced, hours_worked):
-    return eod_db.insert_one({
-        "email": email,
-        "name": name,
-        "tasks_completed": tasks_completed,
-        "blockers": blockers_faced,
-        "hours": hours_worked,
-        "timestamp": datetime.now()
-    })
+def get_tickets():
+    return list(help_tickets.find({}, {"_id": 0}))
 
 
-def raise_ticket(email, name, message):
-    return help_tickets.insert_one({
-        "ticket_id": int(time.time()),
-        "email": email,
-        "name": name,
-        "message": message,
-        "status": "open",
-        "created_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    })
+def update_ticket(ticket_id, status):
+    return help_tickets.update_one(
+        {"ticket_id": ticket_id},
+        {"$set": {"status": status}}
+    )
 
-# =================================================================
-# ⚙️ SYSTEM SETTINGS (PHASE 3 READY)
-# =================================================================
+# ============================================================
+# ⚙️ SETTINGS
+# ============================================================
 
 def get_settings():
-    return settings_db.find_one({}, {"_id": 0})
+    return settings.find_one({}, {"_id": 0})
 
 
 def update_settings(data):
-    return settings_db.update_one({}, {"$set": data}, upsert=True)
+    return settings.update_one({}, {"$set": data}, upsert=True)
 
-# =================================================================
-# 🚀 MIGRATIONS (SAFE UPDATE)
-# =================================================================
+# ============================================================
+# 🚀 MIGRATION (SAFE INIT)
+# ============================================================
 
 def run_migrations():
-    print("Running migrations...")
+    print("Running DB migrations...")
 
     users.update_many(
         {"profile_pic": {"$exists": False}},
@@ -306,12 +223,16 @@ def run_migrations():
         {"$set": {"progress": 0, "daily_updates": []}}
     )
 
-    messages_db.update_many(
+    messages.update_many(
         {"reactions": {"$exists": False}},
         {"$set": {"reactions": {}}}
     )
 
-    print("✅ Database upgraded successfully, Machi 🔥")
+    print("✅ DB Ready Machi 🔥")
+
+# ============================================================
+# ▶ RUN
+# ============================================================
 
 if __name__ == "__main__":
     run_migrations()

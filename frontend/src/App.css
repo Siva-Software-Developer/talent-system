@@ -1,290 +1,198 @@
 /* =========================================
-   TALENT OS - GLOBAL PREMIUM STYLES (App.css)
+   DTMS APP CORE - REFINED DUAL THEME
+   Soft Contrast for Professional UI
    ========================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-
-:root {
-  /* Default Primary - Overridden by App.js Dynamic Color */
-  --primary: #6366f1;
-  --primary-glow: rgba(99, 102, 241, 0.3);
-  
-  /* Glass Palette - Dark (Default) */
-  --bg-color: #0f172a;
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --text-main: #f1f5f9;
-  --text-dim: #94a3b8;
-  
-  /* Shared Utilities */
-  --bezier: cubic-bezier(0.4, 0, 0.2, 1);
-  --radius-lg: 32px;
-  --radius-md: 14px;
-  --font-main: 'Plus Jakarta Sans', sans-serif;
-}
-
-/* 🌓 LIGHT THEME OVERRIDES */
-body.light {
-  --bg-color: #f8fafc;
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.05);
-  --text-main: #1e293b;
-  --text-dim: #64748b;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: var(--font-main);
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  overflow-x: hidden;
-  transition: background-color 0.5s var(--bezier);
-}
-
-/* 🚀 MAIN ROOT CONTAINER */
-.app-root-container {
+.dtms-app-root {
   min-height: 100vh;
+  width: 100%;
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 
-/* 🎨 GLOBAL CONTROLS (Floating Glass) */
-.global-controls-glass {
+/* 🌓 REFINED THEME SUPPORT */
+.dtms-app-root.light {
+  background-color: #f1f5f9; /* Slate 100 - Soft Pearl */
+  color: #0f172a;           /* Deep Slate - Professional Text */
+}
+
+.dtms-app-root.dark {
+  background-color: #0f172a; /* Navy Charcoal - Anti-Strain */
+  color: #f8fafc;           /* Off-white Text */
+}
+
+/* ⚙️ SYSTEM CONTROLS (Theme Toggle) */
+.dtms-system-controls {
   position: fixed;
   top: 25px;
   right: 25px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 8px 18px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid var(--glass-border);
-  border-radius: 50px;
-  z-index: 10000;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 1000;
 }
 
-.ctrl-theme-btn {
-  background: none;
-  border: none;
+.dtms-theme-toggle {
+  background: var(--btn-bg, #1e293b);
+  color: var(--btn-text, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  border-radius: 50%;
-  transition: background 0.3s, transform 0.3s;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
-.ctrl-theme-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.1);
+.dtms-app-root.light .dtms-theme-toggle {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
 }
 
-.ctrl-color-picker-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-left: 1px solid var(--glass-border);
-  padding-left: 12px;
+.dtms-app-root.dark .dtms-theme-toggle {
+  background: #1e293b;
+  color: #38bdf8; /* Blue sky accent for dark mode icon */
+  border-color: #334155;
 }
 
-.palette-icon {
-  color: var(--text-dim);
-}
-
-.ctrl-color-input {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  cursor: pointer;
-  overflow: hidden;
-  padding: 0;
-  background: none;
-}
-
-.ctrl-color-input::-webkit-color-swatch-wrapper { padding: 0; }
-.ctrl-color-input::-webkit-color-swatch { border: none; border-radius: 50%; }
-
-/* 🔐 AUTH SCREENS OVERLAY */
-.auth-screen-overlay {
+/* 🛡️ AUTH LAYER */
+.dtms-auth-layer {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
-  background: radial-gradient(circle at 50% 50%, var(--primary-glow) 0%, transparent 60%);
+  /* Subtle Background Texture */
+  background-image: radial-gradient(var(--dot-color, #cbd5e1) 1.2px, transparent 1.2px);
+  background-size: 30px 30px;
 }
 
-.auth-container-centered {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.dtms-app-root.dark .dtms-auth-layer {
+  --dot-color: #1e293b;
 }
 
-/* 🏠 HOME HERO CONTENT */
-.home-hero-content {
+/* 🏠 HERO SECTION (Home Screen) */
+.dtms-hero-content {
   text-align: center;
-  max-width: 600px;
-  padding: 40px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(25px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+  max-width: 800px;
+  animation: dtms-fade-in 0.8s ease-out;
 }
 
-.hero-logo-box {
-  width: 100px;
-  height: 100px;
-  background: linear-gradient(135deg, var(--primary), #818cf8);
-  border-radius: 30px;
+.dtms-hero-icon-box {
+  margin: 0 auto 25px;
+  width: 84px;
+  height: 84px;
+  background: var(--hero-box, #1e293b);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 30px;
-  box-shadow: 0 20px 40px var(--primary-glow);
-  transform: rotate(-5deg);
+  border-radius: 20px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-.hero-icon-rocket {
-  color: white;
-  animation: float 3s ease-in-out infinite;
+.dtms-app-root.dark .dtms-hero-icon-box {
+  background: #38bdf8; /* Blue accent for energy in dark mode */
+  color: #0f172a;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-10px) rotate(5deg); }
-}
-
-.brand-logo-text {
-  font-size: 3.5rem;
+.dtms-hero-title {
+  font-size: 3.2rem;
   font-weight: 800;
-  letter-spacing: -2px;
-  background: linear-gradient(to bottom, #fff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  letter-spacing: -1.5px;
+  text-transform: uppercase;
   margin-bottom: 15px;
+  line-height: 1;
 }
 
-body.light .brand-logo-text {
-  background: linear-gradient(to bottom, #1e293b, #64748b);
-  -webkit-background-clip: text;
-}
-
-.brand-tagline {
-  color: var(--text-dim);
-  font-size: 1.2rem;
-  line-height: 1.6;
+.dtms-hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-dim, #64748b);
   margin-bottom: 40px;
+  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.home-action-btns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.dtms-app-root.dark .dtms-hero-subtitle {
+  color: #94a3b8;
 }
 
-/* ✨ PREMIUM BUTTONS */
-.btn-primary-glow {
-  background: var(--primary);
-  color: white;
+.dtms-hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* 🔘 HOME BUTTON VARIANTS */
+.dtms-btn-primary {
+  background: #1e293b;
+  color: #ffffff;
   border: none;
-  padding: 18px 25px;
-  border-radius: var(--radius-md);
+  padding: 16px 32px;
   font-weight: 700;
-  font-size: 1rem;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 10px;
-  transition: all 0.3s var(--bezier);
-  box-shadow: 0 10px 25px var(--primary-glow);
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-primary-glow:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px var(--primary-glow);
+.dtms-btn-outline {
+  background: transparent;
+  color: inherit;
+  border: 1.5px solid currentColor;
+  padding: 16px 32px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.3s;
+}
+
+.dtms-app-root.dark .dtms-btn-primary {
+  background: #38bdf8; /* Soft cyan blue */
+  color: #0f172a;
+}
+
+.dtms-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
   filter: brightness(1.1);
 }
 
-.btn-secondary-outline {
-  background: transparent;
-  color: var(--text-main);
-  border: 1px solid var(--glass-border);
-  padding: 18px 25px;
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: all 0.3s;
+.dtms-btn-outline:hover {
+  background: var(--outline-hover, rgba(0,0,0,0.05));
 }
 
-.btn-secondary-outline:hover {
-  background: var(--glass-border);
-  border-color: var(--primary);
+.dtms-app-root.dark .dtms-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
-/* 📊 DASHBOARD VIEW */
-.dashboard-view-wrapper {
-  width: 100%;
-  min-height: 100vh;
-}
-
-/* 📱 FOOTER */
-.global-footer {
-  text-align: center;
+/* 📱 GLOBAL FOOTER */
+.dtms-global-footer {
   padding: 30px;
-  color: var(--text-dim);
-  font-size: 0.85rem;
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
-.global-footer span {
-  color: var(--primary);
-  font-weight: 700;
-}
-
-/* 🎬 ANIMATIONS */
-.animate-fade-in { animation: fadeIn 0.8s var(--bezier); }
-.animate-slide-up { animation: slideUp 0.8s var(--bezier); }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
+/* 🌀 ANIMATIONS */
+@keyframes dtms-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Custom Scrollbar for the whole app */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-color); }
-::-webkit-scrollbar-thumb {
-  background: var(--glass-border);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .home-action-btns { grid-template-columns: 1fr; }
-  .brand-logo-text { font-size: 2.5rem; }
-  .home-hero-content { padding: 30px 20px; }
+/* 📱 MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
+  .dtms-hero-title { font-size: 2.4rem; }
+  .dtms-hero-actions { flex-direction: column; padding: 0 30px; }
+  .dtms-btn-primary, .dtms-btn-outline { width: 100%; justify-content: center; }
 }
