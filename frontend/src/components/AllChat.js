@@ -6,7 +6,8 @@ import { Send, X, Reply, Smile, MessageSquare, ShieldCheck, User } from "lucide-
 
 const API_BASE = "http://localhost:5000";
 
-function AllChat() {
+// onClose prop-ah add panniruken machi
+function AllChat({ onClose }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [replyTo, setReplyTo] = useState(null); 
@@ -81,7 +82,8 @@ function AllChat() {
   };
 
   return (
-    <div className="ac-root animate-fade-in">
+    // Height and layout-ah dashboard overlay-ku yetha mathiri fix panniten
+    <div className="ac-root animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* --- Header Section --- */}
       <header className="ac-header">
         <div className="ac-header-left">
@@ -91,13 +93,22 @@ function AllChat() {
             <p className="ac-subtitle">Connect with your team</p>
           </div>
         </div>
-        <div className="ac-live-pill">
-          <span className="ac-dot"></span> LIVE CHAT
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="ac-live-pill">
+            <span className="ac-dot"></span> LIVE
+          </div>
+          {/* AdminDashboard-la irunthu close panna intha button help pannum */}
+          {onClose && (
+            <button onClick={onClose} className="ac-close-top-btn" style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', padding: '5px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <X size={16} />
+            </button>
+          )}
         </div>
       </header>
 
       {/* --- Messages Area --- */}
-      <div className="ac-chat-viewport">
+      <div className="ac-chat-viewport" style={{ flex: 1, overflowY: 'auto', padding: '15px' }}>
         {messages.length === 0 ? (
           <div className="ac-empty-state">
             <div className="ac-empty-icon">🏖️</div>
@@ -110,7 +121,6 @@ function AllChat() {
               className={`ac-bubble-row ${msg?.sender_email === user?.email ? 'ac-mine' : 'ac-theirs'}`}
             >
               <div className="ac-bubble-card">
-                {/* Reply Preview */}
                 {msg.reply_to_text && (
                   <div className="ac-reply-thread">
                     <span className="ac-reply-user">@{msg.reply_to_user}</span>
@@ -127,7 +137,6 @@ function AllChat() {
                   <p className="ac-text">{msg?.text}</p>
                 </div>
 
-                {/* Reactions */}
                 {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                   <div className="ac-reactions-row">
                     {Object.entries(msg.reactions).map(([email, emoji], i) => (
@@ -148,7 +157,6 @@ function AllChat() {
                   </div>
                 </div>
 
-                {/* Emoji Picker */}
                 {showEmojiPicker === index && (
                   <div className="ac-emoji-picker-float">
                     {["👍", "❤️", "😂", "🔥", "🙏"].map((emoji) => (
@@ -164,7 +172,7 @@ function AllChat() {
       </div>
 
       {/* --- Input Section --- */}
-      <footer className="ac-input-section">
+      <footer className="ac-input-section" style={{ padding: '15px', background: '#fff', borderTop: '1px solid #eee' }}>
         {replyTo && (
           <div className="ac-active-reply">
             <div className="ac-reply-label">

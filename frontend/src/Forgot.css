@@ -1,212 +1,259 @@
+/* =========================================
+   DTMS FORGOT PASSWORD - LIGHT & DARK
+   ========================================= */
 
+:root {
+  /* --- LIGHT THEME --- */
+  --fg-bg: #f3f4f6;
+  --fg-card: #ffffff;
+  --fg-text: #1e293b;
+  --fg-muted: #64748b;
+  --fg-border: #e2e8f0;
+  --fg-accent: #6366f1;
+  --fg-accent-hover: #4f46e5;
+  --fg-input: #f8fafc;
+  --fg-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* --- DARK THEME --- */
+.dark .dtms-forgot-page,
+.dtms-forgot-page.dark {
+  --fg-bg: #020617;
+  --fg-card: #0f172a;
+  --fg-text: #f1f5f9;
+  --fg-muted: #94a3b8;
+  --fg-border: #1e293b;
+  --fg-accent: #818cf8;
+  --fg-accent-hover: #6366f1;
+  --fg-input: #020617;
+  --fg-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* --- WRAPPER --- */
 .dtms-forgot-page {
+  min-height: 100vh;
+  background-color: var(--fg-bg);
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
   padding: 20px;
-  /* Soft transition for theme switching */
-  background-color: var(--dtms-bg);
-  background-image: radial-gradient(var(--dtms-dot) 1.5px, transparent 1.5px);
-  background-size: 32px 32px;
-  transition: background 0.4s ease;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
 }
 
+/* --- CARD --- */
 .dtms-forgot-card {
-  background: var(--dtms-card-bg);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--dtms-border);
-  border-radius: 16px;
-  padding: 45px 40px;
   width: 100%;
   max-width: 450px;
-  /* Natural depth shadow */
-  box-shadow: 0 10px 25px -5px var(--dtms-shadow), 0 8px 10px -6px var(--dtms-shadow);
-  text-align: center;
-  animation: dtms-fade-up 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--fg-card);
+  padding: 40px;
+  border-radius: 24px;
+  border: 1px solid var(--fg-border);
+  box-shadow: var(--fg-shadow);
+  transition: transform 0.3s ease;
 }
 
-/* 🏢 BRANDING SECTION */
+/* --- HEADER --- */
 .dtms-header-section {
-  margin-bottom: 25px;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .dtms-logo-box {
   width: 64px;
   height: 64px;
-  background: var(--dtms-accent);
-  border-radius: 14px;
+  background: var(--fg-accent);
+  border-radius: 18px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 0 auto 20px;
-  color: #ffffff;
-  box-shadow: 0 10px 15px -3px var(--dtms-accent-glow);
+  align-items: center;
+  margin: 0 auto 15px;
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
 }
 
 .dtms-main-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  color: var(--dtms-text-head);
-  letter-spacing: -0.8px;
-  line-height: 1.2;
-  margin-bottom: 8px;
-  text-transform: uppercase;
+  color: var(--fg-text);
+  margin-bottom: 5px;
 }
 
 .dtms-tagline {
-  color: var(--dtms-text-dim);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--fg-muted);
   font-weight: 500;
 }
 
 .dtms-divider {
   border: 0;
-  border-top: 1px solid var(--dtms-border);
-  margin: 25px 0;
+  border-top: 1px solid var(--fg-border);
+  margin-bottom: 25px;
 }
 
-/* 📋 FORM ELEMENTS */
+/* --- FORM GROUPS --- */
 .dtms-form-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  text-align: left;
+}
+
+.dtms-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .dtms-label {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--dtms-text-head);
+  color: var(--fg-text);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
+  letter-spacing: 0.025em;
+}
+
+/* --- INPUTS --- */
+.dtms-input-relative {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dtms-input-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--fg-muted);
 }
 
 .dtms-input-field {
   width: 100%;
-  background: var(--dtms-input-bg);
-  border: 1.5px solid var(--dtms-border);
-  border-radius: 10px;
-  padding: 14px 14px 14px 44px;
-  color: var(--dtms-text-head);
+  padding: 12px 12px 12px 42px;
+  background: var(--fg-input);
+  border: 2px solid var(--fg-border);
+  border-radius: 12px;
+  color: var(--fg-text);
   font-size: 0.95rem;
   outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s;
 }
 
 .dtms-input-field:focus {
-  border-color: var(--dtms-accent);
-  background: var(--dtms-card-bg);
-  box-shadow: 0 0 0 4px var(--dtms-accent-glow);
+  border-color: var(--fg-accent);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
-/* 🛡️ OTP LAYOUT */
+/* --- OTP SPECIFIC --- */
+.dtms-otp-layout {
+  display: flex;
+  gap: 10px;
+}
+
+.dtms-flex-2 { flex: 2; }
+
 .dtms-otp-btn {
-  background: var(--dtms-accent);
-  color: #ffffff;
+  flex: 1;
+  background: var(--fg-accent);
+  color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: 700;
   font-size: 0.75rem;
   cursor: pointer;
   transition: 0.3s;
-  padding: 0 15px;
 }
 
-.dtms-otp-btn:hover {
-  filter: brightness(1.1);
+.dtms-otp-btn:hover:not(:disabled) {
+  background: var(--fg-accent-hover);
   transform: translateY(-1px);
 }
 
-.dtms-otp-btn:disabled {
-  background: var(--dtms-border);
-  color: var(--dtms-text-dim);
-  cursor: not-allowed;
-}
-
-/* 🎯 OTP INPUT SPECIFIC */
 .dtms-otp-field {
-  text-align: center;
-  letter-spacing: 6px;
+  letter-spacing: 4px;
   font-weight: 800;
-  font-size: 1.2rem;
-  color: var(--dtms-accent);
+  text-align: center;
+  padding-left: 12px; /* Reset icon padding for OTP */
 }
 
-/* 🔘 ACTION BUTTON */
+/* --- SYSTEM DIVIDER --- */
+.dtms-system-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.dtms-system-divider::before,
+.dtms-system-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px dashed var(--fg-border);
+}
+
+.dtms-system-divider span {
+  padding: 0 10px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--fg-muted);
+}
+
+/* --- BUTTONS --- */
 .dtms-primary-btn {
   width: 100%;
-  background: var(--dtms-accent);
-  color: #ffffff;
+  padding: 14px;
+  background: var(--fg-accent);
+  color: white;
   border: none;
-  border-radius: 10px;
-  padding: 16px;
+  border-radius: 12px;
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
-  letter-spacing: 1px;
   margin-top: 10px;
-  transition: 0.3s;
-  box-shadow: 0 8px 15px var(--dtms-accent-glow);
+  transition: all 0.3s;
 }
 
 .dtms-primary-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 20px var(--dtms-accent-glow);
+  background: var(--fg-accent-hover);
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
 }
 
-/* 🔗 FOOTER NAVIGATION */
-.dtms-link {
-  color: var(--dtms-text-dim);
+/* --- FOOTER & LINKS --- */
+.dtms-footer-links {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.dtms-back-link {
+  display: inline-flex;
+  align-items: center;
   font-size: 0.85rem;
   font-weight: 600;
+  color: var(--fg-accent);
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.dtms-link:hover {
-  color: var(--dtms-accent);
-}
-
-/* 🎨 REFINED THEME VARIABLES (Place this in your :root) */
-:root {
-  /* Soft Pearl Theme */
-  --dtms-bg: #f1f5f9;
-  --dtms-dot: #cbd5e1;
-  --dtms-card-bg: #ffffff;
-  --dtms-border: #e2e8f0;
-  --dtms-input-bg: #f8fafc;
-  --dtms-text-head: #0f172a;
-  --dtms-text-dim: #64748b;
-  --dtms-shadow: rgba(15, 23, 42, 0.08);
-  --dtms-accent: #1e293b; /* Refined Slate/Charcoal */
-  --dtms-accent-glow: rgba(30, 41, 59, 0.15);
-}
-
-.dark {
-  /* Rich Charcoal Theme */
-  --dtms-bg: #0f172a;
-  --dtms-dot: #1e293b;
-  --dtms-card-bg: rgba(30, 41, 59, 0.85);
-  --dtms-border: #334155;
-  --dtms-input-bg: #0f172a;
-  --dtms-text-head: #f8fafc;
-  --dtms-text-dim: #94a3b8;
-  --dtms-shadow: rgba(0, 0, 0, 0.3);
-  --dtms-accent: #38bdf8; /* Blue sky accent for Dark Mode visibility */
-  --dtms-accent-glow: rgba(56, 189, 248, 0.25);
+.dtms-back-link:hover {
+  text-decoration: underline;
+  opacity: 0.8;
 }
 
 .dtms-system-footer {
-  margin-top: 35px;
-  font-size: 0.7rem;
-  color: var(--dtms-text-dim);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-weight: 600;
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
 }
 
-@keyframes dtms-fade-up {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+/* --- ANIMATION --- */
+.dtms-spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .dtms-forgot-card { padding: 25px; border-radius: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
 }

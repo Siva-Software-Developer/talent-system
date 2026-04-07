@@ -1,198 +1,216 @@
 /* =========================================
-   DTMS APP CORE - REFINED DUAL THEME
-   Soft Contrast for Professional UI
+   DTMS GLOBAL INFRASTRUCTURE CSS
    ========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* --- LIGHT THEME (WHITE) --- */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --accent-color: #6366f1;
+  --accent-hover: #4f46e5;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+}
+
+/* --- DARK THEME (BLACK) --- */
+.dtms-app-root.dark {
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border-color: #1e293b;
+  --accent-color: #818cf8;
+  --accent-hover: #6366f1;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+  --glass-bg: rgba(15, 23, 42, 0.8);
+}
+
+/* --- RESET & BASE --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  overflow-x: hidden;
+}
 
 .dtms-app-root {
   min-height: 100vh;
-  width: 100%;
-  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
 }
 
-/* 🌓 REFINED THEME SUPPORT */
-.dtms-app-root.light {
-  background-color: #f1f5f9; /* Slate 100 - Soft Pearl */
-  color: #0f172a;           /* Deep Slate - Professional Text */
-}
-
-.dtms-app-root.dark {
-  background-color: #0f172a; /* Navy Charcoal - Anti-Strain */
-  color: #f8fafc;           /* Off-white Text */
-}
-
-/* ⚙️ SYSTEM CONTROLS (Theme Toggle) */
+/* --- SYSTEM CONTROLS (THEME TOGGLE) --- */
 .dtms-system-controls {
   position: fixed;
-  top: 25px;
-  right: 25px;
-  z-index: 1000;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
 }
 
 .dtms-theme-toggle {
-  background: var(--btn-bg, #1e293b);
-  color: var(--btn-text, #ffffff);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  cursor: pointer;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  width: 45px;
+  height: 45px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dtms-app-root.light .dtms-theme-toggle {
-  background: #ffffff;
-  color: #0f172a;
-  border-color: #e2e8f0;
+.dtms-theme-toggle:hover {
+  transform: rotate(15deg) scale(1.1);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
-.dtms-app-root.dark .dtms-theme-toggle {
-  background: #1e293b;
-  color: #38bdf8; /* Blue sky accent for dark mode icon */
-  border-color: #334155;
-}
-
-/* 🛡️ AUTH LAYER */
+/* --- HERO / LANDING SECTION --- */
 .dtms-auth-layer {
   flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 40px 20px;
-  /* Subtle Background Texture */
-  background-image: radial-gradient(var(--dot-color, #cbd5e1) 1.2px, transparent 1.2px);
-  background-size: 30px 30px;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(circle at top right, var(--glass-bg), transparent);
 }
 
-.dtms-app-root.dark .dtms-auth-layer {
-  --dot-color: #1e293b;
-}
-
-/* 🏠 HERO SECTION (Home Screen) */
 .dtms-hero-content {
   text-align: center;
-  max-width: 800px;
-  animation: dtms-fade-in 0.8s ease-out;
+  max-width: 600px;
 }
 
 .dtms-hero-icon-box {
-  margin: 0 auto 25px;
-  width: 84px;
-  height: 84px;
-  background: var(--hero-box, #1e293b);
-  color: #ffffff;
+  background: var(--accent-color);
+  color: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-.dtms-app-root.dark .dtms-hero-icon-box {
-  background: #38bdf8; /* Blue accent for energy in dark mode */
-  color: #0f172a;
+  margin: 0 auto 24px;
+  box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
 }
 
 .dtms-hero-title {
-  font-size: 3.2rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  letter-spacing: -1.5px;
-  text-transform: uppercase;
-  margin-bottom: 15px;
-  line-height: 1;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  background: linear-gradient(to right, var(--text-main), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .dtms-hero-subtitle {
   font-size: 1.1rem;
-  color: var(--text-dim, #64748b);
-  margin-bottom: 40px;
-  max-width: 550px;
-  margin-left: auto;
-  margin-right: auto;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+  line-height: 1.6;
 }
 
-.dtms-app-root.dark .dtms-hero-subtitle {
-  color: #94a3b8;
-}
-
+/* --- BUTTONS --- */
 .dtms-hero-actions {
   display: flex;
   gap: 16px;
   justify-content: center;
 }
 
-/* 🔘 HOME BUTTON VARIANTS */
 .dtms-btn-primary {
-  background: #1e293b;
-  color: #ffffff;
+  background: var(--accent-color);
+  color: white;
   border: none;
-  padding: 16px 32px;
+  padding: 14px 28px;
+  border-radius: 14px;
   font-weight: 700;
-  border-radius: 10px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dtms-btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
 }
 
 .dtms-btn-outline {
   background: transparent;
-  color: inherit;
-  border: 1.5px solid currentColor;
-  padding: 16px 32px;
+  border: 2px solid var(--border-color);
+  color: var(--text-main);
+  padding: 14px 28px;
+  border-radius: 14px;
   font-weight: 700;
-  border-radius: 10px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: 0.3s;
-}
-
-.dtms-app-root.dark .dtms-btn-primary {
-  background: #38bdf8; /* Soft cyan blue */
-  color: #0f172a;
-}
-
-.dtms-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
-  filter: brightness(1.1);
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
 .dtms-btn-outline:hover {
-  background: var(--outline-hover, rgba(0,0,0,0.05));
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: var(--bg-secondary);
 }
 
-.dtms-app-root.dark .dtms-btn-outline:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* 📱 GLOBAL FOOTER */
+/* --- GLOBAL FOOTER --- */
 .dtms-global-footer {
-  padding: 30px;
   text-align: center;
-  font-size: 11px;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  padding: 24px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
 }
 
-/* 🌀 ANIMATIONS */
-@keyframes dtms-fade-in {
+.dtms-global-footer p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.dtms-global-footer strong {
+  color: var(--accent-color);
+}
+
+/* --- DASHBOARD WRAPPER --- */
+.dtms-dashboard-view {
+  width: 100%;
+  flex: 1;
+}
+
+/* --- ANIMATIONS --- */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 📱 MOBILE OPTIMIZATION */
-@media (max-width: 768px) {
-  .dtms-hero-title { font-size: 2.4rem; }
-  .dtms-hero-actions { flex-direction: column; padding: 0 30px; }
+/* --- RESPONSIVE --- */
+@media (max-width: 640px) {
+  .dtms-hero-title { font-size: 1.8rem; }
+  .dtms-hero-actions { flex-direction: column; width: 100%; }
   .dtms-btn-primary, .dtms-btn-outline { width: 100%; justify-content: center; }
 }

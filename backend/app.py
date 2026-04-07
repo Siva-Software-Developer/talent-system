@@ -11,7 +11,8 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+# Updated CORS to handle all headers and methods for React
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # ================= STORAGE CONFIG =================
 UPLOAD_FOLDER = 'uploads/task_pdfs'
@@ -96,7 +97,7 @@ def send_task_notification(email, title):
     except Exception as e:
         print("NOTIF ERROR:", e)
 
-# ================= AUTH (FIXED SUCCESS FLAGS) =================
+# ================= AUTH =================
 
 @app.route("/register-send-otp", methods=["POST"])
 def register_send_otp():
@@ -190,7 +191,7 @@ def login():
         return jsonify({"success": False, "message": "Server error", "error": str(e)}), 500
 
 
-# ================= FORGOT PASSWORD (FIXED DUPLICATE & ADDED SUCCESS) =================
+# ================= FORGOT PASSWORD =================
 
 @app.route("/forgot-send-otp", methods=["POST"])
 def forgot_send_otp():
@@ -250,7 +251,7 @@ def reset_password():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
-# 🆕 ================= PHASE 1: USER PROFILE UPDATE =================
+# ================= PROFILE & USERS =================
 
 @app.route('/api/user/profile/update', methods=['POST'])
 def update_profile():
@@ -274,9 +275,15 @@ def update_profile():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route("/api/users", methods=["GET"])
+@app.route("/users", methods=["GET"])
+def get_users():
+    return jsonify(list(users.find({}, {"_id": 0, "password": 0}))), 200
 
-# ================= TASK MANAGEMENT =================
 
+# ================= TASK MANAGEMENT (WITH API PREFIX) =================
+
+@app.route('/api/tasks', methods=['GET'])
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
     tasks = list(tasks_db.find({}, {"_id": 0}))
@@ -285,6 +292,7 @@ def get_tasks():
     return jsonify(tasks), 200
 
 
+@app.route('/api/tasks/filter', methods=['GET'])
 @app.route('/tasks/filter', methods=['GET'])
 def filter_tasks():
     try:
@@ -306,6 +314,7 @@ def filter_tasks():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/tasks/user/<email>', methods=['GET'])
 @app.route('/tasks/user/<email>', methods=['GET'])
 def get_tasks_by_user(email):
     tasks = list(tasks_db.find({"assigned_to": email}, {"_id": 0}))
@@ -314,6 +323,7 @@ def get_tasks_by_user(email):
     return jsonify(tasks), 200
 
 
+@app.route('/api/admin/assign-task', methods=['POST'])
 @app.route('/admin/assign-task', methods=['POST'])
 def admin_assign_task():
     try:
@@ -364,7 +374,9 @@ def admin_assign_task():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-
+# FIXED: Added route to handle /api/tasks/update-progress
+@app.route('/api/tasks/update-progress', methods=['POST'])
+@app.route('/api/update-progress', methods=['POST'])
 @app.route('/update-progress', methods=['POST'])
 def update_progress():
     try:
@@ -398,6 +410,7 @@ def update_progress():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/admin/dashboard', methods=['GET'])
 @app.route('/admin/dashboard', methods=['GET'])
 def admin_dashboard():
     tasks = list(tasks_db.find({}, {"_id": 0}))
@@ -414,6 +427,7 @@ def admin_dashboard():
     return jsonify({"stats": stats, "employee_tasks": employee_data}), 200
 
 
+@app.route('/api/admin/analytics', methods=['GET'])
 @app.route('/admin/analytics', methods=['GET'])
 def analytics():
     tasks = list(tasks_db.find({}, {"_id": 0}))
@@ -428,6 +442,7 @@ def analytics():
     }), 200
 
 
+@app.route('/api/employee/complete-task', methods=['POST'])
 @app.route('/employee/complete-task', methods=['POST'])
 def complete_task():
     data = request.get_json()
@@ -444,12 +459,14 @@ def complete_task():
     return jsonify({"success": True, "message": "Completed"}), 200
 
 
+@app.route('/api/delete-task/<int:task_id>', methods=['DELETE'])
 @app.route('/delete-task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     tasks_db.delete_one({"id": task_id})
     return jsonify({"success": True, "message": "Deleted"}), 200
 
 
+@app.route('/api/update-task/<int:task_id>', methods=['PUT'])
 @app.route('/update-task/<int:task_id>', methods=['PUT'])
 def update_task(task_id):
     tasks_db.update_one(
@@ -463,6 +480,8 @@ def update_task(task_id):
     return jsonify({"success": True, "message": "Updated"}), 200
 
 
+# ================= FILES & STATIC =================
+
 @app.route('/uploads/pdfs/<filename>')
 def download_pdf(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
@@ -472,13 +491,9 @@ def view_profile_pic(filename):
     return send_from_directory(app.config['PROFILE_FOLDER'], filename)
 
 
-@app.route("/users", methods=["GET"])
-def get_users():
-    return jsonify(list(users.find({}, {"_id": 0, "password": 0}))), 200
-
-
 # ================= 🟢 ATTENDANCE (SOD / EOD) =================
 
+@app.route('/api/sod', methods=['POST'])
 @app.route('/sod', methods=['POST'])
 def submit_sod():
     try:
@@ -489,6 +504,7 @@ def submit_sod():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/eod', methods=['POST'])
 @app.route('/eod', methods=['POST'])
 def submit_eod():
     try:
@@ -499,6 +515,7 @@ def submit_eod():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/sod', methods=['GET'])
 @app.route('/sod', methods=['GET'])
 def get_sod():
     try:
@@ -508,6 +525,7 @@ def get_sod():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/eod', methods=['GET'])
 @app.route('/eod', methods=['GET'])
 def get_eod():
     try:
@@ -516,7 +534,6 @@ def get_eod():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# 🆕 ================= PHASE 2: ATTENDANCE FILTERING (ADMIN) =================
 
 @app.route('/api/admin/attendance', methods=['GET'])
 def admin_attendance_filter():
@@ -536,8 +553,9 @@ def admin_attendance_filter():
         return jsonify({"error": str(e)}), 500
 
 
-# ================= 📢 ALL CHAT (UPDATED WITH REPLIES) =================
+# ================= 📢 ALL CHAT =================
 
+@app.route('/api/messages', methods=['POST'])
 @app.route('/messages', methods=['POST'])
 def send_message():
     try:
@@ -554,6 +572,7 @@ def send_message():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/messages', methods=['GET'])
 @app.route('/messages', methods=['GET'])
 def get_messages():
     try:
@@ -563,6 +582,7 @@ def get_messages():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/messages/react', methods=['POST'])
 @app.route('/messages/react', methods=['POST'])
 def react_to_message():
     try:
@@ -582,6 +602,7 @@ def react_to_message():
 
 # ================= 💡 HELP & SUPPORT =================
 
+@app.route('/api/help/raise-ticket', methods=['POST'])
 @app.route('/help/raise-ticket', methods=['POST'])
 def raise_ticket():
     try:
@@ -604,6 +625,7 @@ def raise_ticket():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/help/tickets', methods=['GET'])
 @app.route('/help/tickets', methods=['GET'])
 def get_tickets():
     try:
@@ -613,6 +635,7 @@ def get_tickets():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/help/tickets/update', methods=['POST'])
 @app.route('/help/tickets/update', methods=['POST'])
 def update_ticket_status():
     try:
@@ -626,7 +649,7 @@ def update_ticket_status():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-# 🆕 ================= PHASE 3: GLOBAL SETTINGS (ADMIN) =================
+# ================= GLOBAL SETTINGS =================
 
 @app.route('/api/admin/settings', methods=['GET', 'POST'])
 def admin_settings():

@@ -1,102 +1,102 @@
+/* =========================================
+   DTMS REGISTER - ADVANCED SCROLLABLE UI
+   ========================================= */
 
-
-/* 🌍 WRAPPER SETUP */
-.dtms-auth-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* --- AUTH WRAPPER --- */
+.dtms-register-page {
   min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 40px 20px;
-  /* Subtle background pattern */
-  background-color: var(--dtms-bg);
-  background-image: radial-gradient(var(--dtms-dot) 1px, transparent 1px);
-  background-size: 30px 30px;
-  transition: background 0.3s ease;
+  background-color: var(--bg-main);
+  transition: var(--transition);
 }
 
-/* 🧊 REFINED CARD (Frost/Charcoal Effect) */
+/* --- REGISTER CARD --- */
 .dtms-register-card {
-  background: var(--dtms-card-bg);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--dtms-border);
-  border-radius: 20px;
-  padding: 40px;
   width: 100%;
-  max-width: 520px;
-  box-shadow: 0 20px 40px var(--dtms-shadow);
-  text-align: center;
+  max-width: 550px;
+  background: var(--bg-card);
+  padding: 35px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+  animation: fadeIn 0.6s var(--bezier) forwards;
 }
 
-/* 🏢 BRANDING SECTION */
+/* --- HEADER --- */
 .dtms-header-section {
+  text-align: center;
   margin-bottom: 25px;
 }
 
 .dtms-logo-box {
+  background: var(--primary);
   width: 60px;
   height: 60px;
-  background: var(--dtms-accent);
-  border-radius: 14px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 15px;
-  box-shadow: 0 8px 20px var(--dtms-accent-glow);
-  color: white;
+  box-shadow: 0 10px 20px var(--accent-glow);
 }
 
 .dtms-main-title {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 800;
-  color: var(--dtms-text-head);
-  letter-spacing: -0.5px;
+  color: var(--text-main);
   margin-bottom: 5px;
-  text-transform: uppercase;
 }
 
 .dtms-tagline {
-  color: var(--dtms-text-dim);
   font-size: 0.85rem;
-  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .dtms-divider {
   border: 0;
-  border-top: 1px solid var(--dtms-border);
-  margin: 20px 0;
+  border-top: 1px solid var(--border-subtle);
+  margin-bottom: 25px;
 }
 
-/* 📋 FORM SCROLLING */
+/* --- SCROLLABLE FORM AREA --- */
 .dtms-form-scroll-container {
-  max-height: 480px;
+  max-height: 450px; /* Limits height to show scroll if needed */
   overflow-y: auto;
-  padding-right: 12px;
-  text-align: left;
+  padding-right: 10px;
+  margin-bottom: 25px;
 }
 
+/* Custom Scrollbar for Form */
 .dtms-form-scroll-container::-webkit-scrollbar {
   width: 4px;
 }
 .dtms-form-scroll-container::-webkit-scrollbar-thumb {
-  background: var(--dtms-border-bold);
+  background: var(--border-subtle);
   border-radius: 10px;
 }
 
 .dtms-form-grid {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
-/* 📋 INPUT STYLES */
+/* --- INPUT GROUPS --- */
+.dtms-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .dtms-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--dtms-text-head);
+  color: var(--text-main);
   text-transform: uppercase;
-  margin-bottom: 8px;
-  letter-spacing: 0.05em;
-  display: block;
+  letter-spacing: 0.5px;
 }
 
 .dtms-input-relative {
@@ -108,132 +108,156 @@
 .dtms-input-icon {
   position: absolute;
   left: 14px;
-  color: var(--dtms-text-dim);
+  color: var(--text-muted);
 }
 
 .dtms-input-field {
   width: 100%;
-  background: var(--dtms-input-bg);
-  border: 1px solid var(--dtms-border);
-  border-radius: 10px;
-  padding: 14px 14px 14px 44px;
-  color: var(--dtms-text-head);
-  font-size: 0.95rem;
+  padding: 12px 12px 12px 42px;
+  background: var(--bg-main);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 0.9rem;
   outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--transition);
 }
 
 .dtms-input-field:focus {
-  border-color: var(--dtms-accent);
-  background: var(--dtms-card-bg);
-  box-shadow: 0 0 0 4px var(--dtms-accent-glow);
+  border-color: var(--primary);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
+/* Date & Select Tweaks */
+.dtms-date-picker, .dtms-select-field {
+  cursor: pointer;
+}
+
+/* --- STRENGTH BADGES --- */
+.dtms-strength-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.dtms-badge-valid, .dtms-badge-invalid {
+  font-size: 0.65rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+.dtms-badge-valid {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.dtms-badge-invalid {
+  background: var(--bg-main);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* --- ROW LAYOUT --- */
 .dtms-input-row {
   display: flex;
   gap: 15px;
 }
 
-/* 🔐 PASSWORD STRENGTH */
-.dtms-strength-badges {
+.dtms-flex-1 { flex: 1; }
+
+/* --- OTP SECTION --- */
+.dtms-otp-layout {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 10px;
 }
 
-.dtms-badge-invalid {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--dtms-text-dim);
-  background: var(--dtms-input-bg);
-  border: 1px solid var(--dtms-border);
-  padding: 4px 10px;
-  border-radius: 6px;
-}
-
-.dtms-badge-valid {
-  font-size: 10px;
+.dtms-otp-input {
+  flex: 2;
+  padding-left: 15px; /* Less padding since no icon */
+  text-align: center;
+  letter-spacing: 2px;
   font-weight: 700;
-  color: #10b981; /* Success Green */
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  padding: 4px 10px;
-  border-radius: 6px;
 }
 
-/* 🛡️ OTP SECTION */
 .dtms-otp-btn {
-  padding: 0 15px;
-  background: var(--dtms-accent);
-  color: white;
+  flex: 1;
+  background: var(--primary);
+  color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-weight: 700;
   font-size: 0.75rem;
   cursor: pointer;
-  transition: 0.3s;
+  transition: var(--transition);
 }
 
-.dtms-otp-btn:hover {
-  filter: brightness(1.2);
+.dtms-otp-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
-/* 🔘 PRIMARY BUTTON */
-.dtms-primary-btn {
+/* --- ACTION BUTTONS --- */
+.dtms-register-btn {
   width: 100%;
-  background: var(--dtms-accent);
+  padding: 16px;
+  background: var(--primary);
   color: #fff;
   border: none;
-  border-radius: 12px;
-  padding: 18px;
-  font-weight: 700;
-  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 800;
   cursor: pointer;
-  transition: 0.3s;
-  margin: 25px 0 15px;
-  letter-spacing: 1px;
-  box-shadow: 0 10px 20px var(--dtms-accent-glow);
+  box-shadow: 0 10px 15px var(--accent-glow);
+  transition: var(--transition);
 }
 
-.dtms-primary-btn:hover {
+.dtms-register-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px var(--dtms-accent-glow);
+  filter: brightness(1.1);
 }
 
-/* 🎨 THEME VARIABLES - ADD THESE TO YOUR index.css :root */
-:root {
-  /* Soft White Theme */
-  --dtms-bg: #f3f4f6;
-  --dtms-dot: #d1d5db;
-  --dtms-card-bg: rgba(255, 255, 255, 0.9);
-  --dtms-border: #e5e7eb;
-  --dtms-border-bold: #cbd5e1;
-  --dtms-input-bg: #ffffff;
-  --dtms-text-head: #1f2937;
-  --dtms-text-dim: #6b7280;
-  --dtms-shadow: rgba(0, 0, 0, 0.05);
-  --dtms-accent: #0f172a; /* Deep Navy/Black button */
-  --dtms-accent-glow: rgba(15, 23, 42, 0.1);
+/* --- FOOTER --- */
+.dtms-footer-links {
+  margin-top: 25px;
+  text-align: center;
 }
 
-.dark {
-  /* Refined Charcoal Theme */
-  --dtms-bg: #0f172a; 
-  --dtms-dot: #1e293b;
-  --dtms-card-bg: rgba(30, 41, 59, 0.7);
-  --dtms-border: #334155;
-  --dtms-border-bold: #475569;
-  --dtms-input-bg: #0f172a;
-  --dtms-text-head: #f1f5f9;
-  --dtms-text-dim: #94a3b8;
-  --dtms-shadow: rgba(0, 0, 0, 0.3);
-  --dtms-accent: #38bdf8; /* Soft Blue accent for Dark mode */
-  --dtms-accent-glow: rgba(56, 189, 248, 0.2);
+.dtms-link {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
-/* 🔄 ANIMATIONS */
-@keyframes dtms-spin {
+.dtms-link-bold {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.dtms-system-footer {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Spin Animation for Loading */
+@keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+.dtms-spinning {
+  animation: spin 1s linear infinite;
+  opacity: 0.6;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 600px) {
+  .dtms-register-card { padding: 25px; border-radius: 0; min-height: 100vh; }
+  .dtms-input-row { flex-direction: column; }
 }

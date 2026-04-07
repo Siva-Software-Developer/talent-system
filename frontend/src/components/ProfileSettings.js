@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   User, 
@@ -10,17 +10,26 @@ import {
   AlertCircle,
   Settings,
   ArrowLeft,
-  X
+  X,
+  Phone,
+  Briefcase,
+  Layers,
+  Clock
 } from 'lucide-react';
 import "./ProfileSettings.css";
 
-const ProfileSettings = () => {
+const ProfileSettings = ({ onClose }) => {
+  // Local storage la irunthu user details edukkurom machi
   const storedUser = JSON.parse(localStorage.getItem('user')) || {};
   
   const [formData, setFormData] = useState({
     name: storedUser.name || '',
     email: storedUser.email || '',
     dob: storedUser.dob || '',
+    mobile: storedUser.mobile || '', // New Field
+    role: storedUser.role || 'Team Member', // New Field
+    domain: storedUser.domain || 'Engineering', // New Field
+    joinedDate: storedUser.joinedDate || '2024-01-01', // New Field
   });
 
   const [profilePic, setProfilePic] = useState(null);
@@ -54,6 +63,7 @@ const ProfileSettings = () => {
     data.append('email', formData.email);
     data.append('name', formData.name);
     data.append('dob', formData.dob);
+    data.append('mobile', formData.mobile);
     if (profilePic) {
       data.append('profile_pic', profilePic);
     }
@@ -69,12 +79,13 @@ const ProfileSettings = () => {
             ...storedUser, 
             name: formData.name, 
             dob: formData.dob,
+            mobile: formData.mobile,
             profile_pic: res.data.profile_pic || storedUser.profile_pic
         };
         localStorage.setItem('user', JSON.stringify(updatedUser));
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to update profile. Try again machi! ❌' });
+      setMessage({ type: 'error', text: 'Update failed. Check your connection machi! ❌' });
     } finally {
       setLoading(false);
     }
@@ -84,16 +95,17 @@ const ProfileSettings = () => {
     <div className="ps-root-container">
       <div className="ps-content-box">
         
-        {/* BACK ACTION */}
-        <div className="ps-back-btn">
+        {/* CLOSE / BACK ACTION */}
+        <div className="ps-back-btn" onClick={onClose} style={{cursor: 'pointer'}}>
           <ArrowLeft size={18} />
-          <span>Back to Control Center</span>
+          <span>Return to Dashboard</span>
         </div>
 
         <div className="ps-main-card">
           
-          {/* BANNER & AVATAR SECTION */}
+          {/* HEADER SECTION WITH DYNAMIC BADGE */}
           <div className="ps-header-banner">
+             <div className="ps-role-badge">{formData.role.toUpperCase()}</div>
              <div className="ps-avatar-wrapper">
                 <div className="ps-avatar-container">
                   {previewUrl ? (
@@ -104,7 +116,7 @@ const ProfileSettings = () => {
                 </div>
                 <label className="ps-camera-trigger">
                   <Camera size={18} />
-                  <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
+                  <input type="file" hidden onChange={handleFileChange} accept="image/*" />
                 </label>
              </div>
           </div>
@@ -112,15 +124,14 @@ const ProfileSettings = () => {
           <div className="ps-form-content">
             <div className="ps-form-header">
               <div className="ps-title-group">
-                <h2 className="ps-main-title">Profile Settings</h2>
-                <p className="ps-subtitle">Customize your digital identity, machi.</p>
+                <h2 className="ps-main-title">Digital Identity</h2>
+                <p className="ps-subtitle">Manage your professional profile details, machi.</p>
               </div>
               <div className="ps-icon-pill">
                 <Settings size={20} />
               </div>
             </div>
 
-            {/* NOTIFICATIONS */}
             {message.text && (
               <div className={`ps-alert ps-alert-${message.type}`}>
                 {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
@@ -131,60 +142,70 @@ const ProfileSettings = () => {
 
             <form onSubmit={handleSubmit} className="ps-form-grid">
               
+              {/* --- SECTION 1: PERSONAL DETAILS --- */}
+              <h4 className="ps-section-divider">Personal Information</h4>
               <div className="ps-input-row">
-                {/* Full Name */}
                 <div className="ps-input-field">
                   <label className="ps-label">Full Name</label>
                   <div className="ps-input-wrapper">
                     <User className="ps-input-icon" size={18} />
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="ps-input-box"
-                      placeholder="Enter your name"
-                    />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} className="ps-input-box" placeholder="Machi, name enna?" />
                   </div>
                 </div>
 
-                {/* Email (Read Only) */}
                 <div className="ps-input-field">
-                  <label className="ps-label">Email Address</label>
+                  <label className="ps-label">Mobile Number</label>
+                  <div className="ps-input-wrapper">
+                    <Phone className="ps-input-icon" size={18} />
+                    <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} className="ps-input-box" placeholder="+91 XXXXX XXXXX" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="ps-input-row">
+                <div className="ps-input-field">
+                  <label className="ps-label">Registered Email</label>
                   <div className="ps-input-wrapper ps-disabled-field">
                     <Mail className="ps-input-icon" size={18} />
-                    <input
-                      type="email"
-                      value={formData.email}
-                      disabled
-                      className="ps-input-box"
-                    />
+                    <input type="email" value={formData.email} disabled className="ps-input-box" />
+                  </div>
+                </div>
+
+                <div className="ps-input-field">
+                  <label className="ps-label">Date of Birth</label>
+                  <div className="ps-input-wrapper">
+                    <Calendar className="ps-input-icon" size={18} />
+                    <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="ps-input-box" />
                   </div>
                 </div>
               </div>
 
-              {/* DOB */}
-              <div className="ps-input-field">
-                <label className="ps-label">Date of Birth</label>
-                <div className="ps-input-wrapper">
-                  <Calendar className="ps-input-icon" size={18} />
-                  <input
-                    type="date"
-                    name="dob"
-                    value={formData.dob}
-                    onChange={handleChange}
-                    className="ps-input-box"
-                  />
+              {/* --- SECTION 2: COMPANY DETAILS (READ ONLY) --- */}
+              <h4 className="ps-section-divider">Work Information</h4>
+              <div className="ps-input-row">
+                <div className="ps-input-field">
+                  <label className="ps-label">Company Domain</label>
+                  <div className="ps-input-wrapper ps-disabled-field">
+                    <Layers className="ps-input-icon" size={18} />
+                    <input type="text" value={formData.domain} disabled className="ps-input-box" />
+                  </div>
+                </div>
+
+                <div className="ps-input-field">
+                  <label className="ps-label">Joined Date</label>
+                  <div className="ps-input-wrapper ps-disabled-field">
+                    <Clock className="ps-input-icon" size={18} />
+                    <input type="text" value={formData.joinedDate} disabled className="ps-input-box" />
+                  </div>
                 </div>
               </div>
 
-              {/* FOOTER ACTIONS */}
               <div className="ps-footer-actions">
-                <button type="button" className="ps-btn-cancel">
-                  Cancel
+                <button type="button" className="ps-btn-cancel" onClick={onClose}>
+                  Discard
                 </button>
                 <button type="submit" disabled={loading} className="ps-btn-submit">
-                  {loading ? <div className="ps-spinner"></div> : <><Save size={20} /> Update Changes</>}
+                  {loading ? <div className="ps-spinner"></div> : <><Save size={20} /> Save Changes</>}
                 </button>
               </div>
             </form>
@@ -192,7 +213,7 @@ const ProfileSettings = () => {
         </div>
 
         <p className="ps-security-note">
-          🛡️ Your data is encrypted and handled with care.
+          🛡️ Account Status: <span style={{color: 'var(--ps-primary)', fontWeight: 'bold'}}>Verified Professional Account</span>
         </p>
       </div>
     </div>

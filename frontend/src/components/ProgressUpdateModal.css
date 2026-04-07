@@ -1,11 +1,39 @@
+/* =========================================
+   PROGRESS MODAL PREMIUM (Light & Dark)
+   ========================================= */
 
+:root {
+  /* --- LIGHT THEME --- */
+  --pm-overlay: rgba(15, 23, 42, 0.4);
+  --pm-card: #ffffff;
+  --pm-text-main: #1e293b;
+  --pm-text-muted: #64748b;
+  --pm-border: #e2e8f0;
+  --pm-accent: #6366f1;
+  --pm-accent-soft: #eef2ff;
+  --pm-input-bg: #f8fafc;
+  --pm-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+/* --- DARK THEME --- */
+.dark-theme .dtms-modal-overlay,
+.dtms-modal-overlay.dark-theme {
+  --pm-overlay: rgba(0, 0, 0, 0.8);
+  --pm-card: #1e293b;
+  --pm-text-main: #f1f5f9;
+  --pm-text-muted: #94a3b8;
+  --pm-border: #334155;
+  --pm-accent: #818cf8;
+  --pm-accent-soft: rgba(129, 140, 248, 0.1);
+  --pm-input-bg: #0f172a;
+  --pm-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* --- OVERLAY --- */
 .dtms-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 23, 42, 0.65); /* Soft Slate Overlay */
+  inset: 0;
+  background: var(--pm-overlay);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
@@ -14,239 +42,165 @@
   padding: 20px;
 }
 
+/* --- CARD --- */
 .dtms-modal-card {
-  background: var(--dtms-card-bg);
   width: 100%;
   max-width: 500px;
-  border-radius: 20px;
-  border: 1px solid var(--dtms-border);
-  box-shadow: 0 25px 50px -12px var(--dtms-shadow);
+  background: var(--pm-card);
+  border-radius: 24px;
+  border: 1px solid var(--pm-border);
+  box-shadow: var(--pm-shadow);
   overflow: hidden;
-  animation: dtms-slide-up 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 🔝 MODAL HEADER */
-.dtms-modal-header {
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--dtms-input-bg);
-  border-bottom: 1px solid var(--dtms-border);
   position: relative;
 }
 
-.dtms-modal-icon {
-  font-size: 1.4rem;
-  background: var(--dtms-accent);
-  width: 48px;
-  height: 48px;
+/* --- HEADER --- */
+.dtms-modal-header {
+  padding: 1.5rem 2rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 15px;
+  border-bottom: 1px solid var(--pm-border);
+  background: linear-gradient(to bottom right, var(--pm-card), var(--pm-accent-soft));
+}
+
+.dtms-modal-icon {
+  font-size: 1.5rem;
+  background: var(--pm-card);
+  padding: 10px;
   border-radius: 12px;
-  color: #fff;
-  box-shadow: 0 8px 15px var(--dtms-accent-glow);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
-.dtms-modal-info {
-  flex: 1;
-}
-
-.dtms-modal-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--dtms-text-head);
-  letter-spacing: -0.5px;
-  margin-bottom: 2px;
-}
-
-.dtms-modal-subtitle {
-  font-size: 0.85rem;
-  color: var(--dtms-text-dim);
-}
-
-.dtms-modal-subtitle strong {
-  color: var(--dtms-text-head);
-}
+.dtms-modal-title { font-size: 1.1rem; font-weight: 800; color: var(--pm-text-main); margin: 0; }
+.dtms-modal-subtitle { font-size: 0.85rem; color: var(--pm-text-muted); margin: 4px 0 0; }
 
 .dtms-close-x {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   background: transparent;
   border: none;
-  font-size: 24px;
-  color: var(--dtms-text-dim);
+  font-size: 1.5rem;
+  color: var(--pm-text-muted);
   cursor: pointer;
   transition: 0.2s;
-  line-height: 1;
 }
+.dtms-close-x:hover { color: #ef4444; transform: rotate(90deg); }
 
-.dtms-close-x:hover {
-  color: #ef4444;
-  transform: rotate(90deg);
-}
-
-/* 📝 MODAL BODY */
+/* --- BODY --- */
 .dtms-modal-body {
-  padding: 28px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 1.5rem;
 }
 
-.dtms-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.dtms-label-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dtms-input-label {
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--dtms-text-dim);
-}
+.dtms-form-group { display: flex; flex-direction: column; gap: 10px; }
+.dtms-label-row { display: flex; justify-content: space-between; align-items: center; }
+.dtms-input-label { font-weight: 700; font-size: 0.85rem; color: var(--pm-text-main); }
 
 .dtms-percentage-badge {
-  font-size: 0.9rem;
+  background: var(--pm-accent);
+  color: white;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
   font-weight: 800;
-  color: var(--dtms-accent);
-  background: var(--dtms-accent-glow);
-  padding: 4px 12px;
-  border-radius: 30px;
 }
 
-/* 🏎️ RANGE & INPUTS */
+/* --- SLIDER & NUMBER INPUT --- */
 .dtms-slider-container {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 15px;
 }
 
 .dtms-range-slider {
   flex: 1;
-  height: 6px;
-  accent-color: var(--dtms-accent);
+  accent-color: var(--pm-accent);
   cursor: pointer;
 }
 
 .dtms-number-input {
-  width: 70px;
-  padding: 10px;
+  width: 65px;
+  padding: 8px;
+  border: 2px solid var(--pm-border);
+  background: var(--pm-input-bg);
+  color: var(--pm-text-main);
   border-radius: 10px;
-  border: 1.5px solid var(--dtms-border);
-  background: var(--dtms-input-bg);
-  color: var(--dtms-text-head);
-  font-weight: 800;
+  font-weight: 700;
   text-align: center;
   outline: none;
-  transition: 0.2s;
 }
 
-.dtms-number-input:focus {
-  border-color: var(--dtms-accent);
-}
+.dtms-number-input:focus { border-color: var(--pm-accent); }
 
+/* --- TEXTAREA --- */
 .dtms-modal-textarea {
   width: 100%;
-  padding: 16px;
-  background: var(--dtms-input-bg);
-  border: 1.5px solid var(--dtms-border);
+  padding: 12px;
+  border: 2px solid var(--pm-border);
+  background: var(--pm-input-bg);
+  color: var(--pm-text-main);
   border-radius: 14px;
-  color: var(--dtms-text-head);
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.95rem;
+  font-family: inherit;
+  font-size: 0.9rem;
   resize: none;
   outline: none;
-  transition: all 0.2s ease;
+  transition: 0.2s;
 }
 
 .dtms-modal-textarea:focus {
-  border-color: var(--dtms-accent);
-  background: var(--dtms-card-bg);
-  box-shadow: 0 0 0 4px var(--dtms-accent-glow);
+  border-color: var(--pm-accent);
+  box-shadow: 0 0 0 4px var(--pm-accent-soft);
 }
 
-/* 🔘 MODAL FOOTER */
+/* --- FOOTER --- */
 .dtms-modal-footer {
-  padding: 20px 28px;
-  background: var(--dtms-input-bg);
+  padding: 1.5rem 2rem;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  border-top: 1px solid var(--dtms-border);
+  background: var(--pm-input-bg);
+  border-top: 1px solid var(--pm-border);
 }
 
 .dtms-btn-secondary {
+  padding: 10px 20px;
   background: transparent;
-  color: var(--dtms-text-dim);
-  border: 1.5px solid var(--dtms-border);
-  padding: 12px 24px;
+  border: 1px solid var(--pm-border);
+  color: var(--pm-text-body);
   border-radius: 12px;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
-}
-
-.dtms-btn-secondary:hover {
-  background: #fee2e2;
-  color: #ef4444;
-  border-color: #fecaca;
 }
 
 .dtms-btn-primary-modal {
-  background: var(--dtms-accent);
-  color: #fff;
+  padding: 10px 24px;
+  background: var(--pm-accent);
+  color: white;
   border: none;
-  padding: 12px 28px;
   border-radius: 12px;
   font-weight: 700;
-  font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: 0 8px 20px var(--dtms-accent-glow);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.3s;
 }
 
 .dtms-btn-primary-modal:hover {
+  opacity: 0.9;
   transform: translateY(-2px);
-  filter: brightness(1.15);
-  box-shadow: 0 12px 25px var(--dtms-accent-glow);
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
 }
 
-/* 🚀 ANIMATIONS */
-@keyframes dtms-slide-up {
-  from { opacity: 0; transform: translateY(25px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
+/* --- ANIMATIONS --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* 🎨 THEME ROOT SYNC (Make sure these exist in index.css) */
-:root {
-  --dtms-bg: #f1f5f9;
-  --dtms-card-bg: #ffffff;
-  --dtms-text-head: #0f172a;
-  --dtms-text-dim: #64748b;
-  --dtms-border: #e2e8f0;
-  --dtms-accent: #1e293b; /* Deep Slate */
-  --dtms-accent-glow: rgba(30, 41, 59, 0.12);
-  --dtms-shadow: rgba(15, 23, 42, 0.1);
-  --dtms-input-bg: #f8fafc;
-}
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+.animate-slide-up { animation: slideUp 0.4s ease-out; }
 
-.dark {
-  --dtms-bg: #0f172a;
-  --dtms-card-bg: #1e293b;
-  --dtms-text-head: #f8fafc;
-  --dtms-text-dim: #94a3b8;
-  --dtms-border: #334155;
-  --dtms-accent: #38bdf8; /* Soft Electric Blue */
-  --dtms-accent-glow: rgba(56, 189, 248, 0.25);
-  --dtms-shadow: rgba(0, 0, 0, 0.35);
-  --dtms-input-bg: #0f172a;
+/* Responsive */
+@media (max-width: 480px) {
+  .dtms-modal-card { border-radius: 0; height: 100vh; max-width: none; }
 }
