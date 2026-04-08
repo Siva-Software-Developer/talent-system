@@ -14,7 +14,7 @@ import "./index.css"; // Essential for global CSS variables!
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
-  throw new Error("Failed to find the root element machi! Check your public/index.html");
+  throw new Error("Failed to find the root element ! Check your public/index.html");
 }
 
 const root = ReactDOM.createRoot(rootElement);

@@ -9,12 +9,12 @@ function ProgressUpdateModal({ task, close, refresh }) {
   // ✅ Submit handler
   const handleSubmit = async () => {
     if (progress < 0 || progress > 100) {
-      alert("Progress should be between 0 to 100 da machi!");
+      alert("Progress should be between 0 to 100 !");
       return;
     }
 
     if (!updateText.trim()) {
-      alert("Enter update message da machi!");
+      alert("Enter update message!");
       return;
     }
 
@@ -84,7 +84,7 @@ function ProgressUpdateModal({ task, close, refresh }) {
           <div className="dtms-form-group">
             <label className="dtms-input-label">Status Update / Remarks</label>
             <textarea
-              placeholder="Tell us what's happening with this task da machi..."
+              placeholder="Tell us what's happening with this task"
               value={updateText}
               onChange={(e) => setUpdateText(e.target.value)}
               className="dtms-modal-textarea"

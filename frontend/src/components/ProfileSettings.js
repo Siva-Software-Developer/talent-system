@@ -19,7 +19,7 @@ import {
 import "./ProfileSettings.css";
 
 const ProfileSettings = ({ onClose }) => {
-  // Local storage la irunthu user details edukkurom machi
+  
   const storedUser = JSON.parse(localStorage.getItem('user')) || {};
   
   const [formData, setFormData] = useState({
@@ -74,7 +74,7 @@ const ProfileSettings = ({ onClose }) => {
       });
 
       if (res.status === 200) {
-        setMessage({ type: 'success', text: 'Profile updated successfully, Machi! ✅' });
+        setMessage({ type: 'success', text: 'Profile updated successfully! ✅' });
         const updatedUser = { 
             ...storedUser, 
             name: formData.name, 
@@ -85,7 +85,7 @@ const ProfileSettings = ({ onClose }) => {
         localStorage.setItem('user', JSON.stringify(updatedUser));
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Update failed. Check your connection machi! ❌' });
+      setMessage({ type: 'error', text: 'Update failed. Check your connection! ❌' });
     } finally {
       setLoading(false);
     }
@@ -125,7 +125,7 @@ const ProfileSettings = ({ onClose }) => {
             <div className="ps-form-header">
               <div className="ps-title-group">
                 <h2 className="ps-main-title">Digital Identity</h2>
-                <p className="ps-subtitle">Manage your professional profile details, machi.</p>
+                <p className="ps-subtitle">Manage your professional profile details.</p>
               </div>
               <div className="ps-icon-pill">
                 <Settings size={20} />

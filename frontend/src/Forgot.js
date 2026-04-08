@@ -11,7 +11,7 @@ function Forgot({ setPage }) {
   const [loading, setLoading] = useState(false);
 
   const sendOtp = async () => {
-    if (!email) return alert("Email podu machi! 📧");
+    if (!email) return alert("Enter you Email 📧");
     setLoading(true);
     try {
       let res = await fetch(`${API}/forgot-send-otp`, {
@@ -30,7 +30,7 @@ function Forgot({ setPage }) {
 
   const reset = async () => {
     if (!email || !otp || !password) {
-      alert("Ellaa field-yum fill pannu! 📝");
+      alert("Fill all the fields! 📝");
       return;
     }
     try {
@@ -132,7 +132,7 @@ function Forgot({ setPage }) {
         </div>
 
         <div className="dtms-system-footer">
-          <p>© 2024 DTMS Infrastructure. All rights reserved.</p>
+          <p>© 2026 DTMS Infrastructure. All rights reserved.</p>
         </div>
       </div>
     </div>

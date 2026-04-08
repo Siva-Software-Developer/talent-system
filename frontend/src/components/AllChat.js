@@ -186,7 +186,7 @@ function AllChat({ onClose }) {
           <input
             type="text"
             className="ac-text-field"
-            placeholder={replyTo ? "Type a reply..." : "Type a message, machi..."}
+            placeholder={replyTo ? "Type a reply..." : "Type a message"}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}

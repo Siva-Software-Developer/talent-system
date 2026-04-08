@@ -63,7 +63,7 @@ function AttendanceForm({ onClose }) {
   const totalLogouts = filteredLogs.filter(l => l.type === "EOD").length;
 
   const handleSODSubmit = async () => {
-    if (!employeeId.trim()) return alert("ID podu machi!");
+    if (!employeeId.trim()) return alert("Enter your ID");
     try { 
         await submitSOD({ name: user?.name, employeeId, date: today, time: timeDisplay, type: "SOD" }); 
         alert("SOD Success ✅"); fetchLogs(); 
@@ -71,7 +71,7 @@ function AttendanceForm({ onClose }) {
   };
 
   const handleEODSubmit = async () => {
-    if (!workDone.trim() || !percentage) return alert("Ellathayum fill pannu machi!");
+    if (!workDone.trim() || !percentage) return alert("Fill all the Details");
     try { 
         await submitEOD({ name: user?.name, employeeId, workDone, percentage, date: today, time: timeDisplay, type: "EOD" }); 
         alert("EOD Success ✅"); fetchLogs(); 

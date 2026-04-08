@@ -11,57 +11,53 @@ import Dashboard from "./components/Dashboard";
 import AdminDashboard from "./components/AdminDashboard";
 
 // 📂 ICONS
-import { Moon, Sun, LayoutDashboard, UserPlus, ShieldCheck, Briefcase } from "lucide-react";
+import { Moon, Sun, UserPlus, ShieldCheck, Briefcase } from "lucide-react";
 
 function App() {
   const [page, setPage] = useState("home");
   const [theme, setTheme] = useState(localStorage.getItem("dtms-theme") || "light");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState("");
   const [user, setUser] = useState(null);
 
-  // 🛠️ SYSTEM INITIALIZATION
+  // ✅ LOGIN STATUS
+  const isLoggedIn = !!user;
+
+  // 🛠️ INITIAL LOAD (FIXED)
   useEffect(() => {
     document.body.className = `dtms-theme-${theme}`;
 
-    const savedUser = JSON.parse(localStorage.getItem("dtms_user"));
-    if (savedUser && savedUser.role) {
-      setUser(savedUser);
-      setRole(savedUser.role);
-      setIsLoggedIn(true);
-      setPage("dashboard");
+    const savedUser = localStorage.getItem("dtms_user");
+
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+
+        if (parsed && parsed.email) {
+          setUser(parsed);
+          setRole(parsed.role || "employee");
+          setPage("dashboard");
+        }
+      } catch (e) {
+        console.error("User parse error", e);
+        setPage("login");
+      }
     }
-  }, [theme]);
+  }, []); // 🔥 FIXED (removed theme dependency)
 
   // 🌓 THEME TOGGLE
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     localStorage.setItem("dtms-theme", newTheme);
+    document.body.className = `dtms-theme-${newTheme}`;
   };
 
   // 🚪 LOGOUT
   const handleLogout = () => {
     localStorage.removeItem("dtms_user");
-    setIsLoggedIn(false);
-    setRole("");
     setUser(null);
+    setRole("");
     setPage("home");
-  };
-
-  // 🔄 LOGIN SUCCESS (SAFE VERSION)
-  const handleLoginSuccess = (userData) => {
-    if (!userData || !userData.role) {
-      console.error("Invalid user data:", userData);
-      alert("Login failed machi 😢");
-      return;
-    }
-
-    localStorage.setItem("dtms_user", JSON.stringify(userData));
-    setUser(userData);
-    setRole(userData.role);
-    setIsLoggedIn(true);
-    setPage("dashboard");
   };
 
   return (
@@ -69,25 +65,25 @@ function App() {
       
       {/* 🌓 THEME TOGGLE */}
       <div className="dtms-system-controls">
-        <button className="dtms-theme-toggle" onClick={toggleTheme} title="Switch System Theme">
+        <button className="dtms-theme-toggle" onClick={toggleTheme}>
           {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
         </button>
       </div>
 
-      {/* ✅ DASHBOARD */}
+      {/* ✅ DASHBOARD VIEW */}
       {isLoggedIn && page === "dashboard" ? (
         <div className="dtms-dashboard-view animate-fade-in">
-          {role === "admin" ? (
+          {role?.toLowerCase() === "admin" ? (   // 🔥 FIXED ROLE CHECK
             <AdminDashboard 
               user={user} 
               onLogout={handleLogout} 
-              setPage={(p) => p === "login" ? handleLogout() : setPage(p)} 
+              setPage={setPage} 
             />
           ) : (
             <Dashboard 
               user={user} 
               onLogout={handleLogout} 
-              setPage={(p) => p === "login" ? handleLogout() : setPage(p)} 
+              setPage={setPage} 
             />
           )}
         </div>
@@ -117,16 +113,18 @@ function App() {
               </div>
             )}
 
-            {/* 🔑 LOGIN */}
+            {/* 🔑 LOGIN (FIXED) */}
             {page === "login" && (
               <Login setPage={(p) => {
                 if (p === "dashboard") {
                   const userData = JSON.parse(localStorage.getItem("dtms_user"));
 
-                  if (userData) {
-                    handleLoginSuccess(userData);
+                  if (userData && userData.email) {
+                    setUser(userData); // 🔥 IMPORTANT FIX
+                    setRole(userData.role || "employee");
+                    setPage("dashboard");
                   } else {
-                    alert("Login failed machi 😢");
+                    alert("Login failed 😢");
                   }
                 } else {
                   setPage(p);

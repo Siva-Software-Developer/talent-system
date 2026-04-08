@@ -3,7 +3,7 @@ import axios from "axios";
 import { 
   Users, CheckCircle, Clock, AlertCircle, Layout, 
   MessageSquare, Settings, LogOut, Search, Plus, Calendar, Paperclip, X,
-  User, Mail, Phone, Layers, Save, Camera
+  User, Mail, Phone, Layers, Save, Camera, Briefcase, Hash
 } from "lucide-react";
 
 // Importing CSS Files
@@ -67,7 +67,6 @@ function AdminDashboard({ setPage }) {
     mobile: adminData.mobile || '',
     role: adminData.role || 'Admin',
     domain: adminData.domain || 'Management',
-    joinedDate: adminData.joinedDate || 'N/A',
   });
 
   const [profilePic, setProfilePic] = useState(null);
@@ -118,26 +117,44 @@ function AdminDashboard({ setPage }) {
             profile_pic: res.data.profile_pic || adminData.profile_pic
         };
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        // Refresh the preview URL if a new image was uploaded
         if(res.data.profile_pic) {
             setPreviewUrl(`${API}/uploads/profiles/${res.data.profile_pic}`);
         }
       }
     } catch (err) {
-      setProfileMsg({ type: 'error', text: 'Update failed machi! ❌' });
+      setProfileMsg({ type: 'error', text: 'Update failed ! ❌' });
     } finally {
       setProfileLoading(false);
     }
   };
 
   // ==========================================================
-  // 3. DATA FETCHING
+  // 3. DATA FETCHING & STATS LOGIC (SOLVED PENDING ERROR)
   // ==========================================================
   const fetchUsers = async () => {
     try {
       const res = await axios.get(`${API}/users`);
       setUsers(res.data);
     } catch (err) { console.error("Error fetching users:", err); }
+  };
+
+  // FIXED LOGIC: Correctly categorizing tasks for the stat cards
+  const calculateStats = (data) => {
+    const s = { total: data.length, pending: 0, completed: 0, blocked: 0 };
+    
+    data.forEach((t) => {
+      const status = t.status ? t.status.toLowerCase() : "";
+      
+      if (status === "completed") {
+        s.completed++;
+      } else if (status === "blocked") {
+        s.blocked++;
+      } else {
+        // Any task that is 'pending', 'todo', or 'in_progress' is counted as Pending work
+        s.pending++;
+      }
+    });
+    setStats(s);
   };
 
   const fetchTasks = useCallback(async () => {
@@ -172,16 +189,10 @@ function AdminDashboard({ setPage }) {
     fetchAttendance();
   }, [fetchTasks]);
 
-  const calculateStats = (data) => {
-    const s = { total: data.length, pending: 0, in_progress: 0, completed: 0, blocked: 0 };
-    data.forEach((t) => { if (s[t.status] !== undefined) s[t.status]++; });
-    setStats(s);
-  };
-
   useEffect(() => {
     let temp = [...tasks];
     if (search) temp = temp.filter((t) => t.title.toLowerCase().includes(search.toLowerCase()));
-    if (statusFilter !== "all") temp = temp.filter((t) => t.status === statusFilter);
+    if (statusFilter !== "all") temp = temp.filter((t) => t.status.toLowerCase() === statusFilter.toLowerCase());
     setFilteredTasks(temp);
   }, [search, statusFilter, tasks]);
 
@@ -194,7 +205,7 @@ function AdminDashboard({ setPage }) {
 
   const handleTaskSubmit = async () => {
     if (!title || assignedTo.length === 0) {
-      alert("Machi, Title and at least one Employee is required!");
+      alert("Title and at least one Employee is required!");
       return;
     }
     const formData = new FormData();
@@ -224,7 +235,7 @@ function AdminDashboard({ setPage }) {
   };
 
   const deleteTask = async (id) => {
-    if (!window.confirm("Kandippa delete pannunuma machi?")) return;
+    if (!window.confirm("Have you want to delete this?")) return;
     await axios.delete(`${API}/delete-task/${id}`);
     fetchTasks();
   };
@@ -250,11 +261,10 @@ function AdminDashboard({ setPage }) {
           <span>{globalSettings.siteName}</span>
         </div>
 
-        {/* INTEGRATED ADMIN PROFILE MINI VIEW */}
         <div className="ad-admin-mini-profile" onClick={() => setIsSettingsOpen(true)}>
             <div className="ad-mini-info">
                 <span className="ad-mini-name">{profileFormData.name}</span>
-                <span className="ad-mini-role">System Admin</span>
+                <span className="ad-mini-role">{profileFormData.role}</span>
             </div>
             <div className="ad-mini-avatar-container">
                 {previewUrl ? (
@@ -351,6 +361,7 @@ function AdminDashboard({ setPage }) {
               <select className="ad-select-filter" onChange={(e)=>setStatusFilter(e.target.value)}>
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
                 <option value="blocked">Blocked</option>
               </select>
@@ -370,12 +381,12 @@ function AdminDashboard({ setPage }) {
                     <tr key={t.id} className="ad-tr">
                       <td>
                         <div className="ad-task-info">
-                           <span className="ad-task-name">{t.title}</span>
-                           <span className="ad-task-date">Due: {t.dueDate}</span>
+                            <span className="ad-task-name">{t.title}</span>
+                            <span className="ad-task-date">Due: {t.dueDate}</span>
                         </div>
                       </td>
                       <td><div className="ad-user-pill">{t.assigned_to}</div></td>
-                      <td><span className={`ad-status-badge ${t.status}`}>{t.status}</span></td>
+                      <td><span className={`ad-status-badge ${t.status?.toLowerCase()}`}>{t.status?.replace('_', ' ')}</span></td>
                       <td>
                         <div className="ad-action-group">
                           <button className="ad-edit-icon" onClick={() => editTask(t)}>Edit</button>
@@ -399,13 +410,13 @@ function AdminDashboard({ setPage }) {
               <X size={24} />
             </button>
             <div className="af-header">
-               <div className="af-brand">
-                  <div className="af-logo-icon"><Clock /></div>
-                  <div>
-                    <h2 className="af-title">Team Attendance</h2>
-                    <p className="af-subtitle">Daily SOD & EOD Monitoring</p>
-                  </div>
-               </div>
+                <div className="af-brand">
+                   <div className="af-logo-icon"><Clock /></div>
+                   <div>
+                     <h2 className="af-title">Team Attendance</h2>
+                     <p className="af-subtitle">Daily SOD & EOD Monitoring</p>
+                   </div>
+                </div>
             </div>
             <div className="af-grid">
                <div className="af-action-side">
@@ -449,7 +460,7 @@ function AdminDashboard({ setPage }) {
         </div>
       )}
 
-      {/* --- SETTINGS OVERLAY --- */}
+      {/* --- UPDATED PROFILE SETTINGS OVERLAY --- */}
       {isSettingsOpen && (
         <div className="ps-root-container" onClick={() => setIsSettingsOpen(false)}>
           <div className="ps-main-card" onClick={(e) => e.stopPropagation()}>
@@ -476,7 +487,7 @@ function AdminDashboard({ setPage }) {
               <div className="ps-form-header">
                 <div className="ps-title-group">
                   <h2 className="ps-main-title">Admin Profile Control</h2>
-                  <p className="ps-subtitle">Customize your system identity, Machi.</p>
+                  <p className="ps-subtitle">Manage your credentials and system identity.</p>
                 </div>
               </div>
 
@@ -487,20 +498,44 @@ function AdminDashboard({ setPage }) {
               )}
 
               <form onSubmit={handleProfileUpdate} className="ps-form-grid">
+                <div className="ps-section-title">Personal Details</div>
                 <div className="ps-input-row">
                   <div className="ps-input-field">
-                    <label className="ps-label">Full Name</label>
+                    <label className="ps-label"><User size={14}/> Full Name</label>
                     <input type="text" name="name" value={profileFormData.name} onChange={handleProfileChange} className="ps-input-box" />
                   </div>
                   <div className="ps-input-field">
-                    <label className="ps-label">Mobile Number</label>
+                    <label className="ps-label"><Calendar size={14}/> Date of Birth</label>
+                    <input type="date" name="dob" value={profileFormData.dob} onChange={handleProfileChange} className="ps-input-box" />
+                  </div>
+                </div>
+
+                <div className="ps-input-row">
+                  <div className="ps-input-field">
+                    <label className="ps-label"><Phone size={14}/> Mobile Number</label>
                     <input type="text" name="mobile" value={profileFormData.mobile} onChange={handleProfileChange} className="ps-input-box" />
+                  </div>
+                  <div className="ps-input-field">
+                    <label className="ps-label"><Mail size={14}/> Email Address (Read-only)</label>
+                    <input type="email" value={profileFormData.email} readOnly className="ps-input-box disabled" />
+                  </div>
+                </div>
+
+                <div className="ps-section-title">Work Identity</div>
+                <div className="ps-input-row">
+                  <div className="ps-input-field">
+                    <label className="ps-label"><Briefcase size={14}/> Designation/Domain</label>
+                    <input type="text" value={profileFormData.domain} readOnly className="ps-input-box disabled" />
+                  </div>
+                  <div className="ps-input-field">
+                    <label className="ps-label"><Hash size={14}/> System Role</label>
+                    <input type="text" value={profileFormData.role} readOnly className="ps-input-box disabled" />
                   </div>
                 </div>
 
                 <div className="ps-footer-actions">
                   <button type="submit" disabled={profileLoading} className="ps-btn-submit">
-                    {profileLoading ? "Syncing..." : "Save Profile"}
+                    <Save size={18} /> {profileLoading ? "Syncing..." : "Update Profile"}
                   </button>
                 </div>
               </form>

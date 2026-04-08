@@ -23,7 +23,7 @@ function HelpSupport({ user }) {
   ];
 
   const handleRaiseTicket = async () => {
-    if (!ticket.trim()) return alert("Machi, edhavathu type pannu! ✍️");
+    if (!ticket.trim()) return alert("Type here something you need ✍️");
 
     setLoading(true);
     try {
@@ -39,14 +39,14 @@ function HelpSupport({ user }) {
       });
 
       if (res.ok) {
-        alert("Ticket raised successfully! Admin kitta solliduren machi. ✅");
+        alert("Ticket raised successfully! ✅");
         setTicket("");
       } else {
-        alert("Something went wrong. Try again machi!");
+        alert("Something went wrong. Try again!");
       }
     } catch (err) {
       console.error(err);
-      alert("Server error. Connection check pannu machi!");
+      alert("Server error. Check the connection!");
     } finally {
       setLoading(false);
     }

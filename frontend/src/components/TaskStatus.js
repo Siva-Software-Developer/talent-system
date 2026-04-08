@@ -37,7 +37,7 @@ function TaskStatus() {
 
   const handleSubmitTask = async (taskId) => {
     if (!proofLink || !githubLink) {
-      alert("Machi, Proof link and GitHub link renduமே mukkiyam!");
+      alert("Proof link and GitHub link both important!");
       return;
     }
     try {
@@ -53,13 +53,13 @@ function TaskStatus() {
       setGithubLink("");
       fetchMyTasks();
     } catch (err) {
-      alert("Submission failed machi!");
+      alert("Submission failed !");
     }
   };
 
   const handleReportBlocker = async (taskId) => {
     if (!blockerText) {
-      alert("Machi, enna issue-nu sonna thaana admin-ku puriyum!");
+      alert("Tell me that what are the issues you faced!");
       return;
     }
     try {
@@ -68,19 +68,19 @@ function TaskStatus() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: taskId, blocker: blockerText }),
       });
-      alert("Admin-ku inform panniyaachu machi! 😎");
+      alert("Informed to Admin! 😎");
       setBlockerReporting(null);
       setBlockerText("");
       fetchMyTasks();
     } catch (err) {
-      alert("Blocker report panna mudiyala!");
+      alert("Did not have to blocker!");
     }
   };
 
   if (loading) return (
     <div className="dtms-loader-wrapper">
       <div className="dtms-spinner"></div>
-      <p>Mission loading, machi... 🚀</p>
+      <p>Mission loading.🚀</p>
     </div>
   );
 
@@ -178,7 +178,7 @@ function TaskStatus() {
         ) : (
           <div className="dtms-empty-state">
             <div className="dtms-empty-icon">🏖️</div>
-            <p>No tasks assigned yet. Chill pannu machi! 😎</p>
+            <p>No tasks assigned yet 😎</p>
           </div>
         )}
       </div>

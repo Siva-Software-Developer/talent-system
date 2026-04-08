@@ -228,7 +228,7 @@ def run_migrations():
         {"$set": {"reactions": {}}}
     )
 
-    print("✅ DB Ready Machi 🔥")
+    print("✅ DB Ready 🔥")
 
 # ============================================================
 # ▶ RUN

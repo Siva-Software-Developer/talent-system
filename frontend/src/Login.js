@@ -18,7 +18,7 @@ function Login({ setPage }) {
     setLoading(true);
 
     try {
-      // 🔥 clear old session (IMPORTANT FIX)
+      // 🔥 clear old session
       localStorage.removeItem("dtms_user");
 
       const res = await fetch(`${API}/login`, {
@@ -31,24 +31,34 @@ function Login({ setPage }) {
 
       const data = await res.json();
 
-      console.log("LOGIN RESPONSE:", data); // debug
+      console.log("LOGIN RESPONSE:", data);
 
-      if (res.status === 200 && data && data.user && data.user.role) {
-        alert("Welcome back, machi! 🚀");
-
-        // ✅ store correct format
-        localStorage.setItem("dtms_user", JSON.stringify(data.user));
-
-        // ✅ trigger App.js flow
-        setPage("dashboard");
-
-      } else {
-        alert(data.message || "Invalid credentials, machi!");
+      // ❌ IF LOGIN FAIL
+      if (!res.ok) {
+        alert(data.message || "Invalid credentials ❌");
+        return;
       }
+
+      // ✅ SAFE USER STRUCTURE (FINAL FIX)
+      const userData = {
+        name: data?.user?.name || "User",
+        email: data?.user?.email || email, // 🔥 VERY IMPORTANT
+        role: data?.user?.role || "employee"
+      };
+
+      // ✅ STORE USER
+      localStorage.setItem("dtms_user", JSON.stringify(userData));
+
+      console.log("Stored User:", userData);
+
+      alert("Login successful 🚀");
+
+      // ✅ REDIRECT
+      setPage("dashboard");
 
     } catch (error) {
       console.error("LOGIN ERROR:", error);
-      alert("Server error, check your backend 🛠️");
+      alert("Server error, check backend 🛠️");
     } finally {
       setLoading(false);
     }
@@ -58,7 +68,7 @@ function Login({ setPage }) {
     <div className="dtms-auth-wrapper mono-theme">
       <div className="dtms-login-card">
 
-        {/* 🏢 HEADER */}
+        {/* HEADER */}
         <div className="dtms-header-section">
           <div className="dtms-logo-box">
             <ShieldCheck size={40} strokeWidth={1.5} color="#000" />
@@ -69,7 +79,7 @@ function Login({ setPage }) {
 
         <hr className="dtms-divider" />
 
-        {/* 📋 FORM */}
+        {/* FORM */}
         <div className="dtms-form-container">
 
           <div className="dtms-input-group">
@@ -103,7 +113,7 @@ function Login({ setPage }) {
             </div>
           </div>
 
-          {/* 🔘 BUTTON */}
+          {/* BUTTON */}
           <button
             className={`dtms-primary-btn ${loading ? "dtms-btn-loading" : ""}`}
             onClick={login}
@@ -115,7 +125,7 @@ function Login({ setPage }) {
 
         </div>
 
-        {/* 🔗 LINKS */}
+        {/* LINKS */}
         <div className="dtms-footer-links">
           <span className="dtms-link" onClick={() => setPage("forgot")}>
             Forgot Credentials?
