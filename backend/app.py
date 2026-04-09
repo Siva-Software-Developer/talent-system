@@ -375,23 +375,43 @@ def admin_assign_task():
         return jsonify({"success": False, "error": str(e)}), 500
 
 # FIXED: Added route to handle /api/tasks/update-progress
+# ================= TASK PROGRESS UPDATE (FIXED VERSION) =================
+
 @app.route('/api/tasks/update-progress', methods=['POST'])
 @app.route('/api/update-progress', methods=['POST'])
 @app.route('/update-progress', methods=['POST'])
 def update_progress():
     try:
         data = request.get_json()
-        task_id = int(data.get("taskId"))
-        progress = int(data.get("progress"))
-        update_text = data.get("update")
+        
+        # Machi, inga thaan namma front-end 'taskId' anupum
+        # Athu correct-a 'id' field-oda match aaganum database-la
+        task_id_raw = data.get("taskId")
+        if not task_id_raw:
+            return jsonify({"success": False, "message": "Task ID is missing"}), 400
+            
+        task_id = int(task_id_raw)
+        progress = int(data.get("progress", 0))
+        update_text = data.get("update", "No remarks provided")
         blocker_msg = data.get("blocker") 
 
-        status = "pending" if progress == 0 else "completed" if progress == 100 else "in_progress"
+        # Logic to determine status based on progress
         if blocker_msg:
             status = "blocked"
+        elif progress == 100:
+            status = "completed"
+        elif progress > 0:
+            status = "in_progress"
+        else:
+            status = "pending"
 
+        # Database update payload
         update_payload = {
-            "$set": {"progress": progress, "status": status},
+            "$set": {
+                "progress": progress, 
+                "status": status,
+                "last_updated": time.strftime('%Y-%m-%d %H:%M:%S')
+            },
             "$push": {
                 "daily_updates": {
                     "date": time.strftime('%Y-%m-%d %H:%M:%S'),
@@ -401,14 +421,30 @@ def update_progress():
             }
         }
 
+        # If there's a blocker, we add it to the set
         if blocker_msg:
             update_payload["$set"]["blocker"] = blocker_msg
 
-        tasks_db.update_one({"id": task_id}, update_payload)
-        return jsonify({"success": True, "message": "Progress updated"}), 200
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        # We use {"id": task_id} because unga assign_task-la "id" field-la thaan store pandringa
+        result = tasks_db.update_one({"id": task_id}, update_payload)
 
+        if result.matched_count == 0:
+            # Incase unga DB field name "task_id" nu iruntha safety check
+            result = tasks_db.update_one({"task_id": task_id}, update_payload)
+
+        if result.matched_count > 0:
+            return jsonify({
+                "success": True, 
+                "message": "Progress updated successfully ✅",
+                "new_status": status
+            }), 200
+        else:
+            return jsonify({"success": False, "message": "Task not found in database"}), 404
+
+    except Exception as e:
+        print(f"DEBUG ERROR: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+        
 
 @app.route('/api/admin/dashboard', methods=['GET'])
 @app.route('/admin/dashboard', methods=['GET'])

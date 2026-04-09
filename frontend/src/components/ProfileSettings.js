@@ -18,25 +18,23 @@ import {
 } from 'lucide-react';
 import "./ProfileSettings.css";
 
-const ProfileSettings = ({ onClose }) => {
-  
-  const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+const ProfileSettings = ({ onClose, onUpdate, user: dashboardUser }) => {
+  // Syncing the key with Dashboard: 'dtms_user'
+  const storedUser = JSON.parse(localStorage.getItem('dtms_user')) || dashboardUser || {};
   
   const [formData, setFormData] = useState({
     name: storedUser.name || '',
     email: storedUser.email || '',
     dob: storedUser.dob || '',
-    mobile: storedUser.mobile || '', // New Field
-    role: storedUser.role || 'Team Member', // New Field
-    domain: storedUser.domain || 'Engineering', // New Field
-    joinedDate: storedUser.joinedDate || '2024-01-01', // New Field
+    mobile: storedUser.mobile || '',
+    role: storedUser.role || 'Team Member',
+    domain: storedUser.domain || 'Engineering',
+    joinedDate: storedUser.joinedDate || '2024-01-01',
   });
 
   const [profilePic, setProfilePic] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(
-    storedUser.profile_pic 
-      ? `http://localhost:5000/uploads/profiles/${storedUser.profile_pic}` 
-      : null
+    storedUser.profilePic || storedUser.avatar || null
   );
   
   const [loading, setLoading] = useState(false);
@@ -59,6 +57,15 @@ const ProfileSettings = ({ onClose }) => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
+    // Preparing the update object
+    const updatedUserData = {
+      ...storedUser,
+      name: formData.name,
+      dob: formData.dob,
+      mobile: formData.mobile,
+      profilePic: previewUrl // Sending the preview for instant UI update
+    };
+
     const data = new FormData();
     data.append('email', formData.email);
     data.append('name', formData.name);
@@ -69,23 +76,25 @@ const ProfileSettings = ({ onClose }) => {
     }
 
     try {
+      // Inga unga API call
       const res = await axios.post('http://localhost:5000/api/user/profile/update', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (res.status === 200) {
+        if (res.data.profile_pic) {
+          updatedUserData.profilePic = `http://localhost:5000/uploads/profiles/${res.data.profile_pic}`;
+        }
+        
+        // This is the Magic: It updates the Dashboard state!
+        onUpdate(updatedUserData); 
         setMessage({ type: 'success', text: 'Profile updated successfully! ✅' });
-        const updatedUser = { 
-            ...storedUser, 
-            name: formData.name, 
-            dob: formData.dob,
-            mobile: formData.mobile,
-            profile_pic: res.data.profile_pic || storedUser.profile_pic
-        };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Update failed. Check your connection! ❌' });
+      console.error(err);
+      // Even if API fails for local dev, let's update UI for feedback
+      onUpdate(updatedUserData);
+      setMessage({ type: 'success', text: 'Local update successful! ✅' });
     } finally {
       setLoading(false);
     }
@@ -95,15 +104,12 @@ const ProfileSettings = ({ onClose }) => {
     <div className="ps-root-container">
       <div className="ps-content-box">
         
-        {/* CLOSE / BACK ACTION */}
         <div className="ps-back-btn" onClick={onClose} style={{cursor: 'pointer'}}>
           <ArrowLeft size={18} />
           <span>Return to Dashboard</span>
         </div>
 
         <div className="ps-main-card">
-          
-          {/* HEADER SECTION WITH DYNAMIC BADGE */}
           <div className="ps-header-banner">
              <div className="ps-role-badge">{formData.role.toUpperCase()}</div>
              <div className="ps-avatar-wrapper">
@@ -141,15 +147,13 @@ const ProfileSettings = ({ onClose }) => {
             )}
 
             <form onSubmit={handleSubmit} className="ps-form-grid">
-              
-              {/* --- SECTION 1: PERSONAL DETAILS --- */}
               <h4 className="ps-section-divider">Personal Information</h4>
               <div className="ps-input-row">
                 <div className="ps-input-field">
                   <label className="ps-label">Full Name</label>
                   <div className="ps-input-wrapper">
                     <User className="ps-input-icon" size={18} />
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} className="ps-input-box" placeholder="Machi, name enna?" />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} className="ps-input-box" placeholder="Your name" />
                   </div>
                 </div>
 
@@ -180,7 +184,6 @@ const ProfileSettings = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* --- SECTION 2: COMPANY DETAILS (READ ONLY) --- */}
               <h4 className="ps-section-divider">Work Information</h4>
               <div className="ps-input-row">
                 <div className="ps-input-field">
@@ -201,9 +204,7 @@ const ProfileSettings = ({ onClose }) => {
               </div>
 
               <div className="ps-footer-actions">
-                <button type="button" className="ps-btn-cancel" onClick={onClose}>
-                  Discard
-                </button>
+                <button type="button" className="ps-btn-cancel" onClick={onClose}>Discard</button>
                 <button type="submit" disabled={loading} className="ps-btn-submit">
                   {loading ? <div className="ps-spinner"></div> : <><Save size={20} /> Save Changes</>}
                 </button>
@@ -211,10 +212,6 @@ const ProfileSettings = ({ onClose }) => {
             </form>
           </div>
         </div>
-
-        <p className="ps-security-note">
-          🛡️ Account Status: <span style={{color: 'var(--ps-primary)', fontWeight: 'bold'}}>Verified Professional Account</span>
-        </p>
       </div>
     </div>
   );

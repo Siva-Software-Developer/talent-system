@@ -37,6 +37,9 @@ def create_user(name, email, password, role="employee", job=None):
         "job": job,
         "profile_pic": None,
         "dob": None,
+        "mobile": None,          # ✨ New Field Added
+        "domain": "Engineering", # ✨ New Field Added
+        "joinedDate": datetime.now().strftime('%Y-%m-%d'), # ✨ New Field Added
         "phone": None,
         "address": None,
         "is_verified": False,
@@ -50,6 +53,10 @@ def get_user(email):
 
 
 def update_user(email, data):
+    """
+    Machi, intha function dhaan Profile Settings data-va 
+    permanent-ah database-la save pannum.
+    """
     data["updated_at"] = datetime.now()
     return users.update_one({"email": email}, {"$set": data})
 
@@ -213,9 +220,16 @@ def update_settings(data):
 def run_migrations():
     print("Running DB migrations...")
 
+    # ✨ Updated Migration to include new Profile Fields
     users.update_many(
         {"profile_pic": {"$exists": False}},
-        {"$set": {"profile_pic": None, "dob": None}}
+        {"$set": {
+            "profile_pic": None, 
+            "dob": None, 
+            "mobile": None, 
+            "domain": "Engineering", 
+            "joinedDate": "2024-01-01"
+        }}
     )
 
     tasks_db.update_many(
@@ -228,7 +242,7 @@ def run_migrations():
         {"$set": {"reactions": {}}}
     )
 
-    print("✅ DB Ready 🔥")
+    print("✅ DB Ready 🔥 Puthiya Fields Ellam Add Panniyaachu Machi!")
 
 # ============================================================
 # ▶ RUN

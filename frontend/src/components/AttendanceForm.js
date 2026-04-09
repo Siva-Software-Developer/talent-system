@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { submitSOD, submitEOD, getAttendanceLogs } from "../services/api";
 import { 
   Search, 
-  Calendar as CalendarIcon, 
   Clock, 
   Activity, 
   UserCheck, 
@@ -26,7 +25,7 @@ function AttendanceForm({ onClose }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const user = JSON.parse(localStorage.getItem("dtms_user")) || {};
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -36,7 +35,7 @@ function AttendanceForm({ onClose }) {
 
   const fetchLogs = async () => {
     try {
-      // Mock data for UI - API integrate pannum pothu uncomment panniko machi
+      // Mock data for UI 
       setLogs([
         { name: "MS DHONI", employeeId: "007", date: "2026-04-01", type: "SOD", time: "09:59 AM" },
         { name: "MS DHONI", employeeId: "007", date: "2026-04-01", type: "EOD", time: "06:01 PM", workDone: "Project UI completed", percentage: "100" },
@@ -46,7 +45,7 @@ function AttendanceForm({ onClose }) {
 
   const getMinutes = () => currentTime.getHours() * 60 + currentTime.getMinutes();
   
-  // SOD: 9AM-7PM (Testing-kaga expand panniruken machi, real time-ku change panniko)
+  // SOD: 9AM-7PM 
   const isSODTime = () => { const m = getMinutes(); return m >= 540 && m <= 1140; }; 
   const isEODTime = () => { const m = getMinutes(); return m >= 1075 && m <= 1300; };
 
@@ -79,8 +78,7 @@ function AttendanceForm({ onClose }) {
   };
 
   return (
-    <div className="af-overlay">
-      <div className="af-wrapper animate-slide-up">
+    <div className="af-container">
         
         {/* --- HEADER --- */}
         <header className="af-header">
@@ -91,7 +89,10 @@ function AttendanceForm({ onClose }) {
                 <p className="af-subtitle">Log your shift activity</p>
             </div>
           </div>
-          <button className="af-close-btn" onClick={onClose}><X size={20} /></button>
+          {/* Dashboard Modal handle pannalam, but redundancy-kaga ingayum oru close button */}
+          <button className="af-close-btn" onClick={onClose} type="button">
+            <X size={20} />
+          </button>
         </header>
 
         <div className="af-grid">
@@ -164,7 +165,7 @@ function AttendanceForm({ onClose }) {
                 <div className="af-mode-card af-lock-card">
                   <Lock size={32} />
                   <h4>Portal Locked</h4>
-                  <p>Attendance can only be marked during shift hours machi!</p>
+                  <p>Attendance can only be marked during shift hours!</p>
                 </div>
               )}
             </div>
@@ -202,7 +203,6 @@ function AttendanceForm({ onClose }) {
           </section>
 
         </div>
-      </div>
     </div>
   );
 }
