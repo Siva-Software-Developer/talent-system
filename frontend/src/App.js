@@ -19,13 +19,10 @@ function App() {
   const [role, setRole] = useState("");
   const [user, setUser] = useState(null);
 
-  // ✅ LOGIN STATUS
   const isLoggedIn = !!user;
 
-  // 🛠️ INITIAL LOAD (FIXED)
+  // ✅ INITIAL LOAD (ONLY ONCE)
   useEffect(() => {
-    document.body.className = `dtms-theme-${theme}`;
-
     const savedUser = localStorage.getItem("dtms_user");
 
     if (savedUser) {
@@ -42,14 +39,17 @@ function App() {
         setPage("login");
       }
     }
-  }, []); // 🔥 FIXED (removed theme dependency)
+  }, []);
+
+  // ✅ HANDLE THEME CHANGE (FIXED ESLINT ISSUE)
+  useEffect(() => {
+    document.body.className = `dtms-theme-${theme}`;
+    localStorage.setItem("dtms-theme", theme);
+  }, [theme]);
 
   // 🌓 THEME TOGGLE
   const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("dtms-theme", newTheme);
-    document.body.className = `dtms-theme-${newTheme}`;
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
   };
 
   // 🚪 LOGOUT
@@ -73,7 +73,7 @@ function App() {
       {/* ✅ DASHBOARD VIEW */}
       {isLoggedIn && page === "dashboard" ? (
         <div className="dtms-dashboard-view animate-fade-in">
-          {role?.toLowerCase() === "admin" ? (   // 🔥 FIXED ROLE CHECK
+          {role?.toLowerCase() === "admin" ? (
             <AdminDashboard 
               user={user} 
               onLogout={handleLogout} 
@@ -113,14 +113,14 @@ function App() {
               </div>
             )}
 
-            {/* 🔑 LOGIN (FIXED) */}
+            {/* 🔑 LOGIN */}
             {page === "login" && (
               <Login setPage={(p) => {
                 if (p === "dashboard") {
                   const userData = JSON.parse(localStorage.getItem("dtms_user"));
 
                   if (userData && userData.email) {
-                    setUser(userData); // 🔥 IMPORTANT FIX
+                    setUser(userData);
                     setRole(userData.role || "employee");
                     setPage("dashboard");
                   } else {
