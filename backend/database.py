@@ -3,21 +3,20 @@ from datetime import datetime
 import time
 
 # ============================================================
-# 🔗 DATABASE CONNECTION
+# 🔗 DATABASE CONNECTION (UPDATED TO CLOUD)
 # ============================================================
 
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient("mongodb+srv://admin:Admin%40123@cluster0.gqssgyy.mongodb.net/talent_db")
 db = client["talent_db"]
 
 # ============================================================
-# 📂 COLLECTIONS (IMPORTANT - SAME NAME USED IN app.py)
+# 📂 COLLECTIONS
 # ============================================================
 
 users = db["users"]
 tasks_db = db["tasks"]
 notifications = db["notifications"]
 
-# ✅ IMPORTANT FIX (used in app.py directly)
 sod = db["sod"]
 eod = db["eod"]
 messages = db["messages"]
@@ -37,9 +36,9 @@ def create_user(name, email, password, role="employee", job=None):
         "job": job,
         "profile_pic": None,
         "dob": None,
-        "mobile": None,          # ✨ New Field Added
-        "domain": "Engineering", # ✨ New Field Added
-        "joinedDate": datetime.now().strftime('%Y-%m-%d'), # ✨ New Field Added
+        "mobile": None,
+        "domain": "Engineering",
+        "joinedDate": datetime.now().strftime('%Y-%m-%d'),
         "phone": None,
         "address": None,
         "is_verified": False,
@@ -53,10 +52,6 @@ def get_user(email):
 
 
 def update_user(email, data):
-    """
-    Machi, intha function dhaan Profile Settings data-va 
-    permanent-ah database-la save pannum.
-    """
     data["updated_at"] = datetime.now()
     return users.update_one({"email": email}, {"$set": data})
 
@@ -84,7 +79,10 @@ def update_progress(task_id, progress, text):
     return tasks_db.update_one(
         {"id": task_id},
         {
-            "$set": {"progress": progress, "status": status},
+            "$set": {
+                "progress": progress,
+                "status": status
+            },
             "$push": {
                 "daily_updates": {
                     "date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -121,7 +119,7 @@ def is_overdue(task):
     return False
 
 # ============================================================
-# 📊 ATTENDANCE (SOD / EOD)
+# 📊 ATTENDANCE
 # ============================================================
 
 def log_sod(data):
@@ -181,7 +179,7 @@ def get_notifications(email):
     return list(notifications.find({"user_email": email}))
 
 # ============================================================
-# 🛠️ HELP & SUPPORT
+# 🛠️ HELP
 # ============================================================
 
 def raise_ticket(data):
@@ -214,20 +212,19 @@ def update_settings(data):
     return settings.update_one({}, {"$set": data}, upsert=True)
 
 # ============================================================
-# 🚀 MIGRATION (SAFE INIT)
+# 🚀 MIGRATION
 # ============================================================
 
 def run_migrations():
     print("Running DB migrations...")
 
-    # ✨ Updated Migration to include new Profile Fields
     users.update_many(
         {"profile_pic": {"$exists": False}},
         {"$set": {
-            "profile_pic": None, 
-            "dob": None, 
-            "mobile": None, 
-            "domain": "Engineering", 
+            "profile_pic": None,
+            "dob": None,
+            "mobile": None,
+            "domain": "Engineering",
             "joinedDate": "2024-01-01"
         }}
     )
@@ -242,7 +239,7 @@ def run_migrations():
         {"$set": {"reactions": {}}}
     )
 
-    print("✅ DB Ready 🔥 Puthiya Fields Ellam Add Panniyaachu Machi!")
+    print("✅ Database ready!")
 
 # ============================================================
 # ▶ RUN

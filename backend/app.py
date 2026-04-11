@@ -702,5 +702,8 @@ def admin_settings():
 
 
 # ================= RUN =================
+# ================= RUN =================
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    import os
+    PORT = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=PORT, debug=True)
