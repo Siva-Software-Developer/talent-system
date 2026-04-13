@@ -4,7 +4,7 @@ import axios from "axios";
    🚀 API CONFIGURATION & INTERCEPTORS
    ========================================== */
 const API = axios.create({
-  baseURL: "http://localhost:5000", // ✅ FIX: removed /api (backend supports both)
+  baseURL: "https://talent-system-1.onrender.com", // ✅ FIX: removed /api (backend supports both)
   headers: {
     "Content-Type": "application/json",
   },
