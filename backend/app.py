@@ -30,9 +30,13 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'rynixsoftintern@gmail.com'
-app.config['MAIL_PASSWORD'] = 'bbkdtalmklbxhpav'
-app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+import os
+
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
+
+if not app.config['MAIL_USERNAME'] or not app.config['MAIL_PASSWORD']:
+    print("⚠️ MAIL CONFIG ERROR: Environment variables not set")app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
 mail = Mail(app)
 
