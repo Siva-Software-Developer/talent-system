@@ -1,6 +1,7 @@
-flask
-flask-cors
-pymongo
-dnspython
-flask-mail
-gunicorn
+Flask==3.0.3
+Flask-Cors==4.0.1
+pymongo==4.7.2
+dnspython==2.6.1
+Flask-Mail==0.9.1
+gunicorn==22.0.0
+python-dotenv==1.0.1

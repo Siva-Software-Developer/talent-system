@@ -1,12 +1,18 @@
 from pymongo import MongoClient
 from datetime import datetime
+import os
 import time
 
 # ============================================================
-# 🔗 DATABASE CONNECTION (UPDATED TO CLOUD)
+# 🔗 DATABASE CONNECTION (ENV BASED - FIXED)
 # ============================================================
 
-client = MongoClient("mongodb+srv://admin:Admin%40123@cluster0.gqssgyy.mongodb.net/talent_db")
+MONGO_URI = os.environ.get("MONGO_URI")
+
+if not MONGO_URI:
+    raise Exception("❌ MONGO_URI not set in environment variables")
+
+client = MongoClient(MONGO_URI)
 db = client["talent_db"]
 
 # ============================================================

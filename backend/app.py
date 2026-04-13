@@ -1,13 +1,22 @@
+import os
+from dotenv import load_dotenv
+
+# ✅ LOAD .env
+load_dotenv()
+
+# ✅ FALLBACK (IMPORTANT FIX)
+if not os.environ.get("MONGO_URI"):
+    os.environ["MONGO_URI"] = "mongodb+srv://admin:Admin%40123@cluster0.gqssgyy.mongodb.net/talent_db"
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from database import users, notifications, tasks_db, db # db added for help collections
+from database import users, notifications, tasks_db, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import re
 import random
 import time
-import os
 from datetime import datetime
 
 app = Flask(__name__)
@@ -26,20 +35,26 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROFILE_FOLDER'] = PROFILE_FOLDER # 🆕 Save profile pictures here
 
 # ================= MAIL CONFIG =================
+
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-import os
 
 app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 
-if not app.config['MAIL_USERNAME'] or not app.config['MAIL_PASSWORD']:
-    print("⚠️ MAIL CONFIG ERROR: Environment variables not set")app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+# ✅ DEBUG (TEMP - REMOVE LATER)
+print("MAIL USER:", app.config['MAIL_USERNAME'])
+print("MAIL PASS:", app.config['MAIL_PASSWORD'])
+
+# ✅ FIX: Always set default sender properly
+app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+
+# ✅ OPTIONAL DEBUG MODE
+app.config['MAIL_DEBUG'] = True
 
 mail = Mail(app)
-
 # ================= 🆕 FILE UPLOAD UTILS (INTEGRATED) =================
 
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
